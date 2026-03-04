@@ -5,10 +5,13 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
+*.egg
+.eggs/
 
 # Virtual Environment
 .venv/
 venv/
+env/
 ENV/
 
 # Testing
@@ -30,26 +33,57 @@ settings.json
 # Environment
 .env
 .env.local
+.env.*
 
 # Build/Distribution
 dist/
 build/
 releases/
+*.exe
+*.msi
+*.msix
+*.appx
+*.spec
 
 # IDE
+.claude/
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
+ehthumbs.db
 
 # Standard-Patterns
 PLAN.txt
 _archive/
 _private/
 
-# Project-specific
+# BACH Interne Steuerungsdateien
 AUFGABEN.txt
+TEST.txt
+TESTS.txt
+TESTERGEBNISSE.txt
+BUGREPORT.md
+BUGREPORT_*.md
+DIAGNOSE_REPORT.md
+DIAGNOSE_REPORT.json
+ANALYSE_*.md
+
+# Entwicklungs- und Backup-Ordner
+_BACKUP/
+_DEV/
+_WARTUNG/
+_alt/
+
+# Sensible Daten
+credentials.json
+client_secret*.json
+token.json
+*.pem
+*.key
