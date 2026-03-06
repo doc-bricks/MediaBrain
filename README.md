@@ -44,6 +44,10 @@ GUI Layer        Dashboard, Bibliotheken, Favoriten, Blacklist, Einstellungen
 
 Vollstaendiges Architekturdiagramm: [ARCH.md](ARCH.md)
 
+## Screenshots
+
+![Hauptfenster](screenshots/main.png)
+
 ## Installation
 
 ### Voraussetzungen
@@ -87,3 +91,29 @@ Dieses Projekt verwendet PyQt6 (GPL).
 
 **Autor:** Lukas Geiger
 **Letzte Aktualisierung:** Maerz 2026
+
+---
+
+## English
+
+A local media hub with automatic detection of Netflix, YouTube, Spotify content and local media files.
+
+### Features
+
+- Unified media library
+- Streaming service detection
+- Local file management
+- Search and filter
+
+### Installation
+
+```bash
+git clone https://github.com/lukisch/REL-PUB_MediaBrain.git
+cd REL-PUB_MediaBrain
+pip install -r requirements.txt
+python "MediaBrain.py"
+```
+
+### License
+
+See [LICENSE](LICENSE) for details.
