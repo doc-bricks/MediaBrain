@@ -94,4 +94,4 @@ This project uses PyQt6 (GPL).
 
 ---
 
-Deutsche Version: [README.de.md](README.de.md)
+🇩🇪 [Deutsche Version](README.de.md)
