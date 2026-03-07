@@ -1,56 +1,56 @@
 # MediaBrain
 
-Lokale, datenschutzfreundliche Medien-Zentrale, die Inhalte aus allen Quellen automatisch erkennt, sammelt, organisiert und zugaenglich macht.
-Vereint Streaming-Dienste, lokale Dateien, Browser-Aktivitaet und App-Nutzung in einer einzigen Oberflaeche.
+A local, privacy-friendly media hub that automatically detects, collects, organizes, and makes accessible content from all sources.
+Unifies streaming services, local files, browser activity, and app usage in a single interface.
 
 ## Features
 
-### Medienerkennung
-- Netflix-Titel
-- YouTube-Videos
-- Spotify-Tracks
-- Lokale Dateien (mp3, mp4, mkv, pdf, epub ...)
+### Media Detection
+- Netflix titles
+- YouTube videos
+- Spotify tracks
+- Local files (mp3, mp4, mkv, pdf, epub ...)
 
-### Medienverwaltung
-- Favoriten und Blacklist (mit Ablaufdatum)
-- Sortierung, Filter, Detailansicht
-- Chronik (erstellt, zuletzt geoeffnet, Oeffnungsmethode)
+### Media Management
+- Favorites and blacklist (with expiration date)
+- Sorting, filters, detail view
+- History (created, last opened, opening method)
 
-### Oeffnen-Logik
-- Browser, App-Deep-Links, lokale Dateien
-- Auto-Modus (merkt sich letzte Methode)
+### Open Logic
+- Browser, app deep links, local files
+- Auto mode (remembers last method)
 
 ### Dashboard
-- Favoriten und zuletzt geoeffnet
-- Globale Suche, Statistiken, Quick Actions
+- Favorites and recently opened
+- Global search, statistics, quick actions
 
-### Bibliotheken
-- Filme, Serien, Musik, Clips
-- Podcasts, Hoerbuecher, Dokumente
+### Libraries
+- Movies, series, music, clips
+- Podcasts, audiobooks, documents
 
-### Weitere Features
-- Light/Dark Theme mit dynamischem Umschalten
-- Reaktives Refresh-System (Background -> Queue -> MainThread -> GUI)
-- Blacklist-Verwaltung mit Filter und Dauer
+### Additional Features
+- Light/Dark theme with dynamic switching
+- Reactive refresh system (Background -> Queue -> MainThread -> GUI)
+- Blacklist management with filter and duration
 
-## Architektur
+## Architecture
 
 ```
 Core Layer       Database, MediaManager, BlacklistManager, EventProcessor
 Provider Layer   Netflix, YouTube, Spotify, Local
 Background Layer FileIndexer, BrowserWatcher, AppWatcher, TrayApp
-GUI Layer        Dashboard, Bibliotheken, Favoriten, Blacklist, Einstellungen
+GUI Layer        Dashboard, Libraries, Favorites, Blacklist, Settings
 ```
 
-Vollstaendiges Architekturdiagramm: [ARCH.md](ARCH.md)
+Full architecture diagram: [ARCH.md](ARCH.md)
 
 ## Screenshots
 
-![Hauptfenster](screenshots/main.png)
+![Main Window](screenshots/main.png)
 
 ## Installation
 
-### Voraussetzungen
+### Prerequisites
 
 - Python >= 3.8
 - PyQt6
@@ -61,17 +61,17 @@ Vollstaendiges Architekturdiagramm: [ARCH.md](ARCH.md)
 pip install -r requirements.txt
 ```
 
-### Konfiguration
+### Configuration
 
-Beim ersten Start wird `settings.json` erstellt. Eine Beispielkonfiguration liegt in `settings.example.json`.
+On first launch, `settings.json` is created. A sample configuration is available in `settings.example.json`.
 
-## Verwendung
+## Usage
 
 ```bash
 python MediaBrain.py
 ```
 
-Oder ueber die Batch-Datei:
+Or via the batch file:
 
 ```bash
 START.bat
@@ -79,41 +79,19 @@ START.bat
 
 ## Roadmap
 
-Offene Punkte und geplante Features: [ROADMAP.md](ROADMAP.md)
+Open items and planned features: [ROADMAP.md](ROADMAP.md)
 
-## Lizenz
+## License
 
-GPL v3 - Siehe [LICENSE](LICENSE)
+GPL v3 - See [LICENSE](LICENSE)
 
-Dieses Projekt verwendet PyQt6 (GPL).
-
----
-
-**Autor:** Lukas Geiger
-**Letzte Aktualisierung:** Maerz 2026
+This project uses PyQt6 (GPL).
 
 ---
 
-## English
+**Author:** Lukas Geiger
+**Last Updated:** March 2026
 
-A local media hub with automatic detection of Netflix, YouTube, Spotify content and local media files.
+---
 
-### Features
-
-- Unified media library
-- Streaming service detection
-- Local file management
-- Search and filter
-
-### Installation
-
-```bash
-git clone https://github.com/lukisch/REL-PUB_MediaBrain.git
-cd REL-PUB_MediaBrain
-pip install -r requirements.txt
-python "MediaBrain.py"
-```
-
-### License
-
-See [LICENSE](LICENSE) for details.
+Deutsche Version: [README.de.md](README.de.md)
