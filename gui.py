@@ -99,49 +99,45 @@ class MediaItemWidget(QFrame):
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
 
-        self.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Raised)
-        self.setStyleSheet("padding: 8px;")
+        self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Plain)
+        self.setStyleSheet("MediaItemWidget { padding: 4px; margin: 1px 0; }")
 
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
+        layout.setContentsMargins(6, 4, 6, 4)
+        layout.setSpacing(8)
         self.setLayout(layout)
 
-        # Titel + Icon
-        title_row = QHBoxLayout()
-        icon = QLabel("🎬" if item.type == "movie" else "🎵" if item.type == "music" else "📺")
-        icon.setFixedWidth(30)
-        title_row.addWidget(icon)
+        # Icon
+        type_icons = {"movie": "🎬", "music": "🎵", "series": "📺", "clip": "🎞"}
+        icon_text = type_icons.get(item.type, "📄")
+        icon = QLabel(icon_text)
+        icon.setFixedSize(QSize(28, 28))
+        icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon.setStyleSheet("font-size: 18px;")
+        layout.addWidget(icon)
 
-        title_label = QLabel(f"{item.title} ({item.source})")
-        title_label.setStyleSheet("font-weight: bold; font-size: 14px;")
-        title_row.addWidget(title_label)
-        title_row.addStretch()
-        layout.addLayout(title_row)
+        # Titel + Source
+        title_label = QLabel(f"<b>{item.title}</b>  <span style='color: gray; font-size: 11px;'>({item.source})</span>")
+        title_label.setTextFormat(Qt.TextFormat.RichText)
+        title_label.setWordWrap(True)
+        layout.addWidget(title_label, 1)
 
-        # Buttons
-        btn_row = QHBoxLayout()
-        open_btn = QPushButton("Öffnen")
-        open_btn.clicked.connect(self.open_item)
-        btn_row.addWidget(open_btn)
-
+        # Buttons kompakt
         fav_btn = QPushButton("★" if item.is_favorite else "☆")
+        fav_btn.setFixedSize(QSize(28, 28))
+        fav_btn.setToolTip("Favorit")
         fav_btn.clicked.connect(self.toggle_favorite)
-        btn_row.addWidget(fav_btn)
+        layout.addWidget(fav_btn)
+
+        open_btn = QPushButton("Öffnen")
+        open_btn.setFixedHeight(28)
+        open_btn.clicked.connect(self.open_item)
+        layout.addWidget(open_btn)
 
         details_btn = QPushButton("Details")
+        details_btn.setFixedHeight(28)
         details_btn.clicked.connect(self.open_detail_page)
-        btn_row.addWidget(details_btn)
-
-        btn_row.addStretch()
-        layout.addLayout(btn_row)
-
-        # Details Panel
-        details = QLabel(
-            f"Beschreibung: {item.description or '-'}\n"
-            f"Staffel: {item.season or '-'} | Episode: {item.episode or '-'}\n"
-            f"Künstler: {item.artist or '-'} | Album: {item.album or '-'}"
-        )
-        self.details_panel = CollapsiblePanel("Details anzeigen", details)
-        layout.addWidget(self.details_panel)
+        layout.addWidget(details_btn)
 
         # Kontextmenü
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
