@@ -80,6 +80,12 @@ class Database:
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_type_blacklist ON media_items(type, blacklist_flag);")
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_favorite_blacklist ON media_items(is_favorite, blacklist_flag);")
 
+        # Index für source-Spalte (wird in Provider-Suche und Filtern verwendet)
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_source ON media_items(source);")
+
+        # Composite Index für Blacklist-Ablaufprüfung (procedure_code + blacklisted_at)
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_blacklist_expiry ON media_items(blacklist_flag, procedure_code, blacklisted_at);")
+
         self.conn.commit()
 
     def execute(self, query: str, params: Tuple = ()) -> sqlite3.Cursor:
@@ -96,6 +102,27 @@ class Database:
         cur = self.conn.execute(query, params)
         self.conn.commit()
         return cur
+
+    def execute_batch(self, operations: list):
+        """
+        Führt mehrere SQL-Operationen in einer einzigen Transaktion aus.
+
+        Deutlich schneller als einzelne execute()-Aufrufe, da nur ein
+        COMMIT am Ende stattfindet statt pro Statement.
+
+        Args:
+            operations: Liste von (query, params) Tupeln
+
+        Raises:
+            Exception: Bei Fehler wird ein Rollback durchgeführt
+        """
+        try:
+            for query, params in operations:
+                self.conn.execute(query, params)
+            self.conn.commit()
+        except Exception:
+            self.conn.rollback()
+            raise
 
     def fetchall(self, query: str, params: Tuple = ()) -> List[sqlite3.Row]:
         """
@@ -206,29 +233,35 @@ class BlacklistManager:
         return None
 
     def refresh_blacklist(self):
-        """Prüft beim Start, ob Blacklist-Einträge abgelaufen sind."""
+        """Prüft beim Start, ob Blacklist-Einträge abgelaufen sind.
+
+        Optimiert: Sammelt alle abgelaufenen IDs und führt ein einzelnes
+        Batch-UPDATE aus statt N einzelner UPDATEs.
+        """
         rows = self.db.fetchall("""
             SELECT id, blacklisted_at, procedure_code
             FROM media_items
-            WHERE blacklist_flag = 1
+            WHERE blacklist_flag = 1 AND procedure_code < 6 AND blacklisted_at IS NOT NULL
         """)
 
+        expired_ids = []
+        now = datetime.now()
         for row in rows:
-            if not row["blacklisted_at"]:
-                continue
-
             start = datetime.fromisoformat(row["blacklisted_at"])
             expiry = self._expiry_date(start, row["procedure_code"])
 
-            if expiry and datetime.now() > expiry:
-                # Sperre abgelaufen
-                self.db.execute("""
-                    UPDATE media_items
-                    SET blacklist_flag = 0,
-                        procedure_code = 0,
-                        blacklisted_at = NULL
-                    WHERE id = ?
-                """, (row["id"],))
+            if expiry and now > expiry:
+                expired_ids.append(row["id"])
+
+        if expired_ids:
+            placeholders = ",".join("?" * len(expired_ids))
+            self.db.execute(f"""
+                UPDATE media_items
+                SET blacklist_flag = 0,
+                    procedure_code = 0,
+                    blacklisted_at = NULL
+                WHERE id IN ({placeholders})
+            """, tuple(expired_ids))
 
     def set_blacklist(self, item_id: int, enabled: bool, procedure_code: int = 6):
         """Setzt oder entfernt Blacklist-Status."""
@@ -406,20 +439,84 @@ class MediaManager:
             # print(f"[DB] Erfolgreich gespeichert: {data['title']}") # Debug Print
         except Exception as e:
             print(f"[DB] INSERT ERROR: {e}")
-    def list_by_type(self, media_type):
+    def list_by_type(self, media_type, limit=500):
         """
         Gibt eine Liste von MediaItems für einen bestimmten Typ (movie, music, etc.) zurück.
         Filtert geblacklistete Einträge heraus.
         Sortiert Favoriten nach oben.
+
+        Args:
+            media_type: Medientyp (movie, series, music, clip, etc.)
+            limit: Maximale Anzahl Ergebnisse (Default: 500)
         """
         rows = self.db.fetchall("""
             SELECT *
             FROM media_items
             WHERE type = ? AND blacklist_flag = 0
             ORDER BY is_favorite DESC, last_opened_at DESC
-        """, (media_type,))
-        
+            LIMIT ?
+        """, (media_type, limit))
+
         # Wandelt die Datenbank-Zeilen in MediaItem-Objekte um
+        return [MediaItem(r) for r in rows]
+
+    def list_favorites(self, limit=100):
+        """
+        Gibt alle Favoriten zurück (nicht geblacklistet).
+
+        Args:
+            limit: Maximale Anzahl Ergebnisse (Default: 100)
+        """
+        rows = self.db.fetchall("""
+            SELECT *
+            FROM media_items
+            WHERE is_favorite = 1 AND blacklist_flag = 0
+            ORDER BY last_opened_at DESC
+            LIMIT ?
+        """, (limit,))
+        return [MediaItem(r) for r in rows]
+
+    def list_recent(self, limit=10):
+        """
+        Gibt die zuletzt geöffneten Items zurück (nicht geblacklistet).
+
+        Args:
+            limit: Maximale Anzahl Ergebnisse (Default: 10)
+        """
+        rows = self.db.fetchall("""
+            SELECT *
+            FROM media_items
+            WHERE blacklist_flag = 0
+            ORDER BY last_opened_at DESC
+            LIMIT ?
+        """, (limit,))
+        return [MediaItem(r) for r in rows]
+
+    def list_blacklisted(self, source=None, procedure_code=None, limit=200):
+        """
+        Gibt geblacklistete Items mit optionalen Filtern zurück.
+        Filter werden in SQL angewendet statt in Python.
+
+        Args:
+            source: Optional - Provider-Filter (z.B. 'netflix', 'youtube')
+            procedure_code: Optional - Dauer-Code Filter (1-6)
+            limit: Maximale Anzahl Ergebnisse (Default: 200)
+        """
+        query = "SELECT * FROM media_items WHERE blacklist_flag = 1"
+        params = []
+
+        if source:
+            query += " AND source = ?"
+            params.append(source)
+
+        if procedure_code is not None:
+            query += " AND procedure_code = ?"
+            params.append(procedure_code)
+
+        query += " ORDER BY blacklisted_at DESC LIMIT ?"
+        params.append(limit)
+
+        rows = self.db.fetchall(query, tuple(params))
         return [MediaItem(r) for r in rows]
 # ============================================================
 # 5. EventProcessor

@@ -521,14 +521,10 @@ class FavoritesView(QWidget):
                 if widget:
                     widget.deleteLater()
 
-            rows = self.media_manager.db.fetchall("""
-                SELECT * FROM media_items
-                WHERE is_favorite = 1 AND blacklist_flag = 0
-                ORDER BY last_opened_at DESC
-            """)
+            # Optimiert: Nutzt MediaManager-Methode mit LIMIT statt raw Query ohne LIMIT
+            items = self.media_manager.list_favorites(limit=100)
 
-            for row in rows:
-                item = MediaItem(row)
+            for item in items:
                 widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
                 self.container_layout.addWidget(widget)
 
@@ -736,16 +732,11 @@ class DashboardView(QWidget):
             fav_label.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 10px;")
             self.container_layout.addWidget(fav_label)
 
-            fav_rows = self.media_manager.db.fetchall("""
-                SELECT * FROM media_items
-                WHERE is_favorite = 1 AND blacklist_flag = 0
-                ORDER BY last_opened_at DESC
-                LIMIT 5
-            """)
+            # Optimiert: Nutzt MediaManager-Methoden statt raw Queries
+            fav_items = self.media_manager.list_favorites(limit=5)
 
-            if fav_rows:
-                for row in fav_rows:
-                    item = MediaItem(row)
+            if fav_items:
+                for item in fav_items:
                     widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
                     self.container_layout.addWidget(widget)
             else:
@@ -756,16 +747,10 @@ class DashboardView(QWidget):
             recent_label.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 20px;")
             self.container_layout.addWidget(recent_label)
 
-            recent_rows = self.media_manager.db.fetchall("""
-                SELECT * FROM media_items
-                WHERE blacklist_flag = 0
-                ORDER BY last_opened_at DESC
-                LIMIT 10
-            """)
+            recent_items = self.media_manager.list_recent(limit=10)
 
-            if recent_rows:
-                for row in recent_rows:
-                    item = MediaItem(row)
+            if recent_items:
+                for item in recent_items:
                     widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
                     self.container_layout.addWidget(widget)
             else:
@@ -944,40 +929,29 @@ class BlacklistView(QWidget):
             if widget:
                 widget.deleteLater()
 
-        # Daten laden
-        rows = self.media_manager.db.fetchall("""
-            SELECT *
-            FROM media_items
-            WHERE blacklist_flag = 1
-            ORDER BY blacklisted_at DESC
-        """)
-
-        # Filter anwenden
+        # Filter-Werte ermitteln
         provider_filter = self.provider_filter.currentText()
         duration_filter = self.duration_filter.currentText()
         expiry_filter = self.expiry_filter.currentText()
 
-        for row in rows:
-            item = MediaItem(row)
+        # SQL-Filter für Provider und Dauer (statt Python-seitiger Filterung)
+        source = None if provider_filter == "Alle Provider" else provider_filter
 
-            # Provider-Filter
-            if provider_filter != "Alle Provider" and item.source != provider_filter:
-                continue
+        code_map = {
+            "1 Tag": 1, "1 Woche": 2, "1 Monat": 3,
+            "3 Monate": 4, "1 Jahr": 5, "Für immer": 6
+        }
+        procedure_code = code_map.get(duration_filter)
 
-            # Dauer-Filter
-            if duration_filter != "Alle Dauern":
-                code_map = {
-                    "1 Tag": 1,
-                    "1 Woche": 2,
-                    "1 Monat": 3,
-                    "3 Monate": 4,
-                    "1 Jahr": 5,
-                    "Für immer": 6
-                }
-                if item.procedure_code != code_map[duration_filter]:
-                    continue
+        # Optimiert: Filter in SQL statt Python-Iteration über alle Items
+        items = self.media_manager.list_blacklisted(
+            source=source,
+            procedure_code=procedure_code,
+            limit=200
+        )
 
-            # Ablauf-Filter
+        for item in items:
+            # Ablauf-Filter (muss in Python bleiben wegen Datumsberechnung)
             if item.blacklisted_at:
                 start = datetime.fromisoformat(item.blacklisted_at)
                 expiry = self._expiry_date(start, item.procedure_code)
@@ -1061,18 +1035,31 @@ class BlacklistView(QWidget):
             QMessageBox.warning(self, "Fehler", f"Dauer konnte nicht geaendert werden: {e}")
 
     def _remove_expired(self):
+        """Entfernt alle abgelaufenen Blacklist-Einträge in einem Batch-UPDATE."""
         try:
             rows = self.media_manager.db.fetchall("""
                 SELECT id, blacklisted_at, procedure_code
                 FROM media_items
-                WHERE blacklist_flag = 1
+                WHERE blacklist_flag = 1 AND procedure_code < 6 AND blacklisted_at IS NOT NULL
             """)
 
+            expired_ids = []
+            now = datetime.now()
             for row in rows:
                 start = datetime.fromisoformat(row["blacklisted_at"])
                 expiry = self._expiry_date(start, row["procedure_code"])
-                if expiry and datetime.now() > expiry:
-                    self.blacklist_manager.set_blacklist(row["id"], False)
+                if expiry and now > expiry:
+                    expired_ids.append(row["id"])
+
+            if expired_ids:
+                placeholders = ",".join("?" * len(expired_ids))
+                self.media_manager.db.execute(f"""
+                    UPDATE media_items
+                    SET blacklist_flag = 0,
+                        procedure_code = 0,
+                        blacklisted_at = NULL
+                    WHERE id IN ({placeholders})
+                """, tuple(expired_ids))
 
             self.refresh()
         except Exception as e:
@@ -1197,31 +1184,31 @@ class MainWindow(QMainWindow):
         sidebar.setObjectName("Sidebar") # Für CSS Styling
 
         btn_dash = QPushButton("Übersicht")
-        btn_dash.clicked.connect(lambda: self.stack.setCurrentWidget(self.dashboard))
+        btn_dash.clicked.connect(lambda: self._switch_view(self.dashboard))
         sidebar_layout.addWidget(btn_dash)
 
         btn_movies = QPushButton("Filme")
-        btn_movies.clicked.connect(lambda: self.stack.setCurrentWidget(self.library_movies))
+        btn_movies.clicked.connect(lambda: self._switch_view(self.library_movies))
         sidebar_layout.addWidget(btn_movies)
 
         btn_series = QPushButton("Serien")
-        btn_series.clicked.connect(lambda: self.stack.setCurrentWidget(self.library_series))
+        btn_series.clicked.connect(lambda: self._switch_view(self.library_series))
         sidebar_layout.addWidget(btn_series)
 
         btn_music = QPushButton("Musik")
-        btn_music.clicked.connect(lambda: self.stack.setCurrentWidget(self.library_music))
+        btn_music.clicked.connect(lambda: self._switch_view(self.library_music))
         sidebar_layout.addWidget(btn_music)
 
         btn_clips = QPushButton("Clips")
-        btn_clips.clicked.connect(lambda: self.stack.setCurrentWidget(self.library_clips))
+        btn_clips.clicked.connect(lambda: self._switch_view(self.library_clips))
         sidebar_layout.addWidget(btn_clips)
 
         btn_favs = QPushButton("Favoriten")
-        btn_favs.clicked.connect(lambda: self.stack.setCurrentWidget(self.favorites))
+        btn_favs.clicked.connect(lambda: self._switch_view(self.favorites))
         sidebar_layout.addWidget(btn_favs)
 
         btn_blacklist = QPushButton("Blacklist")
-        btn_blacklist.clicked.connect(lambda: self.stack.setCurrentWidget(self.blacklist_view))
+        btn_blacklist.clicked.connect(lambda: self._switch_view(self.blacklist_view))
         sidebar_layout.addWidget(btn_blacklist)
 
         btn_settings = QPushButton("Einstellungen")
@@ -1289,19 +1276,38 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentWidget(self.detail_view)
            
     def refresh_all_views(self):
-        """Aktualisiert alle Views - mit Error-Handling für Robustheit."""
+        """Aktualisiert Views - optimiert: nur sichtbare View sofort, Rest lazy.
+
+        Statt alle 7 Views gleichzeitig zu refreshen (7+ DB-Queries),
+        wird nur die aktuell sichtbare View sofort aktualisiert.
+        Die anderen Views werden beim nächsten Anzeigen refreshed (dirty-Flag).
+        """
         try:
-            # Ruft jetzt die echten refresh() Methoden auf
-            if hasattr(self.dashboard, 'refresh'): self.dashboard.refresh()
-            if hasattr(self.library_movies, 'refresh'): self.library_movies.refresh()
-            if hasattr(self.library_series, 'refresh'): self.library_series.refresh()
-            if hasattr(self.library_music, 'refresh'): self.library_music.refresh()
-            if hasattr(self.library_clips, 'refresh'): self.library_clips.refresh()
-            if hasattr(self.favorites, 'refresh'): self.favorites.refresh()
-            if hasattr(self.blacklist_view, 'refresh'): self.blacklist_view.refresh()
+            current = self.stack.currentWidget()
+
+            # Alle Views als 'dirty' markieren
+            all_views = [
+                self.dashboard, self.library_movies, self.library_series,
+                self.library_music, self.library_clips, self.favorites,
+                self.blacklist_view
+            ]
+            for view in all_views:
+                view._needs_refresh = True
+
+            # Nur die aktuelle View sofort refreshen
+            if current and hasattr(current, 'refresh'):
+                current.refresh()
+                current._needs_refresh = False
         except Exception as e:
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"GUI konnte nicht vollständig aktualisiert werden: {e}")
+
+    def _switch_view(self, view):
+        """Wechselt zur gewünschten View und refreshed sie, falls sie dirty ist."""
+        self.stack.setCurrentWidget(view)
+        if getattr(view, '_needs_refresh', False) and hasattr(view, 'refresh'):
+            view.refresh()
+            view._needs_refresh = False
 
     def open_settings(self):
         self.settings_window = SettingsWindow()
