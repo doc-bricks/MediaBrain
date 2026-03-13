@@ -3,8 +3,11 @@ providers.py
 Erkennt Medien anhand von URL oder Fenstertitel.
 Version: 2.0 - Erweitert mit Disney+, Amazon Prime, Apple TV+
 """
+import logging
 import re
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # ============================================================
 # Basis-Klasse
@@ -534,7 +537,7 @@ class ProviderRegistry:
             if p.matches(source_string):
                 result = p.extract_info(source_string)
                 if result:
-                    print(f"[Registry] Treffer! Provider: {p.name} -> {source_string[:40]}...")
+                    logger.debug(f"[Registry] Treffer! Provider: {p.name} -> {source_string[:40]}...")
                     return result
         return None
     

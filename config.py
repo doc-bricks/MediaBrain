@@ -9,9 +9,12 @@ Zentrale Konfigurationen für MediaBrain:
 
 from pathlib import Path
 import json
+import logging
 import shutil
 import os
 import time
+
+logger = logging.getLogger(__name__)
 
 
 # ============================================================
@@ -96,23 +99,23 @@ class Config:
                     self.settings = json.load(f)
                 return  # Erfolg
             except Exception as e:
-                print(f"[Config] settings.json korrupt: {e}")
-        
+                logger.error(f"[Config] settings.json korrupt: {e}")
+
         # 2. Versuch: Backup laden
         backup_path = SETTINGS_PATH.with_suffix(".json.bak")
         if backup_path.exists():
             try:
-                print(f"[Config] Versuche Recovery aus {backup_path.name}...")
+                logger.warning(f"[Config] Versuche Recovery aus {backup_path.name}...")
                 with open(backup_path, "r", encoding="utf-8") as f:
                     self.settings = json.load(f)
                 # Backup ist gut -> Wiederherstellen
                 self.save()
                 return  # Erfolg
             except Exception as e:
-                print(f"[Config] Backup auch korrupt: {e}")
+                logger.error(f"[Config] Backup auch korrupt: {e}")
 
         # 3. Fallback: Defaults
-        print("[Config] Lade Defaults (keine gultige Config gefunden).")
+        logger.warning("[Config] Lade Defaults (keine gultige Config gefunden).")
         self.settings = DEFAULT_SETTINGS.copy()
         self.save()
 
@@ -131,7 +134,7 @@ class Config:
                 backup_path = SETTINGS_PATH.with_suffix(".json.bak")
                 shutil.copy2(SETTINGS_PATH, backup_path)
             except Exception as e:
-                print(f"[Config] Backup fehlgeschlagen: {e}")
+                logger.warning(f"[Config] Backup fehlgeschlagen: {e}")
 
         # 2. Atomic Write
         tmp_path = SETTINGS_PATH.with_suffix(".tmp")
@@ -154,7 +157,7 @@ class Config:
                     time.sleep(0.2)
             
         except Exception as e:
-            print(f"[Config] Speichern fehlgeschlagen: {e}")
+            logger.error(f"[Config] Speichern fehlgeschlagen: {e}")
             if tmp_path.exists():
                 try:
                     os.remove(tmp_path)

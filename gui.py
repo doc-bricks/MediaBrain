@@ -7,6 +7,10 @@ gui.py – Erweiterte GUI für MediaBrain
 - Verbesserte MediaItemWidgets
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QListWidget, QListWidgetItem, QPushButton, QLineEdit,
@@ -211,7 +215,7 @@ class MediaItemWidget(QFrame):
 
     def refresh_metadata(self):
         # Später: ID3/MP4 neu einlesen
-        print("[Meta] Metadaten aktualisieren (noch nicht implementiert)")
+        logger.debug("[Meta] Metadaten aktualisieren (noch nicht implementiert)")
 
     def open_context_menu(self, pos):
         menu = QMenu(self)

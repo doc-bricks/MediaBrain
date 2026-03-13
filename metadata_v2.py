@@ -8,6 +8,7 @@ Erweiterte Metadaten-Fetch-Funktionen für MediaBrain.
 
 Version: 2.0
 """
+import logging
 import requests
 import re
 import os
@@ -16,6 +17,8 @@ import sqlite3
 import hashlib
 from pathlib import Path
 from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
 
 # Optionale Imports
 try:
@@ -89,7 +92,7 @@ def fetch_opengraph(url):
         return data
 
     except Exception as e:
-        print(f"[Metadata] OpenGraph Fehler bei {url}: {e}")
+        logger.error(f"[Metadata] OpenGraph Fehler bei {url}: {e}")
         return None
 
 # ============================================================
@@ -135,10 +138,10 @@ class TMDbFetcher:
                     return data["results"][0]  # Bester Treffer
                     
         except Exception as e:
-            print(f"[TMDb] Suche fehlgeschlagen: {e}")
-        
+            logger.error(f"[TMDb] Suche fehlgeschlagen: {e}")
+
         return None
-    
+
     def search_tv(self, title, year=None):
         """Sucht nach einer Serie."""
         if not self.is_available():
@@ -165,8 +168,8 @@ class TMDbFetcher:
                     return data["results"][0]
                     
         except Exception as e:
-            print(f"[TMDb] TV-Suche fehlgeschlagen: {e}")
-        
+            logger.error(f"[TMDb] TV-Suche fehlgeschlagen: {e}")
+
         return None
     
     def get_movie_details(self, movie_id):
@@ -185,8 +188,8 @@ class TMDbFetcher:
                 return response.json()
                 
         except Exception as e:
-            print(f"[TMDb] Details fehlgeschlagen: {e}")
-        
+            logger.error(f"[TMDb] Details fehlgeschlagen: {e}")
+
         return None
     
     def format_result(self, tmdb_data, media_type="movie"):
@@ -267,8 +270,8 @@ class OMDbFetcher:
                     return data
                     
         except Exception as e:
-            print(f"[OMDb] Suche fehlgeschlagen: {e}")
-        
+            logger.error(f"[OMDb] Suche fehlgeschlagen: {e}")
+
         return None
     
     def format_result(self, omdb_data):
@@ -336,8 +339,8 @@ class MusicBrainzFetcher:
                     return data["artists"][0]
                     
         except Exception as e:
-            print(f"[MusicBrainz] Suche fehlgeschlagen: {e}")
-        
+            logger.error(f"[MusicBrainz] Suche fehlgeschlagen: {e}")
+
         return None
     
     def search_release(self, title, artist=None):
@@ -360,8 +363,8 @@ class MusicBrainzFetcher:
                     return data["releases"][0]
                     
         except Exception as e:
-            print(f"[MusicBrainz] Release-Suche fehlgeschlagen: {e}")
-        
+            logger.error(f"[MusicBrainz] Release-Suche fehlgeschlagen: {e}")
+
         return None
     
     def get_cover_art(self, release_id):

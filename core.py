@@ -9,9 +9,12 @@ Zentrale Logik für MediaBrain:
 """
 
 import sqlite3
+import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional, Union, Tuple, List
+
+logger = logging.getLogger(__name__)
 
 # Optional imports (für Tests ohne externe Dependencies)
 try:
@@ -21,7 +24,7 @@ except ImportError:
     HAS_METADATA = False
 
 try:
-    import config as cfg  # Fuer auto_fetch_metadata Toggle
+    import config  # Fuer auto_fetch_metadata Toggle
     HAS_CONFIG = True
 except ImportError:
     HAS_CONFIG = False
@@ -149,6 +152,26 @@ class Database:
             sqlite3.Row Objekt oder None
         """
         return self.conn.execute(query, params).fetchone()
+
+    def close(self):
+        """Schließt die Datenbankverbindung."""
+        if self.conn:
+            self.conn.close()
+            self.conn = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
+    def __del__(self):
+        """Safety-Net: Verbindung beim Garbage-Collect schließen."""
+        try:
+            self.close()
+        except Exception:
+            pass
 
 
 # ============================================================
@@ -386,7 +409,7 @@ class MediaManager:
         # Wenn es fehlt (LocalProvider), nehmen wir False an, außer es ist explizit True.
         
         # Pruefe auto_fetch_metadata Setting (nur wenn config verfügbar)
-        auto_fetch_enabled = HAS_CONFIG and cfg.config.get("auto_fetch_metadata", True)
+        auto_fetch_enabled = HAS_CONFIG and config.config.get("auto_fetch_metadata", True)
         should_fetch_meta = HAS_METADATA and auto_fetch_enabled and data.get("has_real_id", False) and origin == "external"
 
         if should_fetch_meta:
@@ -406,7 +429,7 @@ class MediaManager:
                         if meta.get("description"): data["description"] = meta["description"]
                         if meta.get("thumbnail_url"): data["thumbnail_url"] = meta["thumbnail_url"]
                 except Exception as e:
-                    print(f"[MediaManager] Warnung: Metadaten-Fehler: {e}")
+                    logger.warning(f"[MediaManager] Metadaten-Fehler: {e}")
 
         # Insert (DB)
         try:
@@ -438,7 +461,7 @@ class MediaManager:
             ))
             # print(f"[DB] Erfolgreich gespeichert: {data['title']}") # Debug Print
         except Exception as e:
-            print(f"[DB] INSERT ERROR: {e}")
+            logger.error(f"[DB] INSERT ERROR: {e}")
     def list_by_type(self, media_type, limit=500):
         """
         Gibt eine Liste von MediaItems für einen bestimmten Typ (movie, music, etc.) zurück.
@@ -652,7 +675,7 @@ class OpenHandler:
 
             self._update_open_method(item, "local")
         except Exception as e:
-            print("Fehler beim Öffnen lokaler Datei:", e)
+            logger.error("Fehler beim Öffnen lokaler Datei: %s", e)
 
     # --------------------------------------------------------
     # Hilfsfunktionen
