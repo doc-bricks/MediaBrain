@@ -365,9 +365,11 @@ class SearchEngine:
             query += " AND last_opened_at >= ?"
             params.append(cutoff)
         
-        # Sortierung
+        # Sortierung (Whitelist gegen SQL Injection)
+        allowed_sort_fields = {"last_opened_at", "title", "created_at", "rating", "type", "source"}
+        sort_field = criteria.sort_field if criteria.sort_field in allowed_sort_fields else "last_opened_at"
         order_dir = "DESC" if criteria.sort_desc else "ASC"
-        query += f" ORDER BY {criteria.sort_field} {order_dir}"
+        query += f" ORDER BY {sort_field} {order_dir}"
         
         # Limit
         query += " LIMIT 500"
@@ -417,7 +419,7 @@ class SearchProfileManager:
                     data = json.load(f)
                     for name, criteria_dict in data.items():
                         self.profiles[name] = SearchCriteria.from_dict(criteria_dict)
-            except:
+            except json.JSONDecodeError:
                 pass
                 
     def _save(self):

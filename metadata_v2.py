@@ -46,7 +46,7 @@ def get_api_key(service):
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 config = json.load(f)
                 return config.get("api_keys", {}).get(service, "")
-        except:
+        except (json.JSONDecodeError, IOError):
             pass
     
     return ""
@@ -381,8 +381,8 @@ class MusicBrainzFetcher:
                 images = data.get("images", [])
                 if images:
                     return images[0].get("image")
-                    
-        except:
+
+        except (KeyError, IndexError, AttributeError):
             pass
         
         return None

@@ -200,7 +200,18 @@ class MediaItemWidget(QFrame):
 
     def delete_file(self):
         try:
+            from PyQt6.QtWidgets import QMessageBox
             import os
+
+            reply = QMessageBox.question(
+                self, "Datei loeschen",
+                f"Soll die Datei wirklich unwiderruflich geloescht werden?\n\n{self.item.local_path}",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+
             if os.path.exists(self.item.local_path):
                 os.remove(self.item.local_path)
 
@@ -243,7 +254,7 @@ class MediaItemWidget(QFrame):
 
         if self.item.blacklist_flag == 1:
             unblack = QAction("Blacklist entfernen")
-            unblack.triggered.connect(lambda: self.blacklist_manager.set_blacklist(self.item.id, False))
+            unblack.triggered.connect(lambda: (self.blacklist_manager.set_blacklist(self.item.id, False), notify_gui_refresh()))
             menu.addAction(unblack)
 
         menu.addSeparator()
@@ -477,7 +488,7 @@ class LibraryView(QWidget):
         bl_menu = menu.addMenu("Auf Blacklist setzen")
         # (Hier Codes wie in deinem alten Code einfügen)
         act_forever = QAction("Für immer blockieren", self)
-        act_forever.triggered.connect(lambda: self.blacklist_manager.set_blacklist(item.id, True, 6))
+        act_forever.triggered.connect(lambda: (self.blacklist_manager.set_blacklist(item.id, True, 6), self.refresh()))
         bl_menu.addAction(act_forever)
 
         menu.exec(self.list_view.mapToGlobal(pos))
@@ -1161,7 +1172,121 @@ class MediaDetailView(QWidget):
             from PyQt6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geaendert werden: {e}")
 # ============================================================
-# 8. MainWindow mit Sidebar
+# 8. Statistik-View
+# ============================================================
+
+class StatsView(QWidget):
+    """Statistik-Panel fuer MediaBrain.
+
+    Zeigt:
+    - Gesamtanzahl Medien in der Bibliothek
+    - Medien pro Typ (movie, series, music, clip, etc.)
+    - Geschaetzter Speicherverbrauch lokaler Dateien
+    - Top 5 zuletzt hinzugefuegte Medien
+    """
+
+    def __init__(self, media_manager: MediaManager, parent=None):
+        super().__init__(parent)
+        self.media_manager = media_manager
+        self._needs_refresh = True
+        self._build_ui()
+
+    def _build_ui(self):
+        """Erstellt das Layout des Statistik-Panels."""
+        import os
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
+
+        header = QLabel("<h2>📊 Statistiken & Dashboard</h2>")
+        layout.addWidget(header)
+
+        # --- Kennzahlen-Grid ---
+        self.lbl_total = QLabel("Gesamtanzahl Medien: –")
+        self.lbl_total.setStyleSheet("font-size: 16px; font-weight: bold;")
+        layout.addWidget(self.lbl_total)
+
+        self.lbl_storage = QLabel("Geschaetzter Speicher (lokal): –")
+        layout.addWidget(self.lbl_storage)
+
+        # --- Medien pro Typ ---
+        layout.addWidget(QLabel("<b>Medien nach Typ:</b>"))
+        self.type_list = QListWidget()
+        self.type_list.setMaximumHeight(160)
+        layout.addWidget(self.type_list)
+
+        # --- Zuletzt hinzugefuegt ---
+        layout.addWidget(QLabel("<b>Zuletzt hinzugefuegt (Top 5):</b>"))
+        self.recent_list = QListWidget()
+        self.recent_list.setMaximumHeight(150)
+        layout.addWidget(self.recent_list)
+
+        btn_refresh = QPushButton("🔄 Aktualisieren")
+        btn_refresh.clicked.connect(self.refresh)
+        layout.addWidget(btn_refresh)
+
+        layout.addStretch()
+
+    def refresh(self):
+        """Laedt die Statistiken neu aus der Datenbank."""
+        import os
+        db = self.media_manager.db
+
+        try:
+            # 1. Gesamtanzahl
+            total_row = db.conn.execute(
+                "SELECT COUNT(*) AS cnt FROM media_items WHERE blacklist_flag = 0"
+            ).fetchone()
+            total = total_row["cnt"] if total_row else 0
+            self.lbl_total.setText(f"Gesamtanzahl Medien: {total}")
+
+            # 2. Medien pro Typ
+            type_rows = db.conn.execute(
+                "SELECT type, COUNT(*) AS cnt FROM media_items WHERE blacklist_flag = 0 GROUP BY type ORDER BY cnt DESC"
+            ).fetchall()
+            self.type_list.clear()
+            type_icons = {
+                "movie": "🎬", "series": "📺", "music": "🎵",
+                "clip": "🎞️", "podcast": "🎙️", "audiobook": "📚", "document": "📄"
+            }
+            for row in type_rows:
+                icon = type_icons.get(row["type"], "▪")
+                self.type_list.addItem(f"  {icon}  {row['type'].capitalize()}: {row['cnt']}")
+
+            # 3. Speicherverbrauch lokaler Dateien
+            local_rows = db.conn.execute(
+                "SELECT local_path FROM media_items WHERE is_local_file = 1 AND local_path IS NOT NULL AND local_path != ''"
+            ).fetchall()
+            total_bytes = 0
+            for r in local_rows:
+                try:
+                    sz = os.path.getsize(r["local_path"])
+                    total_bytes += sz
+                except OSError:
+                    pass
+            if total_bytes > 0:
+                total_gb = total_bytes / (1024 ** 3)
+                self.lbl_storage.setText(f"Geschaetzter Speicher (lokal): {total_gb:.2f} GB ({len(local_rows)} Dateien)")
+            else:
+                self.lbl_storage.setText(f"Geschaetzter Speicher (lokal): Keine lokalen Dateien erfasst")
+
+            # 4. Zuletzt hinzugefuegt (Top 5)
+            recent_rows = db.conn.execute(
+                "SELECT title, type, created_at FROM media_items ORDER BY created_at DESC LIMIT 5"
+            ).fetchall()
+            self.recent_list.clear()
+            for r in recent_rows:
+                date_str = (r["created_at"] or "")[:10]
+                self.recent_list.addItem(f"  {date_str}  [{r['type']}]  {r['title']}")
+
+        except Exception as e:
+            logger.error(f"StatsView.refresh() Fehler: {e}")
+
+        self._needs_refresh = False
+
+
+# ============================================================
+# 9. MainWindow mit Sidebar
 # ============================================================
 
 class MainWindow(QMainWindow):
@@ -1215,6 +1340,10 @@ class MainWindow(QMainWindow):
         btn_blacklist.clicked.connect(lambda: self._switch_view(self.blacklist_view))
         sidebar_layout.addWidget(btn_blacklist)
 
+        btn_stats = QPushButton("📊 Statistiken")
+        btn_stats.clicked.connect(lambda: self._switch_view(self.stats_view))
+        sidebar_layout.addWidget(btn_stats)
+
         btn_settings = QPushButton("Einstellungen")
         btn_settings.clicked.connect(self.open_settings)
         sidebar_layout.addWidget(btn_settings)
@@ -1259,7 +1388,11 @@ class MainWindow(QMainWindow):
         self.blacklist_view = BlacklistView(media_manager, blacklist_manager)
         self.stack.addWidget(self.blacklist_view)
 
-        # 5. Suche
+        # 5. Statistiken
+        self.stats_view = StatsView(media_manager)
+        self.stack.addWidget(self.stats_view)
+
+        # 6. Suche
         self.global_search = GlobalSearchView(media_manager, blacklist_manager)
         self.stack.addWidget(self.global_search)
         
@@ -1270,11 +1403,16 @@ class MainWindow(QMainWindow):
         self.detail_view = None
 
     def open_detail(self, item):
+        # Alte Detail-View entfernen um Memory Leak zu vermeiden
+        if self.detail_view is not None:
+            self.stack.removeWidget(self.detail_view)
+            self.detail_view.deleteLater()
+
         self.detail_view = MediaDetailView(
             item,
             self.media_manager,
             self.blacklist_manager,
-            back_callback=lambda: self.stack.setCurrentWidget(self.dashboard) # Oder letzte View
+            back_callback=lambda: self.stack.setCurrentWidget(self.dashboard)
         )
         self.stack.addWidget(self.detail_view)
         self.stack.setCurrentWidget(self.detail_view)
@@ -1293,7 +1431,7 @@ class MainWindow(QMainWindow):
             all_views = [
                 self.dashboard, self.library_movies, self.library_series,
                 self.library_music, self.library_clips, self.favorites,
-                self.blacklist_view
+                self.blacklist_view, self.stats_view
             ]
             for view in all_views:
                 view._needs_refresh = True
@@ -1325,5 +1463,5 @@ class MainWindow(QMainWindow):
             if path.exists():
                 with open(path, "r", encoding="utf-8") as f:
                     self.setStyleSheet(f.read())
-        except Exception:
+        except OSError:
             pass

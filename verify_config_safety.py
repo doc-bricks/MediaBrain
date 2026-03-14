@@ -13,11 +13,11 @@ def test_safe_config():
     # Clean state
     if SETTINGS_PATH.exists():
         try: os.remove(SETTINGS_PATH)
-        except: pass
+        except (OSError, PermissionError): pass
     backup_path = SETTINGS_PATH.with_suffix(".json.bak")
     if backup_path.exists():
         try: os.remove(backup_path)
-        except: pass
+        except (OSError, PermissionError): pass
 
     # 1. Init Config (creates defaults)
     conf = Config()
@@ -58,7 +58,7 @@ def test_safe_config():
     try:
         if SETTINGS_PATH.exists(): os.remove(SETTINGS_PATH)
         if backup_path.exists(): os.remove(backup_path)
-    except: pass
+    except (OSError, PermissionError): pass
     
     print("--- END Config Safety Test ---")
 

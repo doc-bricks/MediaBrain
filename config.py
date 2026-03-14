@@ -161,7 +161,7 @@ class Config:
             if tmp_path.exists():
                 try:
                     os.remove(tmp_path)
-                except:
+                except OSError:
                     pass
 
     def get(self, path, default=None):
@@ -172,7 +172,7 @@ class Config:
         keys = path.split(".")
         value = self.settings
         for key in keys:
-            if key not in value:
+            if not isinstance(value, dict) or key not in value:
                 return default
             value = value[key]
         return value
