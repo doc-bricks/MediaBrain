@@ -89,6 +89,29 @@ class Database:
         # Composite Index für Blacklist-Ablaufprüfung (procedure_code + blacklisted_at)
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_blacklist_expiry ON media_items(blacklist_flag, procedure_code, blacklisted_at);")
 
+        # Tag-System (Many-to-Many)
+        self.conn.execute("""
+        CREATE TABLE IF NOT EXISTS tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+            color TEXT DEFAULT '#607D8B',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+        """)
+
+        self.conn.execute("""
+        CREATE TABLE IF NOT EXISTS media_tags (
+            media_id INTEGER NOT NULL,
+            tag_id INTEGER NOT NULL,
+            PRIMARY KEY (media_id, tag_id),
+            FOREIGN KEY (media_id) REFERENCES media_items(id) ON DELETE CASCADE,
+            FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+        );
+        """)
+
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_tags_media ON media_tags(media_id);")
+        self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_tags_tag ON media_tags(tag_id);")
+
         self.conn.commit()
 
     def execute(self, query: str, params: Tuple = ()) -> sqlite3.Cursor:
@@ -541,6 +564,158 @@ class MediaManager:
 
         rows = self.db.fetchall(query, tuple(params))
         return [MediaItem(r) for r in rows]
+
+    def list_by_type_with_tags(self, media_type, tag_ids=None, limit=500):
+        """Lists items by type, optionally filtered by tags.
+
+        Args:
+            media_type: Media type string (movie, series, etc.)
+            tag_ids: Optional list of tag IDs to filter by (AND logic)
+            limit: Maximum results
+        """
+        if not tag_ids:
+            return self.list_by_type(media_type, limit)
+
+        # Items that have ALL specified tags
+        placeholders = ",".join("?" * len(tag_ids))
+        rows = self.db.fetchall(f"""
+            SELECT m.* FROM media_items m
+            INNER JOIN media_tags mt ON m.id = mt.media_id
+            WHERE m.type = ? AND m.blacklist_flag = 0
+              AND mt.tag_id IN ({placeholders})
+            GROUP BY m.id
+            HAVING COUNT(DISTINCT mt.tag_id) = ?
+            ORDER BY m.is_favorite DESC, m.last_opened_at DESC
+            LIMIT ?
+        """, (media_type, *tag_ids, len(tag_ids), limit))
+        return [MediaItem(r) for r in rows]
+
+
+# ============================================================
+# 4b. TagManager
+# ============================================================
+
+class TagManager:
+    """Manages tags and media-tag associations.
+
+    Tags are stored in a separate table with a many-to-many relationship
+    to media_items via the media_tags junction table.
+    """
+
+    def __init__(self, db: Database):
+        self.db = db
+
+    def create_tag(self, name: str, color: str = "#607D8B") -> int:
+        """Creates a new tag. Returns the tag ID.
+
+        Args:
+            name: Tag name (case-insensitive unique)
+            color: Hex color string for display
+
+        Returns:
+            ID of the created or existing tag
+        """
+        name = name.strip()
+        if not name:
+            raise ValueError("Tag name cannot be empty")
+        if len(name) > 50:
+            raise ValueError("Tag name too long (max 50 chars)")
+
+        # Check if exists (COLLATE NOCASE handles case)
+        existing = self.db.fetchone(
+            "SELECT id FROM tags WHERE name = ?", (name,)
+        )
+        if existing:
+            return existing["id"]
+
+        cur = self.db.execute(
+            "INSERT INTO tags (name, color) VALUES (?, ?)",
+            (name, color)
+        )
+        return cur.lastrowid
+
+    def delete_tag(self, tag_id: int):
+        """Deletes a tag and all its associations."""
+        self.db.execute("DELETE FROM media_tags WHERE tag_id = ?", (tag_id,))
+        self.db.execute("DELETE FROM tags WHERE id = ?", (tag_id,))
+
+    def rename_tag(self, tag_id: int, new_name: str):
+        """Renames a tag."""
+        new_name = new_name.strip()
+        if not new_name:
+            raise ValueError("Tag name cannot be empty")
+        self.db.execute(
+            "UPDATE tags SET name = ? WHERE id = ?", (new_name, tag_id)
+        )
+
+    def list_tags(self) -> list:
+        """Returns all tags with usage count, sorted by usage (descending).
+
+        Returns:
+            List of dicts with keys: id, name, color, count
+        """
+        rows = self.db.fetchall("""
+            SELECT t.id, t.name, t.color, COUNT(mt.media_id) AS count
+            FROM tags t
+            LEFT JOIN media_tags mt ON t.id = mt.tag_id
+            GROUP BY t.id
+            ORDER BY count DESC, t.name ASC
+        """)
+        return [dict(row) for row in rows]
+
+    def add_tag_to_media(self, media_id: int, tag_id: int):
+        """Associates a tag with a media item (idempotent)."""
+        try:
+            self.db.execute(
+                "INSERT OR IGNORE INTO media_tags (media_id, tag_id) VALUES (?, ?)",
+                (media_id, tag_id)
+            )
+        except Exception as e:
+            logger.warning("Could not add tag %d to media %d: %s", tag_id, media_id, e)
+
+    def remove_tag_from_media(self, media_id: int, tag_id: int):
+        """Removes a tag association from a media item."""
+        self.db.execute(
+            "DELETE FROM media_tags WHERE media_id = ? AND tag_id = ?",
+            (media_id, tag_id)
+        )
+
+    def get_tags_for_media(self, media_id: int) -> list:
+        """Returns all tags for a specific media item.
+
+        Returns:
+            List of dicts with keys: id, name, color
+        """
+        rows = self.db.fetchall("""
+            SELECT t.id, t.name, t.color
+            FROM tags t
+            INNER JOIN media_tags mt ON t.id = mt.tag_id
+            WHERE mt.media_id = ?
+            ORDER BY t.name
+        """, (media_id,))
+        return [dict(row) for row in rows]
+
+    def get_media_ids_by_tags(self, tag_ids: list) -> list:
+        """Returns media IDs that have ALL specified tags (AND logic).
+
+        Args:
+            tag_ids: List of tag IDs
+
+        Returns:
+            List of media item IDs
+        """
+        if not tag_ids:
+            return []
+        placeholders = ",".join("?" * len(tag_ids))
+        rows = self.db.fetchall(f"""
+            SELECT media_id FROM media_tags
+            WHERE tag_id IN ({placeholders})
+            GROUP BY media_id
+            HAVING COUNT(DISTINCT tag_id) = ?
+        """, (*tag_ids, len(tag_ids)))
+        return [row["media_id"] for row in rows]
+
+
 # ============================================================
 # 5. EventProcessor
 # ============================================================

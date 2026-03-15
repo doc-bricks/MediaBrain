@@ -206,14 +206,14 @@ from threading import Thread"""
                     artist=getattr(self.item, 'artist', None)
                 )
                 # UI im Main-Thread aktualisieren
-                from PyQt6.QtCore import QMetaObject, Qt, Q_ARG
+                from PySide6.QtCore import QMetaObject, Qt, Q_ARG
                 QMetaObject.invokeMethod(
                     self, "_update_online_metadata",
                     Qt.ConnectionType.QueuedConnection,
                     Q_ARG(object, result)
                 )
             except Exception as e:
-                from PyQt6.QtCore import QMetaObject, Qt, Q_ARG
+                from PySide6.QtCore import QMetaObject, Qt, Q_ARG
                 QMetaObject.invokeMethod(
                     self, "_update_online_metadata",
                     Qt.ConnectionType.QueuedConnection,
@@ -274,7 +274,7 @@ from threading import Thread"""
 
     def _fetch_and_save_metadata(self):
         """Holt Metadaten und speichert sie in der Datenbank."""
-        from PyQt6.QtWidgets import QMessageBox
+        from PySide6.QtWidgets import QMessageBox
         try:
             from metadata_v2 import MetadataFetcher
             fetcher = MetadataFetcher()

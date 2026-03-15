@@ -6,13 +6,13 @@ Verbindet GUI, Datenbank und Hintergrundprozesse.
 import queue
 import os
 import sys
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QTimer # Import nach oben verschoben
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QTimer # Import nach oben verschoben
 
 # Projektordner zum Pfad hinzufügen
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from core import Database, MediaManager, BlacklistManager, EventProcessor
+from core import Database, MediaManager, BlacklistManager, EventProcessor, TagManager
 from gui import MainWindow
 import background
 import config
@@ -21,11 +21,12 @@ from logger_system import logger
 class AppController:
     def __init__(self):
         logger.info("Starte MediaBrain...")
-        
+
         # 1. Core Komponenten
         self.db = Database(config.DB_PATH)
         self.media_manager = MediaManager(self.db)
         self.blacklist_manager = BlacklistManager(self.db)
+        self.tag_manager = TagManager(self.db)
 
         # 2. Event Processor (Verbindung zwischen Background & GUI)
         self.event_processor = EventProcessor(self.media_manager)
@@ -33,7 +34,7 @@ class AppController:
 
         # 3. GUI starten
         self.app = QApplication(sys.argv)
-        self.window = MainWindow(self.media_manager, self.blacklist_manager)
+        self.window = MainWindow(self.media_manager, self.blacklist_manager, self.tag_manager)
         
         # GUI Refresh verbinden
         self.event_processor.on_data_changed = self.window.refresh_all_views

@@ -9,14 +9,14 @@ Erweiterte Suchfunktionalität für MediaBrain.
 Version: 1.0
 """
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QComboBox, QCheckBox, QFrame, QGroupBox,
     QDateEdit, QSpinBox, QListWidget, QListWidgetItem,
     QDialog, QDialogButtonBox, QFormLayout, QCompleter
 )
-from PyQt6.QtCore import Qt, pyqtSignal, QDate, QStringListModel
-from PyQt6.QtGui import QIcon
+from PySide6.QtCore import Qt, Signal, QDate, QStringListModel
+from PySide6.QtGui import QIcon
 
 from datetime import datetime, timedelta
 import json
@@ -127,7 +127,7 @@ class AdvancedSearchBar(QWidget):
     - Erweiterbare Filter-Optionen
     """
     
-    search_triggered = pyqtSignal(SearchCriteria)
+    search_triggered = Signal(SearchCriteria)
     
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -396,9 +396,14 @@ class SearchEngine:
         return [row["title"] for row in rows]
     
     def get_all_tags(self):
-        """Holt alle verwendeten Tags (für Autocomplete)."""
-        # Placeholder - Tags müssten in der DB gespeichert werden
-        return []
+        """Returns all tag names from the database (for autocomplete)."""
+        try:
+            rows = self.db.fetchall(
+                "SELECT DISTINCT name FROM tags ORDER BY name"
+            )
+            return [row["name"] for row in rows]
+        except Exception:
+            return []
 
 # ============================================================
 # 5. SearchProfileManager

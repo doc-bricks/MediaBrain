@@ -11,21 +11,33 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QListWidget, QListWidgetItem, QPushButton, QLineEdit,
     QStackedWidget, QMenu, QScrollArea, QFrame, QSplitter, QTabWidget,
     QComboBox, QCheckBox
 )
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QAction, QIcon
+from PySide6.QtCore import Qt, QSize
+from PySide6.QtGui import QAction, QIcon
 
-from core import MediaManager, MediaItem, BlacklistManager
+from core import MediaManager, MediaItem, BlacklistManager, TagManager
 import config
 from pathlib import Path
+from theme_engine import ThemeEngine
 
 # Erweiterte Suche
 from search_advanced import AdvancedSearchBar, SearchEngine, SearchCriteria
+
+# Global theme engine instance
+_theme_engine = ThemeEngine()
+
+# Tag-Manager Referenz (wird von MainWindow gesetzt, damit alle Views darauf zugreifen koennen)
+_tag_manager: TagManager = None
+
+
+def get_tag_manager() -> TagManager:
+    """Returns the global TagManager instance."""
+    return _tag_manager
 
 def notify_gui_refresh():
     """Benachrichtigt die GUI über Änderungen, ohne MediaBrain.py zu importieren (verhindert Circular Import)."""
@@ -104,7 +116,7 @@ class MediaItemWidget(QFrame):
         self.blacklist_manager = blacklist_manager
 
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Plain)
-        self.setStyleSheet("MediaItemWidget { padding: 4px; margin: 1px 0; }")
+        # Styling handled by central QSS theme
 
         layout = QHBoxLayout()
         layout.setContentsMargins(6, 4, 6, 4)
@@ -117,7 +129,7 @@ class MediaItemWidget(QFrame):
         icon = QLabel(icon_text)
         icon.setFixedSize(QSize(28, 28))
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon.setStyleSheet("font-size: 18px;")
+        icon.setStyleSheet("font-size: 16px;")
         layout.addWidget(icon)
 
         # Titel + Source
@@ -153,7 +165,7 @@ class MediaItemWidget(QFrame):
             handler = OpenHandler(self.media_manager)
             handler.open_item(self.item)
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht oeffnen: {e}")
 
     def open_detail_page(self):
@@ -163,7 +175,7 @@ class MediaItemWidget(QFrame):
             if hasattr(mw, "open_detail"):
                 mw.open_detail(self.item)
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Detailseite konnte nicht geoeffnet werden: {e}")
 
     def toggle_favorite(self):
@@ -175,7 +187,7 @@ class MediaItemWidget(QFrame):
             )
             notify_gui_refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geaendert werden: {e}")
 
 
@@ -195,12 +207,12 @@ class MediaItemWidget(QFrame):
                 folder = os.path.dirname(path)
                 subprocess.Popen(["xdg-open", folder])
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Konnte Datei nicht im Explorer anzeigen: {e}")
 
     def delete_file(self):
         try:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             import os
 
             reply = QMessageBox.question(
@@ -221,7 +233,7 @@ class MediaItemWidget(QFrame):
             )
             notify_gui_refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Datei konnte nicht geloescht werden: {e}")
 
     def refresh_metadata(self):
@@ -290,7 +302,7 @@ class MediaItemWidget(QFrame):
             )
             notify_gui_refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Temporaeres Ausblenden fehlgeschlagen: {e}")
 
     def blacklist(self, code):
@@ -298,13 +310,13 @@ class MediaItemWidget(QFrame):
             self.blacklist_manager.set_blacklist(self.item.id, True, code)
             notify_gui_refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Blacklist-Aktion fehlgeschlagen: {e}")
 
     def fetch_online_metadata(self):
         """Holt Online-Metadaten von TMDb/OMDb/MusicBrainz und aktualisiert den DB-Eintrag."""
         from metadata_v2 import MetadataFetcher
-        from PyQt6.QtWidgets import QMessageBox
+        from PySide6.QtWidgets import QMessageBox
 
         try:
             fetcher = MetadataFetcher()
@@ -367,11 +379,17 @@ class MediaItemWidget(QFrame):
 # Duplikat blacklist() entfernt - existiert bereits in Zeile 285 mit Error-Handling
 
 
-from PyQt6.QtCore import QAbstractListModel, Qt, QModelIndex
-from PyQt6.QtWidgets import QListView, QMenu
+from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, QRect
+from PySide6.QtWidgets import QListView, QMenu, QStyledItemDelegate, QStyle
+from PySide6.QtGui import QPainter, QFont, QColor, QPen, QFontMetrics
 
 # --- 1. Das Daten-Modell (Hält die Daten effizient im Speicher) ---
 class MediaListModel(QAbstractListModel):
+    """Model for virtualized media item lists.
+
+    Stores MediaItem objects and exposes them via Qt roles.
+    Supports efficient bulk-updates via beginResetModel/endResetModel.
+    """
     def __init__(self, media_items=None):
         super().__init__()
         self.media_items = media_items or []
@@ -379,173 +397,457 @@ class MediaListModel(QAbstractListModel):
     def data(self, index, role):
         if not index.isValid() or index.row() >= len(self.media_items):
             return None
-        
+
         item = self.media_items[index.row()]
 
         if role == Qt.ItemDataRole.DisplayRole:
-            # Was im Listen-Eintrag als Text steht
             fav_mark = "★ " if item.is_favorite else ""
             return f"{fav_mark}{item.title} ({item.source})"
-        
+
         if role == Qt.ItemDataRole.ToolTipRole:
-            # Mouseover Info
-            return f"{item.description}\nQuelle: {item.source}"
+            desc = item.description or ""
+            tags_str = ""
+            tm = get_tag_manager()
+            if tm:
+                tags = tm.get_tags_for_media(item.id)
+                if tags:
+                    tags_str = "\nTags: " + ", ".join(t["name"] for t in tags)
+            return f"{desc}\nQuelle: {item.source}{tags_str}"
 
         if role == Qt.ItemDataRole.UserRole:
-            # Gibt das ganze Objekt zurück für Zugriff in der View
             return item
-            
+
         return None
 
-    def rowCount(self, index):
+    def rowCount(self, index=QModelIndex()):
         return len(self.media_items)
 
     def update_data(self, new_items):
-        """Aktualisiert die Liste komplett neu"""
+        """Replaces the entire dataset efficiently."""
         self.beginResetModel()
         self.media_items = new_items
         self.endResetModel()
 
 
+# --- 1b. Custom Delegate fuer reichere Darstellung ---
+class MediaItemDelegate(QStyledItemDelegate):
+    """Paints media items with icon, title, source, and tag chips.
+
+    Replaces the old approach of creating individual QFrame widgets
+    per item. Qt only creates delegate instances for visible rows,
+    so this scales to thousands of items without slowdown.
+    """
+
+    TYPE_ICONS = {
+        "movie": "\U0001f3ac", "music": "\U0001f3b5",
+        "series": "\U0001f4fa", "clip": "\U0001f39e",
+        "podcast": "\U0001f399", "audiobook": "\U0001f4da",
+        "document": "\U0001f4c4", "file": "\U0001f4c4",
+    }
+
+    ROW_HEIGHT = 52
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._tag_cache = {}  # media_id -> list of tag dicts
+
+    def invalidate_tag_cache(self):
+        """Clears the tag cache. Call after tag changes."""
+        self._tag_cache.clear()
+
+    def _get_tags(self, media_id):
+        """Lazy-loads tags for a media item with caching."""
+        if media_id not in self._tag_cache:
+            tm = get_tag_manager()
+            if tm:
+                self._tag_cache[media_id] = tm.get_tags_for_media(media_id)
+            else:
+                self._tag_cache[media_id] = []
+        return self._tag_cache[media_id]
+
+    def sizeHint(self, option, index):
+        return option.rect.size() if option.rect.height() >= self.ROW_HEIGHT else \
+            QSize(option.rect.width(), self.ROW_HEIGHT)
+
+    def paint(self, painter: QPainter, option, index):
+        painter.save()
+
+        item = index.data(Qt.ItemDataRole.UserRole)
+        if not item:
+            super().paint(painter, option, index)
+            painter.restore()
+            return
+
+        # Background (selection / alternating)
+        if option.state & QStyle.StateFlag.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
+            text_color = option.palette.highlightedText().color()
+        else:
+            if index.row() % 2 == 1:
+                painter.fillRect(option.rect, option.palette.alternateBase())
+            text_color = option.palette.text().color()
+
+        rect = option.rect.adjusted(6, 4, -6, -4)
+        x = rect.x()
+        y = rect.y()
+
+        # Icon
+        icon_text = self.TYPE_ICONS.get(item.type, "\U0001f4c4")
+        icon_font = QFont(painter.font())
+        icon_font.setPointSize(14)
+        painter.setFont(icon_font)
+        painter.setPen(QPen(text_color))
+        painter.drawText(x, y, 24, rect.height(), Qt.AlignmentFlag.AlignCenter, icon_text)
+        x += 30
+
+        # Fav star
+        if item.is_favorite:
+            fav_font = QFont(painter.font())
+            fav_font.setPointSize(12)
+            painter.setFont(fav_font)
+            painter.setPen(QPen(QColor("#FFC107")))
+            painter.drawText(x, y, 18, rect.height(), Qt.AlignmentFlag.AlignCenter, "\u2605")
+            x += 20
+
+        # Title (bold)
+        title_font = QFont(option.font)
+        title_font.setBold(True)
+        painter.setFont(title_font)
+        painter.setPen(QPen(text_color))
+        fm = QFontMetrics(title_font)
+        title_text = fm.elidedText(item.title or "Unbekannt", Qt.TextElideMode.ElideRight, rect.width() - (x - rect.x()) - 150)
+        painter.drawText(x, y, rect.width(), rect.height() // 2, Qt.AlignmentFlag.AlignVCenter, title_text)
+        title_width = fm.horizontalAdvance(title_text)
+
+        # Source (gray, smaller)
+        source_font = QFont(option.font)
+        source_font.setPointSize(max(option.font.pointSize() - 1, 8))
+        painter.setFont(source_font)
+        painter.setPen(QPen(QColor("#888888")))
+        source_text = f"  ({item.source})"
+        painter.drawText(x + title_width, y, rect.width(), rect.height() // 2, Qt.AlignmentFlag.AlignVCenter, source_text)
+
+        # Tags (bottom row, small colored chips)
+        tags = self._get_tags(item.id)
+        if tags:
+            tag_font = QFont(option.font)
+            tag_font.setPointSize(max(option.font.pointSize() - 2, 7))
+            painter.setFont(tag_font)
+            tag_x = x
+            tag_y = y + rect.height() // 2 + 2
+            tag_fm = QFontMetrics(tag_font)
+
+            for tag in tags[:5]:  # Max 5 tags shown
+                tag_name = tag["name"]
+                tag_color = QColor(tag.get("color", "#607D8B"))
+                tw = tag_fm.horizontalAdvance(tag_name) + 10
+                th = tag_fm.height() + 4
+
+                if tag_x + tw > rect.right():
+                    break
+
+                # Chip background
+                chip_rect = QRect(tag_x, tag_y, tw, th)
+                painter.setPen(Qt.PenStyle.NoPen)
+                light_color = QColor(tag_color)
+                light_color.setAlpha(40)
+                painter.setBrush(light_color)
+                painter.drawRoundedRect(chip_rect, 3, 3)
+
+                # Chip text
+                painter.setPen(QPen(tag_color))
+                painter.drawText(chip_rect, Qt.AlignmentFlag.AlignCenter, tag_name)
+
+                tag_x += tw + 4
+
+        painter.restore()
+
+
+# --- Helper: Shared context menu builder for QListView-based views ---
+def _build_item_context_menu(parent_widget, item: MediaItem, media_manager, blacklist_manager, refresh_callback):
+    """Builds a standard context menu for a media item.
+
+    Used by LibraryView, FavoritesView, GlobalSearchView to avoid code duplication.
+    Returns the QMenu (caller must exec it).
+    """
+    menu = QMenu(parent_widget)
+
+    # Open
+    act_open = QAction("Oeffnen", parent_widget)
+    act_open.triggered.connect(lambda: _open_media_item(item, media_manager))
+    menu.addAction(act_open)
+
+    # Details
+    act_details = QAction("Details anzeigen", parent_widget)
+    act_details.triggered.connect(lambda: _show_detail(item))
+    menu.addAction(act_details)
+
+    menu.addSeparator()
+
+    # Favorite toggle
+    fav_text = "Favorit entfernen" if item.is_favorite else "Zu Favoriten"
+    act_fav = QAction(fav_text, parent_widget)
+    act_fav.triggered.connect(lambda: (_toggle_fav(item, media_manager), refresh_callback()))
+    menu.addAction(act_fav)
+
+    # Blacklist submenu
+    bl_menu = menu.addMenu("Auf Blacklist setzen")
+    for code, label in [(1, "1 Tag"), (2, "1 Woche"), (3, "1 Monat"),
+                         (4, "3 Monate"), (5, "1 Jahr"), (6, "Fuer immer")]:
+        act = QAction(label, parent_widget)
+        act.triggered.connect(lambda _, c=code: (blacklist_manager.set_blacklist(item.id, True, c), refresh_callback()))
+        bl_menu.addAction(act)
+
+    if item.blacklist_flag == 1:
+        act_unbl = QAction("Blacklist entfernen", parent_widget)
+        act_unbl.triggered.connect(lambda: (blacklist_manager.set_blacklist(item.id, False), refresh_callback()))
+        menu.addAction(act_unbl)
+
+    # Tags submenu
+    tm = get_tag_manager()
+    if tm:
+        menu.addSeparator()
+        tag_menu = menu.addMenu("Tags")
+        current_tags = tm.get_tags_for_media(item.id)
+        current_tag_ids = {t["id"] for t in current_tags}
+        all_tags = tm.list_tags()
+
+        for tag in all_tags:
+            act_tag = QAction(tag["name"], parent_widget)
+            act_tag.setCheckable(True)
+            act_tag.setChecked(tag["id"] in current_tag_ids)
+            act_tag.triggered.connect(
+                lambda checked, t_id=tag["id"]: (
+                    tm.add_tag_to_media(item.id, t_id) if checked
+                    else tm.remove_tag_from_media(item.id, t_id),
+                    refresh_callback()
+                )
+            )
+            tag_menu.addAction(act_tag)
+
+        if all_tags:
+            tag_menu.addSeparator()
+
+        act_new_tag = QAction("+ Neuer Tag...", parent_widget)
+        act_new_tag.triggered.connect(lambda: _create_and_assign_tag(parent_widget, item.id, refresh_callback))
+        tag_menu.addAction(act_new_tag)
+
+    # Local file actions
+    if item.is_local_file:
+        menu.addSeparator()
+        act_explorer = QAction("Im Explorer anzeigen", parent_widget)
+        act_explorer.triggered.connect(lambda: _show_in_explorer(item))
+        menu.addAction(act_explorer)
+
+    return menu
+
+
+def _open_media_item(item, media_manager):
+    """Opens a media item via OpenHandler."""
+    try:
+        from core import OpenHandler
+        handler = OpenHandler(media_manager)
+        handler.open_item(item)
+    except Exception as e:
+        logger.error("Could not open item: %s", e)
+
+
+def _show_detail(item):
+    """Opens the detail view for an item."""
+    mw = QApplication.activeWindow()
+    if hasattr(mw, "open_detail"):
+        mw.open_detail(item)
+
+
+def _toggle_fav(item, media_manager):
+    """Toggles favorite status in DB."""
+    new_val = 0 if item.is_favorite else 1
+    media_manager.db.execute("UPDATE media_items SET is_favorite=? WHERE id=?", (new_val, item.id))
+
+
+def _show_in_explorer(item):
+    """Opens the file location in OS file manager."""
+    try:
+        import subprocess, platform, os
+        path = item.local_path
+        system = platform.system()
+        if system == "Windows":
+            subprocess.Popen(["explorer", "/select,", path])
+        elif system == "Darwin":
+            subprocess.Popen(["open", "-R", path])
+        else:
+            subprocess.Popen(["xdg-open", os.path.dirname(path)])
+    except Exception as e:
+        logger.error("Could not show in explorer: %s", e)
+
+
+def _create_and_assign_tag(parent_widget, media_id, refresh_callback):
+    """Shows an input dialog to create a new tag and assign it to a media item."""
+    from PySide6.QtWidgets import QInputDialog
+    tm = get_tag_manager()
+    if not tm:
+        return
+    name, ok = QInputDialog.getText(parent_widget, "Neuer Tag", "Tag-Name:")
+    if ok and name.strip():
+        try:
+            tag_id = tm.create_tag(name.strip())
+            tm.add_tag_to_media(media_id, tag_id)
+            refresh_callback()
+        except ValueError as e:
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(parent_widget, "Fehler", str(e))
+
+
 # --- 2. Die optimierte View (Zeigt die Liste an) ---
 class LibraryView(QWidget):
+    """Virtualized library view for a specific media type.
+
+    Uses QListView + MediaListModel + MediaItemDelegate for efficient
+    rendering of large media collections. Supports search, tag filtering,
+    and context menu actions.
+    """
+
     def __init__(self, media_type, media_manager: MediaManager, blacklist_manager: BlacklistManager):
         super().__init__()
         self.media_type = media_type
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
-        
-        # Layout
+        self._needs_refresh = True
+
         layout = QVBoxLayout()
         self.setLayout(layout)
 
-        # Suche (Erweitert)
+        # Search bar
         self.search_bar = AdvancedSearchBar()
         self.search_bar.search_triggered.connect(self.apply_search)
         layout.addWidget(self.search_bar)
 
-        # Die leistungsfähige Liste (Ersetzt ScrollArea)
+        # Tag filter row
+        tag_row = QHBoxLayout()
+        tag_row.addWidget(QLabel("Tag-Filter:"))
+        self.tag_combo = QComboBox()
+        self.tag_combo.addItem("Alle", None)
+        self.tag_combo.currentIndexChanged.connect(lambda: self.refresh())
+        tag_row.addWidget(self.tag_combo, 1)
+        layout.addLayout(tag_row)
+
+        # Virtualized list
         self.list_view = QListView()
         self.model = MediaListModel()
+        self.delegate = MediaItemDelegate(self)
         self.list_view.setModel(self.model)
+        self.list_view.setItemDelegate(self.delegate)
         self.list_view.setAlternatingRowColors(True)
-        
-        # Interaktionen
-        self.list_view.doubleClicked.connect(self.open_item_by_click)
+        self.list_view.doubleClicked.connect(self._on_double_click)
         self.list_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.list_view.customContextMenuRequested.connect(self.open_context_menu)
-
+        self.list_view.customContextMenuRequested.connect(self._on_context_menu)
         layout.addWidget(self.list_view)
-        
-        # Initial laden
+
         self.refresh()
 
+    def _refresh_tag_combo(self):
+        """Updates the tag filter combo box with current tags."""
+        tm = get_tag_manager()
+        if not tm:
+            return
+        current_data = self.tag_combo.currentData()
+        self.tag_combo.blockSignals(True)
+        self.tag_combo.clear()
+        self.tag_combo.addItem("Alle", None)
+        for tag in tm.list_tags():
+            self.tag_combo.addItem(f"{tag['name']} ({tag['count']})", tag["id"])
+        # Restore selection
+        if current_data is not None:
+            for i in range(self.tag_combo.count()):
+                if self.tag_combo.itemData(i) == current_data:
+                    self.tag_combo.setCurrentIndex(i)
+                    break
+        self.tag_combo.blockSignals(False)
+
     def refresh(self):
-        # Daten holen
-        items = self.media_manager.list_by_type(self.media_type)
-        # Hier könnte man noch sortieren (analog zu vorher)
+        self._refresh_tag_combo()
+        self.delegate.invalidate_tag_cache()
+        selected_tag_id = self.tag_combo.currentData()
+        tag_ids = [selected_tag_id] if selected_tag_id else None
+        items = self.media_manager.list_by_type_with_tags(self.media_type, tag_ids=tag_ids)
         self.model.update_data(items)
 
     def apply_search(self, criteria: SearchCriteria):
-        # Suche ausführen via SearchEngine (erweitert)
+        self.delegate.invalidate_tag_cache()
         engine = SearchEngine(self.media_manager.db)
-        # Typ erzwingen (da wir in einer Library-View sind)
         criteria.media_type = self.media_type
         results = engine.search(criteria)
         self.model.update_data(results)
 
-    def open_item_by_click(self, index):
+    def _on_double_click(self, index):
         item = self.model.data(index, Qt.ItemDataRole.UserRole)
         if item:
-            from core import OpenHandler
-            handler = OpenHandler(self.media_manager)
-            handler.open_item(item)
+            _open_media_item(item, self.media_manager)
 
-    def open_context_menu(self, pos):
+    def _on_context_menu(self, pos):
         index = self.list_view.indexAt(pos)
         if not index.isValid():
             return
-            
         item = self.model.data(index, Qt.ItemDataRole.UserRole)
-        menu = QMenu(self)
-
-        # Aktionen
-        act_open = QAction("Öffnen", self)
-        act_open.triggered.connect(lambda: self.open_item_by_click(index))
-        menu.addAction(act_open)
-
-        act_fav = QAction("Favorit entfernen" if item.is_favorite else "Zu Favoriten", self)
-        act_fav.triggered.connect(lambda: self.toggle_favorite(item))
-        menu.addAction(act_fav)
-        
-        menu.addSeparator()
-        
-        act_details = QAction("Details anzeigen", self)
-        act_details.triggered.connect(lambda: self.show_details(item))
-        menu.addAction(act_details)
-        
-        # Blacklist Submenü
-        bl_menu = menu.addMenu("Auf Blacklist setzen")
-        # (Hier Codes wie in deinem alten Code einfügen)
-        act_forever = QAction("Für immer blockieren", self)
-        act_forever.triggered.connect(lambda: (self.blacklist_manager.set_blacklist(item.id, True, 6), self.refresh()))
-        bl_menu.addAction(act_forever)
-
+        if not item:
+            return
+        menu = _build_item_context_menu(self, item, self.media_manager, self.blacklist_manager, self.refresh)
         menu.exec(self.list_view.mapToGlobal(pos))
-
-    def toggle_favorite(self, item):
-        new_val = 0 if item.is_favorite else 1
-        self.media_manager.db.execute("UPDATE media_items SET is_favorite=? WHERE id=?", (new_val, item.id))
-        self.refresh() # Liste neu laden
-        
-    def show_details(self, item):
-        # Zugriff auf MainWindow um Detailseite zu öffnen
-        mw = QApplication.activeWindow()
-        if hasattr(mw, "open_detail"):
-            mw.open_detail(item)
 # ============================================================
 # 5. FavoritenView
 # ============================================================
 
 class FavoritesView(QWidget):
+    """Virtualized favorites view using QListView + Model/Delegate pattern."""
+
     def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager):
         super().__init__()
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
+        self._needs_refresh = True
 
         layout = QVBoxLayout()
         self.setLayout(layout)
 
         layout.addWidget(QLabel("Favoriten"))
 
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        layout.addWidget(self.scroll)
-
-        self.container = QWidget()
-        self.container_layout = QVBoxLayout()
-        self.container.setLayout(self.container_layout)
-        self.scroll.setWidget(self.container)
+        self.list_view = QListView()
+        self.model = MediaListModel()
+        self.delegate = MediaItemDelegate(self)
+        self.list_view.setModel(self.model)
+        self.list_view.setItemDelegate(self.delegate)
+        self.list_view.setAlternatingRowColors(True)
+        self.list_view.doubleClicked.connect(self._on_double_click)
+        self.list_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.list_view.customContextMenuRequested.connect(self._on_context_menu)
+        layout.addWidget(self.list_view)
 
         self.refresh()
 
     def refresh(self):
         try:
-            for i in reversed(range(self.container_layout.count())):
-                widget = self.container_layout.itemAt(i).widget()
-                if widget:
-                    widget.deleteLater()
-
-            # Optimiert: Nutzt MediaManager-Methode mit LIMIT statt raw Query ohne LIMIT
+            self.delegate.invalidate_tag_cache()
             items = self.media_manager.list_favorites(limit=100)
-
-            for item in items:
-                widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
-                self.container_layout.addWidget(widget)
-
-            self.container_layout.addStretch()
+            self.model.update_data(items)
         except Exception as e:
-            self.container_layout.addWidget(QLabel(f"Fehler beim Laden der Favoriten: {e}"))
+            logger.error("FavoritesView.refresh() error: %s", e)
+
+    def _on_double_click(self, index):
+        item = self.model.data(index, Qt.ItemDataRole.UserRole)
+        if item:
+            from core import OpenHandler
+            handler = OpenHandler(self.media_manager)
+            handler.open_item(item)
+
+    def _on_context_menu(self, pos):
+        index = self.list_view.indexAt(pos)
+        if not index.isValid():
+            return
+        item = self.model.data(index, Qt.ItemDataRole.UserRole)
+        if not item:
+            return
+        menu = _build_item_context_menu(self, item, self.media_manager, self.blacklist_manager, self.refresh)
+        menu.exec(self.list_view.mapToGlobal(pos))
 
 
 # ============================================================
@@ -553,10 +855,13 @@ class FavoritesView(QWidget):
 # ============================================================
 
 class GlobalSearchView(QWidget):
+    """Virtualized global search view using QListView + Model/Delegate pattern."""
+
     def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager):
         super().__init__()
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
+        self._needs_refresh = False
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -565,35 +870,58 @@ class GlobalSearchView(QWidget):
         self.search_bar.search_triggered.connect(self.apply_search)
         layout.addWidget(self.search_bar)
 
-        self.scroll = QScrollArea()
-        self.scroll.setWidgetResizable(True)
-        layout.addWidget(self.scroll)
+        self.result_label = QLabel("")
+        self.result_label.setObjectName("mutedLabel")
+        layout.addWidget(self.result_label)
 
-        self.container = QWidget()
-        self.container_layout = QVBoxLayout()
-        self.container.setLayout(self.container_layout)
-        self.scroll.setWidget(self.container)
+        self.list_view = QListView()
+        self.model = MediaListModel()
+        self.delegate = MediaItemDelegate(self)
+        self.list_view.setModel(self.model)
+        self.list_view.setItemDelegate(self.delegate)
+        self.list_view.setAlternatingRowColors(True)
+        self.list_view.doubleClicked.connect(self._on_double_click)
+        self.list_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.list_view.customContextMenuRequested.connect(self._on_context_menu)
+        layout.addWidget(self.list_view)
 
     def apply_search(self, criteria: SearchCriteria):
         try:
-            for i in reversed(range(self.container_layout.count())):
-                widget = self.container_layout.itemAt(i).widget()
-                if widget:
-                    widget.deleteLater()
-
             if not criteria.text.strip() and not criteria.provider and not criteria.media_type:
+                self.model.update_data([])
+                self.result_label.setText("")
                 return
 
+            self.delegate.invalidate_tag_cache()
             engine = SearchEngine(self.media_manager.db)
             results = engine.search(criteria)
-
-            for item in results:
-                widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
-                self.container_layout.addWidget(widget)
-
-            self.container_layout.addStretch()
+            self.model.update_data(results)
+            self.result_label.setText(f"{len(results)} Ergebnisse gefunden")
         except Exception as e:
-            self.container_layout.addWidget(QLabel(f"Suchfehler: {e}"))
+            logger.error("GlobalSearchView.apply_search() error: %s", e)
+            self.result_label.setText(f"Suchfehler: {e}")
+
+    def refresh(self):
+        """No-op: search results are not auto-refreshed."""
+        pass
+
+    def _on_double_click(self, index):
+        item = self.model.data(index, Qt.ItemDataRole.UserRole)
+        if item:
+            from core import OpenHandler
+            handler = OpenHandler(self.media_manager)
+            handler.open_item(item)
+
+    def _on_context_menu(self, pos):
+        index = self.list_view.indexAt(pos)
+        if not index.isValid():
+            return
+        item = self.model.data(index, Qt.ItemDataRole.UserRole)
+        if not item:
+            return
+        menu = _build_item_context_menu(self, item, self.media_manager, self.blacklist_manager,
+                                         lambda: self.search_bar._trigger_search())
+        menu.exec(self.list_view.mapToGlobal(pos))
 
 
 # ============================================================
@@ -619,15 +947,22 @@ class SettingsWindow(QWidget):
 
         theme_label = QLabel("Theme:")
         theme_select = QComboBox()
-        theme_select.addItems(["light", "dark"])
-        theme_select.setCurrentText(config.config.get("ui.theme"))
-        def on_theme_change(value):
-            config.config.set("ui.theme", value)
-            # Dynamisch anwenden
-            for widget in QApplication.topLevelWidgets():
-                if hasattr(widget, "apply_theme"):
-                    widget.apply_theme()
-        theme_select.currentTextChanged.connect(on_theme_change)
+        for key, name in _theme_engine.list_themes():
+            theme_select.addItem(name, key)
+        # Set current
+        current_theme = config.config.get("ui.theme", "light")
+        for i in range(theme_select.count()):
+            if theme_select.itemData(i) == current_theme:
+                theme_select.setCurrentIndex(i)
+                break
+        def on_theme_change(index):
+            theme_key = theme_select.itemData(index)
+            if theme_key:
+                config.config.set("ui.theme", theme_key)
+                for widget in QApplication.topLevelWidgets():
+                    if hasattr(widget, "apply_theme"):
+                        widget.apply_theme()
+        theme_select.currentIndexChanged.connect(on_theme_change)
 
         g_layout.addWidget(theme_label)
         g_layout.addWidget(theme_select)
@@ -640,11 +975,11 @@ class SettingsWindow(QWidget):
         p_layout = QVBoxLayout()
         provider.setLayout(p_layout)
 
-        for name in config.config.get("providers").keys():
-            label = QLabel(f"{name} Öffnen mit:")
+        for name in config.config.get("providers", {}).keys():
+            label = QLabel(f"{name} Oeffnen mit:")
             combo = QComboBox()
             combo.addItems(["browser", "app", "local", "auto"])
-            combo.setCurrentText(config.config.get(f"providers.{name}.preferred_open_method"))
+            combo.setCurrentText(config.config.get(f"providers.{name}.preferred_open_method", "auto"))
             combo.currentTextChanged.connect(
                 lambda v, n=name: config.config.set(f"providers.{n}.preferred_open_method", v)
             )
@@ -659,8 +994,8 @@ class SettingsWindow(QWidget):
         s_layout = QVBoxLayout()
         security.setLayout(s_layout)
 
-        delete_checkbox = QCheckBox("Löschen lokaler Dateien erlauben")
-        delete_checkbox.setChecked(config.config.get("allow_file_deletion"))
+        delete_checkbox = QCheckBox("Loeschen lokaler Dateien erlauben")
+        delete_checkbox.setChecked(config.config.get("allow_file_deletion", False))
         delete_checkbox.stateChanged.connect(
             lambda v: config.config.set("allow_file_deletion", bool(v))
         )
@@ -744,7 +1079,7 @@ class DashboardView(QWidget):
 
             # --- A. Favoriten ---
             fav_label = QLabel("Favoriten")
-            fav_label.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 10px;")
+            fav_label.setObjectName("sectionHeader")
             self.container_layout.addWidget(fav_label)
 
             # Optimiert: Nutzt MediaManager-Methoden statt raw Queries
@@ -759,7 +1094,7 @@ class DashboardView(QWidget):
 
             # --- B. Zuletzt geöffnet ---
             recent_label = QLabel("Zuletzt geoeffnet")
-            recent_label.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 20px;")
+            recent_label.setObjectName("sectionHeader")
             self.container_layout.addWidget(recent_label)
 
             recent_items = self.media_manager.list_recent(limit=10)
@@ -811,8 +1146,8 @@ class DashboardView(QWidget):
             filter_parts.append(f"Letzte {criteria.time_filter_days} Tage")
             
         search_info = " | ".join(filter_parts) if filter_parts else "Alle"
-        search_label = QLabel(f"🔍 Suche: {search_info}")
-        search_label.setStyleSheet("font-size: 14px; font-weight: bold; margin: 5px 0;")
+        search_label = QLabel(f"Suche: {search_info}")
+        search_label.setObjectName("sectionHeader")
         self.container_layout.addWidget(search_label)
 
         # Suche ausführen via SearchEngine
@@ -820,7 +1155,7 @@ class DashboardView(QWidget):
         
         if results:
             count_label = QLabel(f"{len(results)} Ergebnisse gefunden")
-            count_label.setStyleSheet("color: gray; font-size: 11px; margin-bottom: 10px;")
+            count_label.setObjectName("mutedLabel")
             self.container_layout.addWidget(count_label)
             
             for media_item in results:
@@ -828,7 +1163,7 @@ class DashboardView(QWidget):
                 self.container_layout.addWidget(widget)
         else:
             no_results = QLabel("Keine Treffer gefunden.")
-            no_results.setStyleSheet("color: gray; padding: 20px;")
+            no_results.setObjectName("mutedLabel")
             self.container_layout.addWidget(no_results)
             
         self.container_layout.addStretch()
@@ -837,11 +1172,11 @@ class DashboardView(QWidget):
 # ============================================================
 
 from datetime import datetime, timedelta
-from PyQt6.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QScrollArea, QHBoxLayout,
     QPushButton, QComboBox, QFrame
 )
-from PyQt6.QtCore import Qt
+from PySide6.QtCore import Qt
 
 class BlacklistView(QWidget):
     def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager):
@@ -854,7 +1189,7 @@ class BlacklistView(QWidget):
         self.setLayout(layout)
 
         title = QLabel("Blacklist-Verwaltung")
-        title.setStyleSheet("font-size: 18px; font-weight: bold;")
+        title.setObjectName("pageTitle")
         layout.addWidget(title)
 
         # -------------------------------------------------------
@@ -991,12 +1326,11 @@ class BlacklistView(QWidget):
     def _create_blacklist_widget(self, item: MediaItem, expired: bool, expiry):
         frame = QFrame()
         frame.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Raised)
-        frame.setStyleSheet("padding: 8px;")
         layout = QVBoxLayout()
         frame.setLayout(layout)
 
         title = QLabel(f"{item.title} ({item.source})")
-        title.setStyleSheet("font-weight: bold; font-size: 14px;")
+        title.setObjectName("sectionHeader")
         layout.addWidget(title)
 
         layout.addWidget(QLabel(f"Sperrcode: {item.procedure_code}"))
@@ -1009,7 +1343,7 @@ class BlacklistView(QWidget):
 
         if expired:
             expired_label = QLabel("Status: Abgelaufen")
-            expired_label.setStyleSheet("color: red; font-weight: bold;")
+            expired_label.setObjectName("dangerLabel")
             layout.addWidget(expired_label)
         else:
             layout.addWidget(QLabel("Status: Aktiv"))
@@ -1038,7 +1372,7 @@ class BlacklistView(QWidget):
             self.blacklist_manager.set_blacklist(item_id, False)
             self.refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Blacklist-Eintrag konnte nicht entfernt werden: {e}")
 
     def _change_duration(self, item_id):
@@ -1046,7 +1380,7 @@ class BlacklistView(QWidget):
             self.blacklist_manager.set_blacklist(item_id, True, 2)
             self.refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Dauer konnte nicht geaendert werden: {e}")
 
     def _remove_expired(self):
@@ -1078,7 +1412,7 @@ class BlacklistView(QWidget):
 
             self.refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Abgelaufene konnten nicht entfernt werden: {e}")
 
     def _remove_all(self):
@@ -1092,7 +1426,7 @@ class BlacklistView(QWidget):
             """)
             self.refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Blacklist konnte nicht geleert werden: {e}")
 
 class MediaDetailView(QWidget):
@@ -1109,7 +1443,7 @@ class MediaDetailView(QWidget):
 
         # Titel
         title = QLabel(item.title)
-        title.setStyleSheet("font-size: 20px; font-weight: bold;")
+        title.setObjectName("pageTitle")
         layout.addWidget(title)
 
         # Thumbnail
@@ -1157,7 +1491,7 @@ class MediaDetailView(QWidget):
             handler = OpenHandler(self.media_manager)
             handler.open_item(self.item)
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht oeffnen: {e}")
 
     def toggle_favorite(self):
@@ -1169,7 +1503,7 @@ class MediaDetailView(QWidget):
             )
             notify_gui_refresh()
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geaendert werden: {e}")
 # ============================================================
 # 8. Statistik-View
@@ -1202,8 +1536,8 @@ class StatsView(QWidget):
         layout.addWidget(header)
 
         # --- Kennzahlen-Grid ---
-        self.lbl_total = QLabel("Gesamtanzahl Medien: –")
-        self.lbl_total.setStyleSheet("font-size: 16px; font-weight: bold;")
+        self.lbl_total = QLabel("Gesamtanzahl Medien: --")
+        self.lbl_total.setObjectName("sectionHeader")
         layout.addWidget(self.lbl_total)
 
         self.lbl_storage = QLabel("Geschaetzter Speicher (lokal): –")
@@ -1290,11 +1624,16 @@ class StatsView(QWidget):
 # ============================================================
 
 class MainWindow(QMainWindow):
-    def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager):
+    def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager, tag_manager: TagManager = None):
         super().__init__()
 
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
+        self.tag_manager = tag_manager
+
+        # Set global tag_manager reference for all views
+        global _tag_manager
+        _tag_manager = tag_manager
 
         self.setWindowTitle("MediaBrain")
         self.resize(
@@ -1441,7 +1780,7 @@ class MainWindow(QMainWindow):
                 current.refresh()
                 current._needs_refresh = False
         except Exception as e:
-            from PyQt6.QtWidgets import QMessageBox
+            from PySide6.QtWidgets import QMessageBox
             QMessageBox.warning(self, "Fehler", f"GUI konnte nicht vollständig aktualisiert werden: {e}")
 
     def _switch_view(self, view):
@@ -1456,12 +1795,14 @@ class MainWindow(QMainWindow):
         self.settings_window.show()
     
     def apply_theme(self):
-        theme = config.config.get("ui.theme", "light")
-        # Pfad ggf. anpassen, falls gui_resources nicht existiert
+        """Applies the current theme from config using ThemeEngine.
+
+        Generates a complete QSS stylesheet and applies it to the
+        entire application. Theme changes take effect immediately.
+        """
+        theme_key = config.config.get("ui.theme", "light")
         try:
-            path = Path(__file__).resolve().parent / "gui_resources" / ("styles_dark.qss" if theme == "dark" else "styles.qss")
-            if path.exists():
-                with open(path, "r", encoding="utf-8") as f:
-                    self.setStyleSheet(f.read())
-        except OSError:
-            pass
+            qss = _theme_engine.get_stylesheet(theme_key)
+            QApplication.instance().setStyleSheet(qss)
+        except Exception as e:
+            logger.error("Failed to apply theme '%s': %s", theme_key, e)
