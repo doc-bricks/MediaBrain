@@ -53,7 +53,7 @@ Vollstaendiges Architekturdiagramm: [ARCH.md](ARCH.md)
 ### Voraussetzungen
 
 - Python >= 3.8
-- PyQt6
+- PySide6
 
 ### Setup
 
@@ -85,7 +85,7 @@ Offene Punkte und geplante Features: [ROADMAP.md](ROADMAP.md)
 
 GPL v3 - Siehe [LICENSE](LICENSE)
 
-Dieses Projekt verwendet PyQt6 (GPL).
+Dieses Projekt verwendet PySide6 (LGPL).
 
 ---
 
@@ -149,7 +149,7 @@ Full architecture diagram: [ARCH.md](ARCH.md)
 #### Prerequisites
 
 - Python >= 3.8
-- PyQt6
+- PySide6
 
 #### Setup
 
@@ -181,7 +181,7 @@ Open items and planned features: [ROADMAP.md](ROADMAP.md)
 
 GPL v3 - See [LICENSE](LICENSE)
 
-This project uses PyQt6 (GPL).
+This project uses PySide6 (LGPL).
 
 ---
 

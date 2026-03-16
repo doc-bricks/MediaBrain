@@ -29,6 +29,7 @@ media_brain.db
 
 # Config (contains personal paths)
 settings.json
+settings.json.bak
 
 # Environment
 .env
