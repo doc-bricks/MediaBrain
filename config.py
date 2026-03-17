@@ -36,7 +36,8 @@ DEFAULT_SETTINGS = {
     "ui": {
         "theme": "light",
         "window_width": 1200,
-        "window_height": 800
+        "window_height": 800,
+        "system_tray": False
     },
     "providers": {
         "netflix": {"preferred_open_method": "browser"},

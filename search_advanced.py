@@ -174,16 +174,14 @@ class AdvancedSearchBar(QWidget):
         search_row.addWidget(self.combo_provider)
         
         # Erweitert-Button
-        self.btn_expand = QPushButton("▼")
-        self.btn_expand.setFixedWidth(30)
-        self.btn_expand.setToolTip("Erweiterte Filter")
+        self.btn_expand = QPushButton("Filter \u25BC")
+        self.btn_expand.setToolTip("Erweiterte Filter ein-/ausblenden")
         self.btn_expand.clicked.connect(self._toggle_expand)
         search_row.addWidget(self.btn_expand)
-        
+
         # Reset-Button
-        self.btn_reset = QPushButton("✕")
-        self.btn_reset.setFixedWidth(30)
-        self.btn_reset.setToolTip("Filter zurücksetzen")
+        self.btn_reset = QPushButton("Zuruecksetzen")
+        self.btn_reset.setToolTip("Alle Filter zuruecksetzen")
         self.btn_reset.clicked.connect(self.reset_filters)
         search_row.addWidget(self.btn_reset)
         
@@ -249,7 +247,7 @@ class AdvancedSearchBar(QWidget):
     def _toggle_expand(self):
         self.is_expanded = not self.is_expanded
         self.filter_panel.setVisible(self.is_expanded)
-        self.btn_expand.setText("▲" if self.is_expanded else "▼")
+        self.btn_expand.setText("Filter \u25B2" if self.is_expanded else "Filter \u25BC")
         
     def _on_text_changed(self, text):
         self.criteria.text = text

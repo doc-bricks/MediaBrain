@@ -96,13 +96,8 @@ class AppController:
         except Exception as e:
             logger.error(f"Fehler FileIndexer: {e}")
 
-        # Tray (Optional)
-        try:
-            tray = background.TrayApp(self.event_processor)
-            tray.start()
-            self.background_services.append(tray)
-        except Exception: 
-            pass
+        # System Tray wird jetzt direkt im MainWindow verwaltet (Qt GUI Thread)
+        # Die alte background.TrayApp (Thread-basiert) wird nicht mehr gestartet
 
     def notify_data_changed(self):
         """Benachrichtigt die GUI über Datenänderungen.

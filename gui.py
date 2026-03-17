@@ -15,10 +15,10 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QListWidget, QListWidgetItem, QPushButton, QLineEdit,
     QStackedWidget, QMenu, QScrollArea, QFrame, QSplitter, QTabWidget,
-    QComboBox, QCheckBox
+    QComboBox, QCheckBox, QSystemTrayIcon
 )
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction, QIcon, QPixmap, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
 
 from core import MediaManager, MediaItem, BlacklistManager, TagManager
 import config
@@ -86,12 +86,14 @@ class CollapsiblePanel(QWidget):
         super().__init__()
 
         self.is_open = False
+        self._title = title
 
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
 
-        self.header = QPushButton(title)
+        self.header = QPushButton(f"\u25B6  {title}")
         self.header.setCheckable(True)
+        self.header.setStyleSheet("text-align: left; font-size: 14px; padding: 6px 12px;")
         self.header.clicked.connect(self.toggle)
         self.main_layout.addWidget(self.header)
 
@@ -102,6 +104,8 @@ class CollapsiblePanel(QWidget):
     def toggle(self):
         self.is_open = not self.is_open
         self.content.setVisible(self.is_open)
+        arrow = "\u25BC" if self.is_open else "\u25B6"
+        self.header.setText(f"{arrow}  {self._title}")
 
 
 # ============================================================
@@ -139,19 +143,21 @@ class MediaItemWidget(QFrame):
         layout.addWidget(title_label, 1)
 
         # Buttons kompakt
-        fav_btn = QPushButton("★" if item.is_favorite else "☆")
-        fav_btn.setFixedSize(QSize(28, 28))
-        fav_btn.setToolTip("Favorit")
+        fav_btn = QPushButton("\u2605" if item.is_favorite else "\u2606")
+        fav_btn.setFixedSize(QSize(40, 40))
+        fav_btn.setToolTip("Favorit entfernen" if item.is_favorite else "Als Favorit markieren")
+        fav_color = "#FFC107" if item.is_favorite else "#888888"
+        fav_btn.setStyleSheet(f"font-size: 24px; color: {fav_color}; border: none; background: transparent; padding: 0px;")
         fav_btn.clicked.connect(self.toggle_favorite)
         layout.addWidget(fav_btn)
 
-        open_btn = QPushButton("Öffnen")
-        open_btn.setFixedHeight(28)
+        open_btn = QPushButton("\u25B6 Oeffnen")
+        open_btn.setFixedHeight(30)
         open_btn.clicked.connect(self.open_item)
         layout.addWidget(open_btn)
 
-        details_btn = QPushButton("Details")
-        details_btn.setFixedHeight(28)
+        details_btn = QPushButton("\u2139 Details")
+        details_btn.setFixedHeight(30)
         details_btn.clicked.connect(self.open_detail_page)
         layout.addWidget(details_btn)
 
@@ -503,11 +509,11 @@ class MediaItemDelegate(QStyledItemDelegate):
         # Fav star
         if item.is_favorite:
             fav_font = QFont(painter.font())
-            fav_font.setPointSize(12)
+            fav_font.setPointSize(15)
             painter.setFont(fav_font)
             painter.setPen(QPen(QColor("#FFC107")))
-            painter.drawText(x, y, 18, rect.height(), Qt.AlignmentFlag.AlignCenter, "\u2605")
-            x += 20
+            painter.drawText(x, y, 22, rect.height(), Qt.AlignmentFlag.AlignCenter, "\u2605")
+            x += 26
 
         # Title (bold)
         title_font = QFont(option.font)
@@ -966,6 +972,20 @@ class SettingsWindow(QWidget):
 
         g_layout.addWidget(theme_label)
         g_layout.addWidget(theme_select)
+
+        # System Tray
+        tray_checkbox = QCheckBox("System Tray aktivieren (Minimieren statt Beenden)")
+        tray_checkbox.setChecked(config.config.get("ui.system_tray", False))
+        def on_tray_change(state):
+            enabled = bool(state)
+            config.config.set("ui.system_tray", enabled)
+            # MainWindow benachrichtigen
+            for widget in QApplication.topLevelWidgets():
+                if hasattr(widget, "update_system_tray"):
+                    widget.update_system_tray(enabled)
+        tray_checkbox.stateChanged.connect(on_tray_change)
+        g_layout.addWidget(tray_checkbox)
+
         g_layout.addStretch()
 
         tabs.addTab(general, "Allgemein")
@@ -1058,24 +1078,29 @@ class DashboardView(QWidget):
         # 3. Scrollbereich für dynamischen Inhalt
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
-        # Rahmen entfernen für saubereren Look
-        self.scroll.setFrameShape(QFrame.Shape.NoFrame) 
+        self.scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll.viewport().setStyleSheet("background-color: transparent;")
         layout.addWidget(self.scroll)
 
+        self._init_container()
+        self.refresh()
+
+    def _init_container(self):
+        """Erstellt einen neuen Container fuer den Scrollbereich."""
         self.container = QWidget()
+        self.container.setStyleSheet("background-color: transparent;")
         self.container_layout = QVBoxLayout()
+        self.container_layout.setContentsMargins(4, 4, 4, 4)
         self.container.setLayout(self.container_layout)
         self.scroll.setWidget(self.container)
 
-        self.refresh()
-
     def refresh(self):
         try:
-            while self.container_layout.count():
-                item = self.container_layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
+            # Alten Container komplett ersetzen (verhindert Scroll-Artefakte)
+            old = self.scroll.takeWidget()
+            if old:
+                old.deleteLater()
+            self._init_container()
 
             # --- A. Favoriten ---
             fav_label = QLabel("Favoriten")
@@ -1112,11 +1137,11 @@ class DashboardView(QWidget):
 
     def apply_search(self, criteria: SearchCriteria):
         """Führt erweiterte Suche basierend auf SearchCriteria aus."""
-        # Container leeren
-        while self.container_layout.count():
-            item = self.container_layout.takeAt(0)
-            widget = item.widget()
-            if widget: widget.deleteLater()
+        # Container komplett ersetzen
+        old = self.scroll.takeWidget()
+        if old:
+            old.deleteLater()
+        self._init_container()
 
         # Prüfe ob Filter aktiv sind
         has_filters = (
@@ -1242,14 +1267,21 @@ class BlacklistView(QWidget):
         # -------------------------------------------------------
         self.scroll = QScrollArea()
         self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll.viewport().setStyleSheet("background-color: transparent;")
         layout.addWidget(self.scroll)
 
+        self._init_container()
+        self.refresh()
+
+    def _init_container(self):
+        """Erstellt einen neuen Container fuer den Scrollbereich."""
         self.container = QWidget()
+        self.container.setStyleSheet("background-color: transparent;")
         self.container_layout = QVBoxLayout()
+        self.container_layout.setContentsMargins(4, 4, 4, 4)
         self.container.setLayout(self.container_layout)
         self.scroll.setWidget(self.container)
-
-        self.refresh()
 
     # -----------------------------------------------------------
     # Ablaufdatum berechnen
@@ -1273,11 +1305,11 @@ class BlacklistView(QWidget):
     # Blacklist-Ansicht aktualisieren
     # -----------------------------------------------------------
     def refresh(self):
-        # Container leeren
-        for i in reversed(range(self.container_layout.count())):
-            widget = self.container_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
+        # Container komplett ersetzen (verhindert Scroll-Artefakte)
+        old = self.scroll.takeWidget()
+        if old:
+            old.deleteLater()
+        self._init_container()
 
         # Filter-Werte ermitteln
         provider_filter = self.provider_filter.currentText()
@@ -1737,9 +1769,14 @@ class MainWindow(QMainWindow):
         
         # Theme anwenden
         self.apply_theme()
-        
+
         # Detail View Platzhalter
         self.detail_view = None
+
+        # System Tray
+        self.tray_icon = None
+        if config.config.get("ui.system_tray", False):
+            self._setup_system_tray()
 
     def open_detail(self, item):
         # Alte Detail-View entfernen um Memory Leak zu vermeiden
@@ -1794,6 +1831,88 @@ class MainWindow(QMainWindow):
         self.settings_window = SettingsWindow()
         self.settings_window.show()
     
+    def _setup_system_tray(self):
+        """Erstellt das System-Tray-Icon mit Kontextmenu."""
+        if self.tray_icon is not None:
+            return
+
+        # Einfaches Tray-Icon erstellen (blauer Kreis mit M)
+        pixmap = QPixmap(64, 64)
+        pixmap.fill(QGuiColor(0, 0, 0, 0))
+        painter = QGuiPainter(pixmap)
+        painter.setRenderHint(QGuiPainter.RenderHint.Antialiasing)
+        painter.setBrush(QGuiColor("#5b8dd9"))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.drawEllipse(2, 2, 60, 60)
+        font = QGuiFont("Segoe UI", 30, QGuiFont.Weight.Bold)
+        painter.setFont(font)
+        painter.setPen(QGuiColor("white"))
+        painter.drawText(pixmap.rect(), Qt.AlignmentFlag.AlignCenter, "M")
+        painter.end()
+
+        self.tray_icon = QSystemTrayIcon(QIcon(pixmap), self)
+        self.tray_icon.setToolTip("MediaBrain")
+
+        # Kontextmenu
+        tray_menu = QMenu()
+        act_show = QAction("MediaBrain oeffnen", self)
+        act_show.triggered.connect(self._restore_from_tray)
+        tray_menu.addAction(act_show)
+
+        tray_menu.addSeparator()
+
+        act_quit = QAction("Beenden", self)
+        act_quit.triggered.connect(self._quit_app)
+        tray_menu.addAction(act_quit)
+
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.activated.connect(self._on_tray_activated)
+        self.tray_icon.show()
+
+    def _remove_system_tray(self):
+        """Entfernt das System-Tray-Icon."""
+        if self.tray_icon is not None:
+            self.tray_icon.hide()
+            self.tray_icon.deleteLater()
+            self.tray_icon = None
+
+    def update_system_tray(self, enabled):
+        """Aktiviert oder deaktiviert den System Tray."""
+        if enabled:
+            self._setup_system_tray()
+        else:
+            self._remove_system_tray()
+
+    def _restore_from_tray(self):
+        """Stellt das Fenster aus dem System Tray wieder her."""
+        self.showNormal()
+        self.activateWindow()
+        self.raise_()
+
+    def _on_tray_activated(self, reason):
+        """Doppelklick auf Tray-Icon oeffnet das Fenster."""
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+            self._restore_from_tray()
+
+    def _quit_app(self):
+        """Beendet die Anwendung vollstaendig."""
+        self._remove_system_tray()
+        QApplication.instance().quit()
+
+    def closeEvent(self, event):
+        """Minimiert ins Tray statt zu schliessen (wenn Tray aktiv)."""
+        if self.tray_icon is not None and self.tray_icon.isVisible():
+            event.ignore()
+            self.hide()
+            self.tray_icon.showMessage(
+                "MediaBrain",
+                "MediaBrain laeuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum Oeffnen.",
+                QSystemTrayIcon.MessageIcon.Information,
+                2000
+            )
+        else:
+            event.accept()
+
     def apply_theme(self):
         """Applies the current theme from config using ThemeEngine.
 
