@@ -24,7 +24,7 @@ except ImportError:
     HAS_METADATA = False
 
 try:
-    import config  # Fuer auto_fetch_metadata Toggle
+    import config  # Für auto_fetch_metadata Toggle
     HAS_CONFIG = True
 except ImportError:
     HAS_CONFIG = False
@@ -431,7 +431,7 @@ class MediaManager:
         # Wir prüfen auf das Flag 'has_real_id', das wir in providers.py gesetzt haben.
         # Wenn es fehlt (LocalProvider), nehmen wir False an, außer es ist explizit True.
         
-        # Pruefe auto_fetch_metadata Setting (nur wenn config verfügbar)
+        # Prüfe auto_fetch_metadata Setting (nur wenn config verfügbar)
         auto_fetch_enabled = HAS_CONFIG and config.config.get("auto_fetch_metadata", True)
         should_fetch_meta = HAS_METADATA and auto_fetch_enabled and data.get("has_real_id", False) and origin == "external"
 

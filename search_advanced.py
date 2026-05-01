@@ -180,8 +180,8 @@ class AdvancedSearchBar(QWidget):
         search_row.addWidget(self.btn_expand)
 
         # Reset-Button
-        self.btn_reset = QPushButton("Zuruecksetzen")
-        self.btn_reset.setToolTip("Alle Filter zuruecksetzen")
+        self.btn_reset = QPushButton("Zurücksetzen")
+        self.btn_reset.setToolTip("Alle Filter zurücksetzen")
         self.btn_reset.clicked.connect(self.reset_filters)
         search_row.addWidget(self.btn_reset)
         

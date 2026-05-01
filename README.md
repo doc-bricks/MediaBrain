@@ -7,7 +7,7 @@ Vereint Streaming-Dienste, lokale Dateien, Browser-Aktivitaet und App-Nutzung in
 
 ## Screenshots
 
-![Hauptfenster / Main Window](screenshots/main.png)
+![Hauptfenster / Main Window](README/screenshots/main.png)
 
 ## Features
 
@@ -48,6 +48,15 @@ Beim ersten Start wird `settings.json` erstellt. Beispielkonfiguration: `setting
 ```bash
 python MediaBrain.py
 ```
+
+Für einen lokalen Windows-Launcher:
+
+```bat
+build_exe.bat
+```
+
+Der Build erzeugt `MediaBrain.exe` als schlanken Starter für die vorhandene
+Python-Installation im Projektordner.
 
 ## Roadmap
 

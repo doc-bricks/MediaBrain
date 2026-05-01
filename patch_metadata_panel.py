@@ -15,7 +15,7 @@ def patch():
     backup.write_text(content, encoding="utf-8")
     print(f"Backup erstellt: {backup}")
 
-    # 1. NEUE IMPORTS: Am Anfang nach "from pathlib import Path" einfuegen
+    # 1. NEUE IMPORTS: Am Anfang nach "from pathlib import Path" einf?gen
     old_import = "from pathlib import Path"
     new_import = """from pathlib import Path
 from threading import Thread"""
@@ -50,7 +50,7 @@ from threading import Thread"""
             layout.addWidget(thumb)
 
         # Beschreibung
-        desc = QLabel(item.description or "Keine Beschreibung verfuegbar.")
+        desc = QLabel(item.description or "Keine Beschreibung verfügbar.")
         desc.setWordWrap(True)
         layout.addWidget(desc)
 
@@ -60,15 +60,15 @@ from threading import Thread"""
             f"Provider: {item.source}\\n"
             f"Provider-ID: {item.provider_id}\\n"
             f"Erstellt am: {item.created_at}\\n"
-            f"Zuletzt geoeffnet: {item.last_opened_at}\\n"
-            f"Oeffnungsmethode: {item.open_method or '-'}"
+            f"Zuletzt geöffnet: {item.last_opened_at}\\n"
+            f"öffnungsmethode: {item.open_method or '-'}"
         )
         layout.addWidget(meta)
 
         # Buttons
         btn_row = QHBoxLayout()
 
-        open_btn = QPushButton("Oeffnen")
+        open_btn = QPushButton("öffnen")
         open_btn.clicked.connect(self.open_item)
         btn_row.addWidget(open_btn)
 
@@ -76,7 +76,7 @@ from threading import Thread"""
         fav_btn.clicked.connect(self.toggle_favorite)
         btn_row.addWidget(fav_btn)
 
-        back_btn = QPushButton("Zurueck")
+        back_btn = QPushButton("Zurück")
         back_btn.clicked.connect(self.back_callback)
         btn_row.addWidget(back_btn)
 
@@ -98,7 +98,7 @@ from threading import Thread"""
         controller.notify_data_changed()'''
     
     new_class = '''class MediaDetailView(QWidget):
-    """Detailansicht fuer ein Medium - zeigt alle verfuegbaren Metadaten."""
+    """Detailansicht für ein Medium - zeigt alle verfügbaren Metadaten."""
     
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager, back_callback):
         super().__init__()
@@ -134,7 +134,7 @@ from threading import Thread"""
         desc_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
         layout.addWidget(desc_label)
         
-        desc = QLabel(item.description or "Keine Beschreibung verfuegbar.")
+        desc = QLabel(item.description or "Keine Beschreibung verfügbar.")
         desc.setWordWrap(True)
         desc.setStyleSheet("padding-left: 10px;")
         layout.addWidget(desc)
@@ -149,8 +149,8 @@ from threading import Thread"""
             f"  Provider: {item.source}\\n"
             f"  Provider-ID: {item.provider_id or '-'}\\n"
             f"  Erstellt am: {item.created_at or '-'}\\n"
-            f"  Zuletzt geoeffnet: {item.last_opened_at or '-'}\\n"
-            f"  Oeffnungsmethode: {item.open_method or 'auto'}"
+            f"  Zuletzt geöffnet: {item.last_opened_at or '-'}\\n"
+            f"  öffnungsmethode: {item.open_method or 'auto'}"
         )
         meta.setStyleSheet("padding-left: 10px; font-family: monospace;")
         layout.addWidget(meta)
@@ -172,7 +172,7 @@ from threading import Thread"""
         # === BUTTONS ===
         btn_row = QHBoxLayout()
 
-        open_btn = QPushButton("Oeffnen")
+        open_btn = QPushButton("öffnen")
         open_btn.clicked.connect(self.open_item)
         btn_row.addWidget(open_btn)
 
@@ -184,7 +184,7 @@ from threading import Thread"""
         fetch_btn.clicked.connect(self._fetch_and_save_metadata)
         btn_row.addWidget(fetch_btn)
 
-        back_btn = QPushButton("Zurueck")
+        back_btn = QPushButton("Zurück")
         back_btn.clicked.connect(self.back_callback)
         btn_row.addWidget(back_btn)
 
@@ -312,7 +312,7 @@ from threading import Thread"""
                 from MediaBrain import controller
                 controller.notify_data_changed()
             else:
-                QMessageBox.information(self, "Keine Aenderungen", "Keine neuen Daten zum Speichern.")
+                QMessageBox.information(self, "Keine änderungen", "Keine neuen Daten zum Speichern.")
                 
         except Exception as e:
             QMessageBox.warning(self, "Fehler", f"Fehler beim Abrufen: {e}")

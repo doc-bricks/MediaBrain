@@ -8,6 +8,7 @@ import os
 import sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import QTimer # Import nach oben verschoben
+from PySide6.QtGui import QIcon
 
 # Projektordner zum Pfad hinzufügen
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -17,6 +18,8 @@ from gui import MainWindow
 import background
 import config
 from logger_system import logger
+
+APP_ICON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MediaBrain.ico")
 
 class AppController:
     def __init__(self):
@@ -34,7 +37,12 @@ class AppController:
 
         # 3. GUI starten
         self.app = QApplication(sys.argv)
+        self.app_icon = QIcon(APP_ICON_PATH) if os.path.exists(APP_ICON_PATH) else None
+        if self.app_icon is not None:
+            self.app.setWindowIcon(self.app_icon)
         self.window = MainWindow(self.media_manager, self.blacklist_manager, self.tag_manager)
+        if self.app_icon is not None:
+            self.window.setWindowIcon(self.app_icon)
         
         # GUI Refresh verbinden
         self.event_processor.on_data_changed = self.window.refresh_all_views

@@ -6,7 +6,7 @@ Used by smart playlists and the advanced search interface.
 Usage:
     qb = QueryBuilder()
     qb.add_condition("type", "=", "movie")
-    qb.add_condition("rating", ">=", 7.0)
+    qb.add_condition("length_seconds", ">=", 3600)
     qb.add_condition("tags", "contains", "Action")
     sql, params = qb.build()
 """
@@ -14,7 +14,7 @@ Usage:
 import json
 import logging
 from typing import List, Tuple, Any, Optional
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 logger = logging.getLogger("MediaBrain.QueryBuilder")
 
@@ -31,10 +31,33 @@ class FilterCondition:
 class QueryBuilder:
     """Builds SQL WHERE clauses from filter conditions."""
 
-    VALID_FIELDS = {
-        "title", "type", "provider", "status", "rating",
-        "year", "genre", "source_url", "is_favorite",
-        "watch_count", "last_watched", "created_at", "tags",
+    DB_FIELDS = {
+        "id", "title", "type", "source", "provider_id", "length_seconds",
+        "created_at", "last_opened_at", "open_method", "is_favorite",
+        "is_local_file", "local_path", "description", "thumbnail_url",
+        "season", "episode", "artist", "album", "channel",
+        "blacklist_flag", "blacklisted_at", "procedure_code",
+    }
+
+    FIELD_ALIASES = {
+        "provider": "source",
+        "duration_seconds": "length_seconds",
+        "last_watched": "last_opened_at",
+        "favorite": "is_favorite",
+        "blacklisted": "blacklist_flag",
+    }
+
+    VALID_FIELDS = DB_FIELDS | set(FIELD_ALIASES) | {"tags"}
+
+    ORDERABLE_FIELDS = DB_FIELDS | set(FIELD_ALIASES)
+
+    VALID_CONJUNCTIONS = {"AND", "OR"}
+
+    VALID_ORDER_DIRECTIONS = {"ASC", "DESC"}
+
+    VALID_BOOLEAN_FIELDS = {
+        "is_favorite", "is_local_file", "blacklist_flag",
+        "favorite", "blacklisted",
     }
 
     VALID_OPERATORS = {
@@ -66,20 +89,34 @@ class QueryBuilder:
             logger.warning("Unbekannter Operator: %s", operator)
             return
 
+        normalized_conjunction = conjunction.upper()
+        if normalized_conjunction not in self.VALID_CONJUNCTIONS:
+            logger.warning("Unbekannte Verknuepfung: %s", conjunction)
+            normalized_conjunction = "AND"
+
+        if field in self.VALID_BOOLEAN_FIELDS and operator in ("=", "!="):
+            value = self._normalize_bool(value)
+
         self.conditions.append(FilterCondition(
             field=field, operator=operator, value=value,
-            conjunction=conjunction
+            conjunction=normalized_conjunction
         ))
 
     def set_order(self, field: str, direction: str = "ASC"):
         """Sets the ORDER BY clause."""
-        if field in self.VALID_FIELDS:
-            self.order_by = field
-            self.order_dir = direction.upper()
+        if field not in self.ORDERABLE_FIELDS:
+            logger.warning("Feld kann nicht sortiert werden: %s", field)
+            return
+        self.order_by = self._resolve_field(field)
+        normalized_direction = direction.upper()
+        if normalized_direction not in self.VALID_ORDER_DIRECTIONS:
+            logger.warning("Unbekannte Sortierrichtung: %s", direction)
+            normalized_direction = "ASC"
+        self.order_dir = normalized_direction
 
     def set_limit(self, limit: int):
         """Sets the LIMIT clause."""
-        self.limit = max(1, limit)
+        self.limit = max(1, int(limit))
 
     def build(self) -> Tuple[str, list]:
         """Builds the SQL query.
@@ -121,6 +158,8 @@ class QueryBuilder:
         if field == "tags":
             return self._build_tag_condition(op, val)
 
+        field = self._resolve_field(field)
+
         if op == "contains":
             return f"{field} LIKE ?", [f"%{val}%"]
         elif op == "starts_with":
@@ -157,6 +196,16 @@ class QueryBuilder:
                 [tag_name]
             )
         return "", []
+
+    def _resolve_field(self, field: str) -> str:
+        """Maps public filter field names to actual database columns."""
+        return self.FIELD_ALIASES.get(field, field)
+
+    def _normalize_bool(self, value: Any) -> int:
+        """Normalizes UI/JSON boolean-like values for SQLite integer columns."""
+        if isinstance(value, str):
+            return 1 if value.strip().lower() in {"1", "true", "yes", "ja"} else 0
+        return 1 if bool(value) else 0
 
     def clear(self):
         """Removes all conditions."""

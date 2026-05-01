@@ -392,7 +392,7 @@ class MusicBrainzFetcher:
 # ============================================================
 
 class MetadataCache:
-    """SQLite-basierter Cache fuer Metadaten-API-Antworten."""
+    """SQLite-basierter Cache für Metadaten-API-Antworten."""
 
     DEFAULT_TTL_DAYS = 30
 

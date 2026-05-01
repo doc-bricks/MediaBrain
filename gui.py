@@ -31,7 +31,7 @@ from search_advanced import AdvancedSearchBar, SearchEngine, SearchCriteria
 # Global theme engine instance
 _theme_engine = ThemeEngine()
 
-# Tag-Manager Referenz (wird von MainWindow gesetzt, damit alle Views darauf zugreifen koennen)
+# Tag-Manager Referenz (wird von MainWindow gesetzt, damit alle Views darauf zugreifen können)
 _tag_manager: TagManager = None
 
 
@@ -151,7 +151,7 @@ class MediaItemWidget(QFrame):
         fav_btn.clicked.connect(self.toggle_favorite)
         layout.addWidget(fav_btn)
 
-        open_btn = QPushButton("\u25B6 Oeffnen")
+        open_btn = QPushButton("\u25B6 öffnen")
         open_btn.setFixedHeight(30)
         open_btn.clicked.connect(self.open_item)
         layout.addWidget(open_btn)
@@ -194,7 +194,7 @@ class MediaItemWidget(QFrame):
             notify_gui_refresh()
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geaendert werden: {e}")
+            QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geändert werden: {e}")
 
 
     def toggle_details(self):
@@ -222,8 +222,8 @@ class MediaItemWidget(QFrame):
             import os
 
             reply = QMessageBox.question(
-                self, "Datei loeschen",
-                f"Soll die Datei wirklich unwiderruflich geloescht werden?\n\n{self.item.local_path}",
+                self, "Datei löschen",
+                f"Soll die Datei wirklich unwiderruflich gelöscht werden?\n\n{self.item.local_path}",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )
@@ -240,7 +240,7 @@ class MediaItemWidget(QFrame):
             notify_gui_refresh()
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Datei konnte nicht geloescht werden: {e}")
+            QMessageBox.warning(self, "Fehler", f"Datei konnte nicht gelöscht werden: {e}")
 
     def refresh_metadata(self):
         # Später: ID3/MP4 neu einlesen
@@ -435,7 +435,7 @@ class MediaListModel(QAbstractListModel):
         self.endResetModel()
 
 
-# --- 1b. Custom Delegate fuer reichere Darstellung ---
+# --- 1b. Custom Delegate für reichere Darstellung ---
 class MediaItemDelegate(QStyledItemDelegate):
     """Paints media items with icon, title, source, and tag chips.
 
@@ -579,7 +579,7 @@ def _build_item_context_menu(parent_widget, item: MediaItem, media_manager, blac
     menu = QMenu(parent_widget)
 
     # Open
-    act_open = QAction("Oeffnen", parent_widget)
+    act_open = QAction("öffnen", parent_widget)
     act_open.triggered.connect(lambda: _open_media_item(item, media_manager))
     menu.addAction(act_open)
 
@@ -599,7 +599,7 @@ def _build_item_context_menu(parent_widget, item: MediaItem, media_manager, blac
     # Blacklist submenu
     bl_menu = menu.addMenu("Auf Blacklist setzen")
     for code, label in [(1, "1 Tag"), (2, "1 Woche"), (3, "1 Monat"),
-                         (4, "3 Monate"), (5, "1 Jahr"), (6, "Fuer immer")]:
+                         (4, "3 Monate"), (5, "1 Jahr"), (6, "Für immer")]:
         act = QAction(label, parent_widget)
         act.triggered.connect(lambda _, c=code: (blacklist_manager.set_blacklist(item.id, True, c), refresh_callback()))
         bl_menu.addAction(act)
@@ -1014,7 +1014,7 @@ class SettingsWindow(QWidget):
         s_layout = QVBoxLayout()
         security.setLayout(s_layout)
 
-        delete_checkbox = QCheckBox("Loeschen lokaler Dateien erlauben")
+        delete_checkbox = QCheckBox("Löschen lokaler Dateien erlauben")
         delete_checkbox.setChecked(config.config.get("allow_file_deletion", False))
         delete_checkbox.stateChanged.connect(
             lambda v: config.config.set("allow_file_deletion", bool(v))
@@ -1086,7 +1086,7 @@ class DashboardView(QWidget):
         self.refresh()
 
     def _init_container(self):
-        """Erstellt einen neuen Container fuer den Scrollbereich."""
+        """Erstellt einen neuen Container für den Scrollbereich."""
         self.container = QWidget()
         self.container.setStyleSheet("background-color: transparent;")
         self.container_layout = QVBoxLayout()
@@ -1118,7 +1118,7 @@ class DashboardView(QWidget):
                 self.container_layout.addWidget(QLabel("Keine Favoriten markiert."))
 
             # --- B. Zuletzt geöffnet ---
-            recent_label = QLabel("Zuletzt geoeffnet")
+            recent_label = QLabel("Zuletzt geöffnet")
             recent_label.setObjectName("sectionHeader")
             self.container_layout.addWidget(recent_label)
 
@@ -1275,7 +1275,7 @@ class BlacklistView(QWidget):
         self.refresh()
 
     def _init_container(self):
-        """Erstellt einen neuen Container fuer den Scrollbereich."""
+        """Erstellt einen neuen Container für den Scrollbereich."""
         self.container = QWidget()
         self.container.setStyleSheet("background-color: transparent;")
         self.container_layout = QVBoxLayout()
@@ -1413,7 +1413,7 @@ class BlacklistView(QWidget):
             self.refresh()
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Dauer konnte nicht geaendert werden: {e}")
+            QMessageBox.warning(self, "Fehler", f"Dauer konnte nicht geändert werden: {e}")
 
     def _remove_expired(self):
         """Entfernt alle abgelaufenen Blacklist-Einträge in einem Batch-UPDATE."""
@@ -1536,13 +1536,13 @@ class MediaDetailView(QWidget):
             notify_gui_refresh()
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geaendert werden: {e}")
+            QMessageBox.warning(self, "Fehler", f"Favorit konnte nicht geändert werden: {e}")
 # ============================================================
 # 8. Statistik-View
 # ============================================================
 
 class StatsView(QWidget):
-    """Statistik-Panel fuer MediaBrain.
+    """Statistik-Panel für MediaBrain.
 
     Zeigt:
     - Gesamtanzahl Medien in der Bibliothek
@@ -1855,7 +1855,7 @@ class MainWindow(QMainWindow):
 
         # Kontextmenu
         tray_menu = QMenu()
-        act_show = QAction("MediaBrain oeffnen", self)
+        act_show = QAction("MediaBrain öffnen", self)
         act_show.triggered.connect(self._restore_from_tray)
         tray_menu.addAction(act_show)
 
@@ -1890,23 +1890,23 @@ class MainWindow(QMainWindow):
         self.raise_()
 
     def _on_tray_activated(self, reason):
-        """Doppelklick auf Tray-Icon oeffnet das Fenster."""
+        """Doppelklick auf Tray-Icon öffnet das Fenster."""
         if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self._restore_from_tray()
 
     def _quit_app(self):
-        """Beendet die Anwendung vollstaendig."""
+        """Beendet die Anwendung vollständig."""
         self._remove_system_tray()
         QApplication.instance().quit()
 
     def closeEvent(self, event):
-        """Minimiert ins Tray statt zu schliessen (wenn Tray aktiv)."""
+        """Minimiert ins Tray statt zu schließen (wenn Tray aktiv)."""
         if self.tray_icon is not None and self.tray_icon.isVisible():
             event.ignore()
             self.hide()
             self.tray_icon.showMessage(
                 "MediaBrain",
-                "MediaBrain laeuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum Oeffnen.",
+                "MediaBrain laeuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum öffnen.",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000
             )
