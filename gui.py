@@ -21,12 +21,16 @@ from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QIcon, QPixmap, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
 
 from core import MediaManager, MediaItem, BlacklistManager, TagManager
+from playlists import PlaylistManager
 import config
 from pathlib import Path
 from theme_engine import ThemeEngine
 
 # Erweiterte Suche
 from search_advanced import AdvancedSearchBar, SearchEngine, SearchCriteria
+
+# Playlist GUI (extracted to keep gui.py size manageable)
+from gui_playlists import PlaylistsView
 
 # Global theme engine instance
 _theme_engine = ThemeEngine()
@@ -1656,12 +1660,15 @@ class StatsView(QWidget):
 # ============================================================
 
 class MainWindow(QMainWindow):
-    def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager, tag_manager: TagManager = None):
+    def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager,
+                 tag_manager: TagManager = None,
+                 playlist_manager: PlaylistManager = None):
         super().__init__()
 
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
         self.tag_manager = tag_manager
+        self.playlist_manager = playlist_manager
 
         # Set global tag_manager reference for all views
         global _tag_manager
@@ -1715,6 +1722,11 @@ class MainWindow(QMainWindow):
         btn_stats.clicked.connect(lambda: self._switch_view(self.stats_view))
         sidebar_layout.addWidget(btn_stats)
 
+        if self.playlist_manager is not None:
+            btn_playlists = QPushButton("Playlists")
+            btn_playlists.clicked.connect(lambda: self._switch_view(self.playlists_view))
+            sidebar_layout.addWidget(btn_playlists)
+
         btn_settings = QPushButton("Einstellungen")
         btn_settings.clicked.connect(self.open_settings)
         sidebar_layout.addWidget(btn_settings)
@@ -1763,7 +1775,14 @@ class MainWindow(QMainWindow):
         self.stats_view = StatsView(media_manager)
         self.stack.addWidget(self.stats_view)
 
-        # 6. Suche
+        # 6. Playlists (optional - only when a PlaylistManager was injected)
+        self.playlists_view = None
+        if self.playlist_manager is not None:
+            self.playlists_view = PlaylistsView(self.playlist_manager,
+                                                 media_manager=media_manager)
+            self.stack.addWidget(self.playlists_view)
+
+        # 7. Suche
         self.global_search = GlobalSearchView(media_manager, blacklist_manager)
         self.stack.addWidget(self.global_search)
         
@@ -1809,6 +1828,8 @@ class MainWindow(QMainWindow):
                 self.library_music, self.library_clips, self.favorites,
                 self.blacklist_view, self.stats_view
             ]
+            if self.playlists_view is not None:
+                all_views.append(self.playlists_view)
             for view in all_views:
                 view._needs_refresh = True
 

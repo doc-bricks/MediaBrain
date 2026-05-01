@@ -17,7 +17,11 @@ ENV/
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
+.mypy_cache/
+.ruff_cache/
 
 # Logs
 *.log
@@ -25,7 +29,10 @@ logs/
 
 # Database
 *.db
+*.sqlite
+*.sqlite3
 media_brain.db
+metadata_cache.db
 
 # Config (contains personal paths)
 settings.json
@@ -62,8 +69,14 @@ ehthumbs.db
 
 # Standard-Patterns
 PLAN.txt
+Plan.txt
+plan.txt
+CORE.txt
 _archive/
 _private/
+_partners/
+*_submission/
+removed_sections/
 
 # BACH Interne Steuerungsdateien
 AUFGABEN.txt
@@ -81,10 +94,16 @@ _BACKUP/
 _DEV/
 _WARTUNG/
 _alt/
+*.tmp
+*.bak
 
 # Sensible Daten
 credentials.json
 client_secret*.json
 token.json
+*.token
+*.secret
 *.pem
 *.key
+id_rsa
+id_ed25519

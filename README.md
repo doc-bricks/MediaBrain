@@ -1,47 +1,49 @@
 # MediaBrain
 
-Ein lokaler, datenschutzfreundlicher Media-Hub, der Inhalte aus allen Quellen automatisch erkennt, sammelt, organisiert und zugaenglich macht.
-Vereint Streaming-Dienste, lokale Dateien, Browser-Aktivitaet und App-Nutzung in einer einzigen Oberflaeche.
+MediaBrain ist ein lokaler, datenschutzfreundlicher Media-Hub. Die Anwendung erkennt und organisiert Inhalte aus Streaming-Diensten, lokalen Dateien, Browser-Aktivität und App-Nutzung in einer einzigen PySide6-Oberfläche.
 
-> A local, privacy-friendly media hub that automatically detects, collects, organizes, and makes accessible content from all sources. Unifies streaming services, local files, browser activity, and app usage in a single interface.
+> MediaBrain is a local, privacy-friendly media hub. It detects and organizes content from streaming services, local files, browser activity, and app usage in one PySide6 desktop interface.
 
 ## Screenshots
 
 ![Hauptfenster / Main Window](README/screenshots/main.png)
 
-## Features
+## Funktionen / Features
 
-- **Medienerkennung / Media Detection:** Netflix, YouTube, Spotify, lokale Dateien (mp3, mp4, mkv, pdf, epub ...)
-- **Medienverwaltung / Media Management:** Favoriten, Blacklist mit Ablaufdatum, Sortierung, Filter, Detailansicht, Verlauf
-- **Oeffnungslogik / Open Logic:** Browser, App-Deep-Links, lokale Dateien, Auto-Modus
-- **Dashboard:** Favoriten, zuletzt geoeffnet, globale Suche, Statistiken, Schnellaktionen
-- **Bibliotheken / Libraries:** Filme, Serien, Musik, Clips, Podcasts, Hoerbuecher, Dokumente
-- **Themes:** Hell/Dunkel/High-Contrast mit dynamischem Wechsel
-- **Tag-System:** Tags erstellen, zuweisen, filtern
-- **System Tray:** Optionales Minimieren ins Tray statt Beenden
-- **Reaktives Refresh-System:** Background -> Queue -> MainThread -> GUI
+- **Medienerkennung / Media Detection:** Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch und lokale Dateien.
+- **Medienverwaltung / Media Management:** Favoriten, Blacklist mit Ablaufdatum, Detailansicht, Verlauf, Sortierung und Filter.
+- **Playlists:** Manuelle Playlists und Smart-Playlists mit QueryBuilder-Regeln, Tag-Filtern, Sortierung und Limit.
+- **Bibliotheken / Libraries:** Filme, Serien, Musik, Clips, Podcasts, Hörbücher und Dokumente.
+- **Dashboard und Suche:** Favoriten, zuletzt geöffnet, globale Suche, Statistiken und Schnellaktionen.
+- **Tag-System:** Tags erstellen, zuweisen und in Bibliotheken, Suche und Smart-Playlists verwenden.
+- **Themes:** Hell, Dunkel und High-Contrast mit dynamischem Wechsel.
+- **Offline-First:** Lokale SQLite-Datenbank und lokale Konfiguration; keine Telemetrie.
+- **System Tray:** Optionales Minimieren ins Tray statt Beenden.
 
 ## Architektur / Architecture
 
-```
-Core Layer       Datenbank, MediaManager, BlacklistManager, EventProcessor, TagManager
-Provider Layer   Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch, Lokal
-Background Layer FileIndexer, WindowWatcher
-GUI Layer        Dashboard, Bibliotheken, Favoriten, Blacklist, Statistiken, Einstellungen
+```text
+Core Layer        Database, MediaManager, BlacklistManager, TagManager, PlaylistManager
+Query Layer       QueryBuilder für erweiterte Filter und Smart-Playlists
+Provider Layer    Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch, Local
+Background Layer  FileIndexer, WindowWatcher
+GUI Layer         Dashboard, Libraries, Favorites, Blacklist, Playlists, Search, Stats, Settings
 ```
 
-Vollstaendiges Diagramm / Full diagram: [ARCH.md](ARCH.md)
+Vollständiges Diagramm / Full diagram: [ARCH.md](ARCH.md)
 
 ## Installation
 
-- Python >= 3.8
-- PySide6
+Voraussetzungen:
+
+- Python 3.8 oder neuer
+- Windows, Linux oder macOS mit Qt/PySide6-Unterstützung
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Beim ersten Start wird `settings.json` erstellt. Beispielkonfiguration: `settings.example.json`.
+Beim ersten Start wird `settings.json` lokal erzeugt. Die öffentliche Vorlage liegt in [settings.example.json](settings.example.json). Persönliche Einstellungen, Datenbanken, Logs und Build-Artefakte sind per `.gitignore` ausgeschlossen.
 
 ## Nutzung / Usage
 
@@ -49,34 +51,48 @@ Beim ersten Start wird `settings.json` erstellt. Beispielkonfiguration: `setting
 python MediaBrain.py
 ```
 
-Für einen lokalen Windows-Launcher:
+Windows-Start per Doppelklick:
+
+```bat
+START.bat
+```
+
+Ein schlanker Windows-Starter kann mit folgendem Skript gebaut werden:
 
 ```bat
 build_exe.bat
 ```
 
-Der Build erzeugt `MediaBrain.exe` als schlanken Starter für die vorhandene
-Python-Installation im Projektordner.
+## Tests
+
+```bash
+python -m pytest tests/ -q
+```
+
+Die Tests decken Datenbankmanager, Metadaten, Tags, QueryBuilder, Playlists und die Playlist-GUI im Offscreen-Modus ab.
+
+## Datenschutz / Privacy
+
+MediaBrain speichert Nutzungsdaten lokal in SQLite-Dateien und Konfigurationsdateien. Es gibt keine Telemetrie und keine automatische Cloud-Synchronisation. Optionale Metadatenabfragen nutzen nur die vom Nutzer konfigurierten TMDb-/OMDb-API-Keys oder öffentliche MusicBrainz-Daten. Details stehen in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
 ## Roadmap
 
-[ROADMAP.md](ROADMAP.md)
+Siehe [ROADMAP.md](ROADMAP.md).
 
 ## Lizenz / License
 
-GPL v3 - Siehe/See [LICENSE](LICENSE). Dieses Projekt verwendet PySide6 (LGPL).
+GPL v3, siehe [LICENSE](LICENSE). Die GUI basiert auf PySide6 (LGPL).
 
 ---
 
-**Autor:** Lukas Geiger | **Zuletzt aktualisiert:** Maerz 2026
+**Autor:** Lukas Geiger
 
----
+**Zuletzt aktualisiert:** Mai 2026
 
 ## Haftung / Liability
 
-Dieses Projekt ist eine **unentgeltliche Open-Source-Schenkung** im Sinne der §§ 516 ff. BGB. Die Haftung des Urhebers ist gemäß **§ 521 BGB** auf **Vorsatz und grobe Fahrlässigkeit** beschränkt. Ergänzend gelten die Haftungsausschlüsse aus GPL-3.0 / MIT / Apache-2.0 §§ 15–16 (je nach gewählter Lizenz).
+Dieses Projekt ist eine unentgeltliche Open-Source-Schenkung im Sinne der §§ 516 ff. BGB. Die Haftung des Urhebers ist gemäß § 521 BGB auf Vorsatz und grobe Fahrlässigkeit beschränkt. Ergänzend gelten die Haftungsausschlüsse aus GPL-3.0.
 
 Nutzung auf eigenes Risiko. Keine Wartungszusage, keine Verfügbarkeitsgarantie, keine Gewähr für Fehlerfreiheit oder Eignung für einen bestimmten Zweck.
 
-This project is an unpaid open-source donation. Liability is limited to intent and gross negligence (§ 521 German Civil Code). Use at your own risk. No warranty, no maintenance guarantee, no fitness-for-purpose assumed.
-
+This project is an unpaid open-source donation. Liability is limited to intent and gross negligence (§ 521 German Civil Code). Use at your own risk. No warranty, maintenance guarantee, or fitness-for-purpose is assumed.

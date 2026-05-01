@@ -15,6 +15,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from core import Database, MediaManager, BlacklistManager, EventProcessor, TagManager
 from gui import MainWindow
+from playlists import PlaylistManager
 import background
 import config
 from logger_system import logger
@@ -30,6 +31,7 @@ class AppController:
         self.media_manager = MediaManager(self.db)
         self.blacklist_manager = BlacklistManager(self.db)
         self.tag_manager = TagManager(self.db)
+        self.playlist_manager = PlaylistManager(self.db.conn)
 
         # 2. Event Processor (Verbindung zwischen Background & GUI)
         self.event_processor = EventProcessor(self.media_manager)
@@ -40,7 +42,8 @@ class AppController:
         self.app_icon = QIcon(APP_ICON_PATH) if os.path.exists(APP_ICON_PATH) else None
         if self.app_icon is not None:
             self.app.setWindowIcon(self.app_icon)
-        self.window = MainWindow(self.media_manager, self.blacklist_manager, self.tag_manager)
+        self.window = MainWindow(self.media_manager, self.blacklist_manager,
+                                 self.tag_manager, self.playlist_manager)
         if self.app_icon is not None:
             self.window.setWindowIcon(self.app_icon)
         

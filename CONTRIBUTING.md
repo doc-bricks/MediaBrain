@@ -2,112 +2,86 @@
 
 ## Deutsch
 
-Vielen Dank fuer Ihr Interesse, zu diesem Projekt beizutragen!
+Vielen Dank für Ihr Interesse, zu MediaBrain beizutragen.
 
-### Wie Sie beitragen koennen
+### Wie Sie beitragen können
 
-1. **Bug melden:** Erstellen Sie ein Issue mit dem Label `bug`
-2. **Feature vorschlagen:** Erstellen Sie ein Issue mit dem Label `enhancement`
-3. **Code beitragen:** Erstellen Sie einen Pull Request
+1. **Bug melden:** Erstellen Sie ein Issue mit Reproduktionsschritten.
+2. **Feature vorschlagen:** Beschreiben Sie Anwendungsfall, erwartetes Verhalten und mögliche Randfälle.
+3. **Code beitragen:** Öffnen Sie einen Pull Request mit Tests und aktualisierter Dokumentation, sofern nötig.
 
-### Pull Requests
+### Lokale Einrichtung
 
-1. Forken Sie das Repository
-2. Erstellen Sie einen Feature-Branch: `git checkout -b feature/mein-feature`
-3. Committen Sie Ihre Aenderungen: `git commit -m "Beschreibung der Aenderung"`
-4. Pushen Sie den Branch: `git push origin feature/mein-feature`
-5. Erstellen Sie einen Pull Request
+```bash
+git clone https://github.com/doc-bricks/MediaBrain.git
+cd MediaBrain
+pip install -r requirements.txt
+python MediaBrain.py
+```
 
-### Contributor License Agreement (CLA)
+### Tests
 
-<!-- OPTION A: Fuer Projekte mit Dual-Licensing (RPX, etc.) -- diesen Block verwenden -->
-Dieses Projekt verwendet ein [Contributor License Agreement (CLA)](CLA.md).
-Bei Ihrem ersten Pull Request bestaetigen Sie bitte Ihre Zustimmung durch einen Kommentar:
-
-> I have read and agree to the Contributor License Agreement (CLA).
-
-Sie behalten Ihr Urheberrecht -- das CLA raeumt dem Projektinhaber lediglich Nutzungsrechte ein, die eine flexible Lizenzierung des Gesamtprojekts ermoeglichen.
-
-<!-- OPTION B: Fuer Community-Projekte ohne kommerzielle Plaene -- diesen Block stattdessen verwenden
-### Developer Certificate of Origin (DCO)
-
-Dieses Projekt verwendet den [Developer Certificate of Origin (DCO)](https://developercertificate.org/).
-Bitte signieren Sie jeden Commit mit `--signoff`:
-
-    git commit --signoff -m "Beschreibung der Aenderung"
-
-Damit bestaetigen Sie, dass Sie das Recht haben, den Code unter der Projektlizenz einzureichen.
--->
+```bash
+python -m pytest tests/ -q
+```
 
 ### Code-Richtlinien
 
-- Python: PEP 8 Stil
-- Encoding: UTF-8 fuer alle Dateien
-- Sprache: Code und Kommentare auf Deutsch oder Englisch
-- Keine hardcoded Pfade oder API-Keys
+- Python-Code folgt PEP 8.
+- GUI-Code verwendet PySide6, nicht PyQt.
+- Öffentliche Dokumentation wird in Deutsch und Englisch gepflegt, wo sinnvoll.
+- Keine hardcodierten privaten Pfade, API-Keys, Tokens oder lokalen Datenbanken committen.
+- `settings.json`, `*.db`, Logs, Build-Artefakte und lokale Testdaten bleiben unversioniert.
 
-### Erste Schritte
+### Pull Requests
 
-```bash
-git clone https://github.com/lukisch/REL-PUB_MediaBrain.git
-cd REL-PUB_MediaBrain
-pip install -r requirements.txt
-python main.py
-```
+1. Erstellen Sie einen Feature-Branch.
+2. Committen Sie zusammenhängende Änderungen mit klarer Commit-Message.
+3. Führen Sie die relevanten Tests aus.
+4. Aktualisieren Sie README, Changelog oder Privacy/Security-Dokumente, wenn sich Verhalten oder Datennutzung ändern.
+
+Aktuell ist kein separates CLA-Dokument erforderlich. Mit einem Beitrag bestätigen Sie, dass Sie berechtigt sind, den Code unter der Projektlizenz einzureichen.
 
 ---
 
 ## English
 
-Thank you for your interest in contributing to this project!
+Thank you for your interest in contributing to MediaBrain.
 
 ### How to Contribute
 
-1. **Report bugs:** Create an issue with the `bug` label
-2. **Suggest features:** Create an issue with the `enhancement` label
-3. **Contribute code:** Create a Pull Request
+1. **Report bugs:** Open an issue with reproduction steps.
+2. **Suggest features:** Describe the use case, expected behavior, and relevant edge cases.
+3. **Contribute code:** Open a pull request with tests and updated documentation where needed.
 
-### Pull Requests
+### Local Setup
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "Description of change"`
-4. Push the branch: `git push origin feature/my-feature`
-5. Create a Pull Request
+```bash
+git clone https://github.com/doc-bricks/MediaBrain.git
+cd MediaBrain
+pip install -r requirements.txt
+python MediaBrain.py
+```
 
-### Contributor License Agreement (CLA)
+### Tests
 
-<!-- OPTION A: For projects with dual licensing (RPX, etc.) -->
-This project uses a [Contributor License Agreement (CLA)](CLA.md).
-On your first pull request, please confirm your agreement by commenting:
-
-> I have read and agree to the Contributor License Agreement (CLA).
-
-You retain your copyright -- the CLA only grants the project owner usage rights that enable flexible licensing of the overall project.
-
-<!-- OPTION B: For community projects without commercial plans
-### Developer Certificate of Origin (DCO)
-
-This project uses the [Developer Certificate of Origin (DCO)](https://developercertificate.org/).
-Please sign off every commit with `--signoff`:
-
-    git commit --signoff -m "Description of change"
-
-This certifies that you have the right to submit the code under the project license.
--->
+```bash
+python -m pytest tests/ -q
+```
 
 ### Code Guidelines
 
-- Python: PEP 8 style
-- Encoding: UTF-8 for all files
-- Language: Code and comments in German or English
-- No hardcoded paths or API keys
+- Python code follows PEP 8.
+- GUI code uses PySide6, not PyQt.
+- Public documentation is maintained in German and English where useful.
+- Do not commit hardcoded private paths, API keys, tokens, or local databases.
+- `settings.json`, `*.db`, logs, build artifacts, and local test data stay unversioned.
 
-### Getting Started
+### Pull Requests
 
-```bash
-git clone https://github.com/lukisch/REL-PUB_MediaBrain.git
-cd REL-PUB_MediaBrain
-pip install -r requirements.txt
-python main.py
-```
+1. Create a feature branch.
+2. Commit related changes with a clear commit message.
+3. Run the relevant tests.
+4. Update README, changelog, privacy, or security docs when behavior or data handling changes.
+
+No separate CLA document is currently required. By contributing, you confirm that you have the right to submit the code under the project license.

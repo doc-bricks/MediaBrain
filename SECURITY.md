@@ -1,24 +1,34 @@
-# Security Policy
+# Security Policy / Sicherheitsrichtlinie
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| latest  | :white_check_mark: |
+| Version | Supported |
+| ------- | --------- |
+| latest  | yes       |
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it via GitHub's private vulnerability reporting feature:
+Please do not open public issues for security vulnerabilities.
 
-1. Go to the **Security** tab of this repository
-2. Click **Report a vulnerability**
-3. Provide details about the vulnerability
+1. Use GitHub private vulnerability reporting when available.
+2. Include the affected version, reproduction steps, expected impact, and any relevant logs.
+3. Do not include real API keys, private media paths, or personal database exports in the report.
 
-**Please do not open public issues for security vulnerabilities.**
+Security fixes are documented in the changelog or release notes once they are available.
 
-We will respond within 48 hours and work with you to understand and address the issue.
+## Sicherheitslücken melden
 
-## Security Updates
+Bitte öffnen Sie für Sicherheitslücken kein öffentliches Issue.
 
-Security updates will be released as soon as possible after a vulnerability is confirmed. Updates will be documented in the release notes.
+1. Nutzen Sie GitHubs private Vulnerability-Reporting-Funktion, sofern verfügbar.
+2. Nennen Sie betroffene Version, Reproduktionsschritte, mögliche Auswirkungen und relevante Logs.
+3. Fügen Sie keine echten API-Keys, privaten Medienpfade oder persönlichen Datenbankexporte ein.
 
+Sicherheitskorrekturen werden im Changelog oder in den Release Notes dokumentiert, sobald sie verfügbar sind.
+
+## Scope / Geltungsbereich
+
+- Lokale SQLite-Datenbanken und Konfigurationsdateien
+- Optionale TMDb-/OMDb-Metadatenabfragen
+- MusicBrainz-Abfragen ohne API-Key
+- Clipboard-, Playlist-, Such- und Dateiöffnungsfunktionen
