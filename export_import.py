@@ -5,6 +5,7 @@ and importing from these formats.
 """
 
 import csv
+import hashlib
 import json
 import logging
 import sqlite3
@@ -62,10 +63,30 @@ class MediaExporter:
             for pl in playlists:
                 pl_dict = dict(pl)
                 pl_items = self.conn.execute(
-                    "SELECT media_id FROM playlist_items WHERE playlist_id = ? ORDER BY position",
+                    """
+                    SELECT
+                        pi.media_id,
+                        m.source,
+                        m.provider_id,
+                        m.title,
+                        m.type
+                    FROM playlist_items pi
+                    INNER JOIN media_items m ON m.id = pi.media_id
+                    WHERE pi.playlist_id = ?
+                    ORDER BY pi.position
+                    """,
                     (pl["id"],)
                 ).fetchall()
                 pl_dict["item_ids"] = [r["media_id"] for r in pl_items]
+                pl_dict["item_refs"] = [
+                    {
+                        "source": r["source"],
+                        "provider_id": r["provider_id"],
+                        "title": r["title"],
+                        "type": r["type"],
+                    }
+                    for r in pl_items
+                ]
                 data["playlists"].append(pl_dict)
 
         Path(output_path).write_text(
@@ -108,6 +129,9 @@ class MediaImporter:
 
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
+        self.conn.row_factory = sqlite3.Row
+        self.media_columns = self._get_media_columns()
+        self.playlist_columns = self._get_playlist_columns()
 
     def import_json(self, input_path: str, merge: bool = True) -> Dict[str, int]:
         """Imports media items from a JSON file.
@@ -117,9 +141,15 @@ class MediaImporter:
             merge: If True, skip existing items (by title+type). If False, replace.
 
         Returns:
-            Dict with counts: imported, skipped, errors.
+            Dict with counts: imported, skipped, errors, playlists_imported, playlists_skipped.
         """
-        stats = {"imported": 0, "skipped": 0, "errors": 0}
+        stats = {
+            "imported": 0,
+            "skipped": 0,
+            "errors": 0,
+            "playlists_imported": 0,
+            "playlists_skipped": 0,
+        }
 
         try:
             data = json.loads(Path(input_path).read_text(encoding="utf-8"))
@@ -129,44 +159,61 @@ class MediaImporter:
             return stats
 
         items = data.get("items", [])
+        if not isinstance(items, list):
+            logger.error("Import-Fehler: Kein items-Array im JSON gefunden")
+            stats["errors"] += 1
+            return stats
 
         for item in items:
+            if not isinstance(item, dict):
+                stats["errors"] += 1
+                continue
             try:
-                title = item.get("title", "")
-                item_type = item.get("type", "")
+                item = self._normalize_item_payload(item)
+                title = str(item.get("title", "")).strip()
+                item_type = str(item.get("type", "")).strip()
+                source = str(item.get("source", "")).strip()
+                provider_id = str(item.get("provider_id", "")).strip()
 
-                if not title:
+                if not title or not item_type or not source:
                     stats["errors"] += 1
                     continue
 
+                if not provider_id:
+                    provider_id = self._make_provider_id(source, item.get("title", ""))
+                    item["provider_id"] = provider_id
+
+                existing_id = self._find_existing_media(
+                    title=title,
+                    media_type=item_type,
+                    source=source,
+                    provider_id=provider_id,
+                )
                 if merge:
-                    existing = self.conn.execute(
-                        "SELECT id FROM media_items WHERE title = ? AND type = ?",
-                        (title, item_type)
-                    ).fetchone()
-                    if existing:
+                    if existing_id:
                         stats["skipped"] += 1
                         continue
+                else:
+                    if existing_id:
+                        self._delete_media_by_id(existing_id)
 
                 # Felder filtern die in der DB existieren
-                valid_fields = {
-                    "title", "type", "provider", "source_url", "status",
-                    "rating", "genre", "year", "duration_minutes",
-                    "description", "poster_url", "is_favorite",
-                    "watch_count", "last_watched",
-                }
-                filtered = {k: v for k, v in item.items() if k in valid_fields}
+                filtered = self._filter_media_fields(item)
+                if not filtered:
+                    stats["errors"] += 1
+                    continue
 
                 columns = ", ".join(filtered.keys())
                 placeholders = ", ".join(["?"] * len(filtered))
-                self.conn.execute(
+                cursor = self.conn.execute(
                     f"INSERT INTO media_items ({columns}) VALUES ({placeholders})",
                     list(filtered.values())
                 )
+                media_id = cursor.lastrowid
+                self.conn.commit()
 
                 # Tags importieren
                 if "tags" in item and isinstance(item["tags"], list):
-                    media_id = self.conn.execute("SELECT last_insert_rowid()").fetchone()[0]
                     for tag_name in item["tags"]:
                         self._ensure_tag(tag_name, media_id)
 
@@ -178,6 +225,8 @@ class MediaImporter:
 
         self.conn.commit()
         logger.info("Import abgeschlossen: %s", stats)
+        self._import_playlists(data.get("playlists", []), merge=merge, stats=stats)
+        self.conn.commit()
         return stats
 
     def import_csv(self, input_path: str) -> Dict[str, int]:
@@ -252,3 +301,179 @@ class MediaImporter:
             "INSERT OR IGNORE INTO media_tags (media_id, tag_id) VALUES (?, ?)",
             (media_id, tag_id)
         )
+
+    def _get_media_columns(self) -> set:
+        rows = self.conn.execute("PRAGMA table_info(media_items)").fetchall()
+        return {row["name"] for row in rows}
+
+    def _get_playlist_columns(self) -> set:
+        try:
+            rows = self.conn.execute("PRAGMA table_info(playlists)").fetchall()
+            return {row["name"] for row in rows}
+        except sqlite3.DatabaseError:
+            return set()
+
+    def _filter_media_fields(self, item: Dict) -> Dict:
+        item = dict(item)
+        item["source"] = item.get("source", "") or item.get("provider", "")
+        item["provider_id"] = item.get("provider_id", "") or self._make_provider_id(
+            item.get("source", ""), item.get("title", "")
+        )
+
+        valid_fields = {
+            "title", "type", "source", "provider_id", "length_seconds", "created_at",
+            "last_opened_at", "open_method", "is_favorite", "is_local_file",
+            "local_path", "description", "thumbnail_url", "season", "episode",
+            "artist", "album", "channel", "blacklist_flag", "blacklisted_at",
+            "procedure_code",
+        }
+        filtered = {}
+        for key, value in item.items():
+            if key not in valid_fields:
+                continue
+            if key not in self.media_columns:
+                continue
+            if value is None or value == "":
+                continue
+            filtered[key] = self._coerce_value(key, value)
+
+        required = {"title", "type", "source", "provider_id"}
+        if not required.issubset(filtered):
+            return {}
+
+        return filtered
+
+    def _coerce_value(self, field: str, value):
+        if field in {"is_favorite", "is_local_file", "blacklist_flag", "procedure_code"}:
+            if isinstance(value, bool):
+                return int(value)
+            if str(value).strip().lower() in {"true", "1", "yes", "ja"}:
+                return 1
+            if str(value).strip().lower() in {"false", "0", "no", "nein"}:
+                return 0
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return 0
+
+        if field in {"length_seconds", "season", "episode"}:
+            try:
+                return int(value)
+            except (TypeError, ValueError):
+                return 0
+
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False, sort_keys=True, default=str)
+
+        return value
+
+    def _make_provider_id(self, source: str, title: str) -> str:
+        seed = f"{source}|{title}".strip()
+        return hashlib.md5(seed.encode("utf-8")).hexdigest()[:16]
+
+    def _find_existing_media(self, title: str, media_type: str,
+                            source: str, provider_id: str) -> Optional[int]:
+        if source and provider_id:
+            row = self.conn.execute(
+                "SELECT id FROM media_items WHERE source = ? AND provider_id = ? LIMIT 1",
+                (source, provider_id)
+            ).fetchone()
+            if row:
+                return row["id"]
+
+        row = self.conn.execute(
+            "SELECT id FROM media_items WHERE title = ? AND type = ? LIMIT 1",
+            (title, media_type)
+        ).fetchone()
+        return row["id"] if row else None
+
+    def _delete_media_by_id(self, media_id: int) -> None:
+        self.conn.execute("DELETE FROM playlist_items WHERE media_id = ?", (media_id,))
+        self.conn.execute("DELETE FROM media_tags WHERE media_id = ?", (media_id,))
+        self.conn.execute("DELETE FROM media_items WHERE id = ?", (media_id,))
+
+    def _normalize_item_payload(self, item: Dict) -> Dict:
+        normalized = dict(item)
+        if "provider" in normalized and "source" not in normalized:
+            normalized["source"] = normalized["provider"]
+        if "source_url" in normalized and "source" not in normalized:
+            normalized["source"] = normalized["source_url"]
+        if "status" in normalized and "provider_id" not in normalized:
+            normalized["provider_id"] = normalized["status"]
+        if "duration_minutes" in normalized and "length_seconds" not in normalized:
+            minutes = normalized.get("duration_minutes")
+            try:
+                normalized["length_seconds"] = int(minutes) * 60
+            except (TypeError, ValueError):
+                normalized["length_seconds"] = 0
+        if "is_favourite" in normalized and "is_favorite" not in normalized:
+            normalized["is_favorite"] = normalized["is_favourite"]
+        return normalized
+
+    def _import_playlists(self, playlists, merge: bool, stats: Dict[str, int]) -> None:
+        if not isinstance(playlists, list) or not playlists:
+            return
+        if not self.playlist_columns:
+            logger.warning("Keine playlists-Tabelle gefunden - Playlist-Import übersprungen.")
+            return
+
+        for raw in playlists:
+            if not isinstance(raw, dict):
+                continue
+
+            name = str(raw.get("name", "")).strip()
+            if not name:
+                continue
+
+            playlist_type = str(raw.get("playlist_type", "manual")).strip() or "manual"
+            smart_query = raw.get("smart_query", "")
+
+            existing = self.conn.execute(
+                "SELECT id FROM playlists WHERE name = ? LIMIT 1", (name,)
+            ).fetchone()
+            if existing:
+                if merge:
+                    stats["playlists_skipped"] += 1
+                    continue
+                self.conn.execute("DELETE FROM playlist_items WHERE playlist_id = ?", (existing["id"],))
+                self.conn.execute("DELETE FROM playlists WHERE id = ?", (existing["id"],))
+
+            valid_fields = {"name", "description", "playlist_type", "smart_query"}
+            filtered = {
+                key: self._coerce_value(key, raw[key])
+                for key in valid_fields
+                if key in raw and key in self.playlist_columns
+            }
+            filtered["name"] = name
+            filtered["playlist_type"] = playlist_type
+            filtered["smart_query"] = smart_query
+            filtered = {
+                k: v for k, v in filtered.items()
+                if k in self.playlist_columns
+            }
+
+            columns = ", ".join(filtered.keys())
+            placeholders = ", ".join("?" * len(filtered))
+            playlist_id = self.conn.execute(
+                f"INSERT INTO playlists ({columns}) VALUES ({placeholders})",
+                list(filtered.values())
+            ).lastrowid
+
+            for entry in raw.get("item_refs", []):
+                if not isinstance(entry, dict):
+                    continue
+                media_id = self._find_existing_media(
+                    title=str(entry.get("title", "")).strip(),
+                    media_type=str(entry.get("type", "")).strip(),
+                    source=str(entry.get("source", "")).strip(),
+                    provider_id=str(entry.get("provider_id", "")).strip(),
+                )
+                if not media_id:
+                    continue
+                self.conn.execute(
+                    "INSERT OR IGNORE INTO playlist_items (playlist_id, media_id, position) "
+                    "VALUES (?, ?, COALESCE((SELECT MAX(position)+1 FROM playlist_items WHERE playlist_id=?), 0))",
+                    (playlist_id, media_id, playlist_id),
+                )
+
+            stats["playlists_imported"] += 1

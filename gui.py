@@ -15,13 +15,14 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QListWidget, QListWidgetItem, QPushButton, QLineEdit,
     QStackedWidget, QMenu, QScrollArea, QFrame, QSplitter, QTabWidget,
-    QComboBox, QCheckBox, QSystemTrayIcon
+    QComboBox, QCheckBox, QSystemTrayIcon, QFileDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QAction, QIcon, QPixmap, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
 
 from core import MediaManager, MediaItem, BlacklistManager, TagManager
 from playlists import PlaylistManager
+from export_import import MediaExporter, MediaImporter
 import config
 from pathlib import Path
 from theme_engine import ThemeEngine
@@ -1727,6 +1728,14 @@ class MainWindow(QMainWindow):
             btn_playlists.clicked.connect(lambda: self._switch_view(self.playlists_view))
             sidebar_layout.addWidget(btn_playlists)
 
+        btn_export = QPushButton("Export (JSON)")
+        btn_export.clicked.connect(self._export_library_json)
+        sidebar_layout.addWidget(btn_export)
+
+        btn_import = QPushButton("Import (JSON)")
+        btn_import.clicked.connect(self._import_library_json)
+        sidebar_layout.addWidget(btn_import)
+
         btn_settings = QPushButton("Einstellungen")
         btn_settings.clicked.connect(self.open_settings)
         sidebar_layout.addWidget(btn_settings)
@@ -1847,6 +1856,66 @@ class MainWindow(QMainWindow):
         if getattr(view, '_needs_refresh', False) and hasattr(view, 'refresh'):
             view.refresh()
             view._needs_refresh = False
+
+    def _export_library_json(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "MediaBrain Export speichern",
+            "",
+            "JSON-Datei (*.json)"
+        )
+        if not path:
+            return
+        if not path.lower().endswith(".json"):
+            path = f"{path}.json"
+        try:
+            exporter = MediaExporter(self.media_manager.db.conn)
+            count = exporter.export_json(path, include_tags=True, include_playlists=True)
+            QMessageBox.information(
+                self,
+                "Export abgeschlossen",
+                f"{count} Medien exportiert nach:\n{path}"
+            )
+        except Exception as e:
+            QMessageBox.warning(self, "Export fehlgeschlagen", str(e))
+
+    def _import_library_json(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "MediaBrain Export laden",
+            "",
+            "JSON-Datei (*.json)"
+        )
+        if not path:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Import-Modus",
+            (
+                "Bestehende Einträge mit gleicher Quelle + Provider-ID überspringen?\n"
+                "Nein = vorhandene Datensätze ersetzen."
+            ),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.Yes
+        )
+        merge = reply == QMessageBox.StandardButton.Yes
+
+        try:
+            importer = MediaImporter(self.media_manager.db.conn)
+            stats = importer.import_json(path, merge=merge)
+            self.refresh_all_views()
+            QMessageBox.information(
+                self,
+                "Import abgeschlossen",
+                (
+                    f"Importiert: {stats.get('imported', 0)}\n"
+                    f"Übersprungen: {stats.get('skipped', 0)}\n"
+                    f"Fehler: {stats.get('errors', 0)}"
+                )
+            )
+        except Exception as e:
+            QMessageBox.warning(self, "Import fehlgeschlagen", str(e))
 
     def open_settings(self):
         self.settings_window = SettingsWindow()
