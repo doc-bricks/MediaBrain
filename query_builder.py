@@ -161,11 +161,14 @@ class QueryBuilder:
         field = self._resolve_field(field)
 
         if op == "contains":
-            return f"{field} LIKE ?", [f"%{val}%"]
+            escaped = self._escape_like(val)
+            return f"{field} LIKE ? ESCAPE '\\'", [f"%{escaped}%"]
         elif op == "starts_with":
-            return f"{field} LIKE ?", [f"{val}%"]
+            escaped = self._escape_like(val)
+            return f"{field} LIKE ? ESCAPE '\\'", [f"{escaped}%"]
         elif op == "not_contains":
-            return f"{field} NOT LIKE ?", [f"%{val}%"]
+            escaped = self._escape_like(val)
+            return f"{field} NOT LIKE ? ESCAPE '\\'", [f"%{escaped}%"]
         elif op == "is_empty":
             return f"({field} IS NULL OR {field} = '')", []
         elif op == "is_not_empty":
@@ -178,16 +181,18 @@ class QueryBuilder:
     def _build_tag_condition(self, op: str, tag_name: str) -> Tuple[str, list]:
         """Builds a subquery for tag filtering."""
         if op == "contains":
+            escaped = self._escape_like(tag_name)
             return (
                 "id IN (SELECT media_id FROM media_tags mt "
-                "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ?)",
-                [f"%{tag_name}%"]
+                "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ? ESCAPE '\\')",
+                [f"%{escaped}%"]
             )
         elif op == "not_contains":
+            escaped = self._escape_like(tag_name)
             return (
                 "id NOT IN (SELECT media_id FROM media_tags mt "
-                "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ?)",
-                [f"%{tag_name}%"]
+                "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ? ESCAPE '\\')",
+                [f"%{escaped}%"]
             )
         elif op == "=":
             return (
@@ -200,6 +205,11 @@ class QueryBuilder:
     def _resolve_field(self, field: str) -> str:
         """Maps public filter field names to actual database columns."""
         return self.FIELD_ALIASES.get(field, field)
+
+    def _escape_like(self, value: Any) -> str:
+        """Escapes LIKE wildcards so user input is treated literally."""
+        s = str(value)
+        return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
     def _normalize_bool(self, value: Any) -> int:
         """Normalizes UI/JSON boolean-like values for SQLite integer columns."""

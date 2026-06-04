@@ -125,6 +125,76 @@ class TestQueryBuilder(unittest.TestCase):
         self.assertNotIn("ORDER BY tags", sql)
         self.assertEqual(len(rows), 2)
 
+    def test_like_wildcards_in_search_value_are_escaped(self):
+        self._insert_media(
+            title="100% Natural",
+            media_type="movie",
+            source="local",
+            provider_id="local-natural",
+        )
+        self._insert_media(
+            title="1000 Ways",
+            media_type="movie",
+            source="local",
+            provider_id="local-ways",
+        )
+
+        builder = QueryBuilder()
+        builder.add_condition("title", "contains", "100%")
+        _, rows = self._run(builder)
+
+        titles = [r["title"] for r in rows]
+        self.assertIn("100% Natural", titles)
+        self.assertNotIn("1000 Ways", titles)
+
+    def test_like_underscore_in_search_value_is_escaped(self):
+        self._insert_media(
+            title="file_name.mp4",
+            media_type="music",
+            source="local",
+            provider_id="local-filename",
+        )
+        self._insert_media(
+            title="filename.mp4",
+            media_type="music",
+            source="local",
+            provider_id="local-filename2",
+        )
+
+        builder = QueryBuilder()
+        builder.add_condition("title", "contains", "file_name")
+        _, rows = self._run(builder)
+
+        titles = [r["title"] for r in rows]
+        self.assertIn("file_name.mp4", titles)
+        self.assertNotIn("filename.mp4", titles)
+
+    def test_tag_contains_with_underscore_wildcard_is_escaped(self):
+        scifi_id = self._insert_media(
+            title="Dune",
+            media_type="movie",
+            source="local",
+            provider_id="local-dune",
+        )
+        scixfi_id = self._insert_media(
+            title="SciXFi Movie",
+            media_type="movie",
+            source="local",
+            provider_id="local-scixfi",
+        )
+        tag_scifi = self.tags.create_tag("Sci_Fi")
+        tag_scixfi = self.tags.create_tag("SciXFi")
+        self.tags.add_tag_to_media(scifi_id, tag_scifi)
+        self.tags.add_tag_to_media(scixfi_id, tag_scixfi)
+
+        builder = QueryBuilder()
+        builder.add_condition("tags", "contains", "Sci_Fi")
+        _, rows = self._run(builder)
+
+        ids = [r["id"] for r in rows]
+        self.assertIn(scifi_id, ids)
+        self.assertNotIn(scixfi_id, ids)
+
 
 if __name__ == "__main__":
     unittest.main()
