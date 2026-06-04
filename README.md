@@ -1,63 +1,82 @@
 # MediaBrain
 
-MediaBrain ist ein lokaler, datenschutzfreundlicher Media-Hub. Die Anwendung erkennt und organisiert Inhalte aus Streaming-Diensten, lokalen Dateien, Browser-Aktivität und App-Nutzung in einer einzigen PySide6-Oberfläche.
+**MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**
 
-> MediaBrain is a local, privacy-friendly media hub. It detects and organizes content from streaming services, local files, browser activity, and app usage in one PySide6 desktop interface.
+[Deutsch](README_de.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
-## Screenshots
+![MediaBrain main window](README/screenshots/main.png)
 
-![Hauptfenster / Main Window](README/screenshots/main.png)
+## Start Here
 
-## Funktionen / Features
+| Need | Go to |
+|---|---|
+| Run the desktop app | `python MediaBrain.py` |
+| Check privacy boundaries | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) |
+| Understand the architecture | [ARCH.md](ARCH.md) |
+| Review planned work | [ROADMAP.md](ROADMAP.md) |
+| Get machine-readable context | [llms.txt](llms.txt) |
 
-- **Medienerkennung / Media Detection:** Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch und lokale Dateien.
-- **Medienverwaltung / Media Management:** Favoriten, Blacklist mit Ablaufdatum, Detailansicht, Verlauf, Sortierung und Filter.
-- **Playlists:** Manuelle Playlists und Smart-Playlists mit QueryBuilder-Regeln, Tag-Filtern, Sortierung und Limit.
-- **Bibliotheken / Libraries:** Filme, Serien, Musik, Clips, Podcasts, Hörbücher und Dokumente.
-- **Dashboard und Suche:** Favoriten, zuletzt geöffnet, globale Suche, Statistiken und Schnellaktionen.
-- **Tag-System:** Tags erstellen, zuweisen und in Bibliotheken, Suche und Smart-Playlists verwenden.
-- **Themes:** Hell, Dunkel und High-Contrast mit dynamischem Wechsel.
-- **Offline-First:** Lokale SQLite-Datenbank und lokale Konfiguration; keine Telemetrie.
-- **System Tray:** Optionales Minimieren ins Tray statt Beenden.
+## Why MediaBrain
 
-## Architektur / Architecture
+MediaBrain is for people who want one local place for media they watch, collect, tag, blacklist, or organize across services and local files. It is not a hosted streaming service and it does not upload a private library to a cloud account.
+
+- Local SQLite storage for media entries, favorites, tags, blacklist items, and playlists
+- PySide6 desktop UI with dashboard, libraries, search, statistics, settings, and high-contrast themes
+- Provider layer for Netflix, YouTube, Spotify, Disney+, Prime Video, Apple TV+, Twitch, and local files
+- Manual playlists and smart playlists backed by QueryBuilder rules
+- Optional metadata lookup through user-configured TMDb/OMDb keys or public MusicBrainz data
+- No telemetry, no tracking, and no automatic cloud sync
+
+## Search Context
+
+This repository is the canonical GitHub home for:
+
+- `doc-bricks MediaBrain`
+- `MediaBrain media library manager`
+- `local-first PySide6 media manager`
+- `offline media hub with smart playlists`
+- `privacy-first media history desktop app`
+
+The name "MediaBrain" collides with generic AI/media search results, so README text and GitHub topics use the more specific `doc-bricks MediaBrain` and `local-first media library manager` phrasing.
+
+## Architecture
 
 ```text
 Core Layer        Database, MediaManager, BlacklistManager, TagManager, PlaylistManager
-Query Layer       QueryBuilder für erweiterte Filter und Smart-Playlists
+Query Layer       QueryBuilder for advanced filters and smart playlists
 Provider Layer    Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch, Local
 Background Layer  FileIndexer, WindowWatcher
 GUI Layer         Dashboard, Libraries, Favorites, Blacklist, Playlists, Search, Stats, Settings
 ```
 
-Vollständiges Diagramm / Full diagram: [ARCH.md](ARCH.md)
+Full diagram: [ARCH.md](ARCH.md)
 
 ## Installation
 
-Voraussetzungen:
+Requirements:
 
-- Python 3.8 oder neuer
-- Windows, Linux oder macOS mit Qt/PySide6-Unterstützung
+- Python 3.8 or newer
+- Windows, Linux, or macOS with Qt/PySide6 support
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Beim ersten Start wird `settings.json` lokal erzeugt. Die öffentliche Vorlage liegt in [settings.example.json](settings.example.json). Persönliche Einstellungen, Datenbanken, Logs und Build-Artefakte sind per `.gitignore` ausgeschlossen.
+On first launch, MediaBrain creates `settings.json` locally. The public template is [settings.example.json](settings.example.json). Personal settings, databases, logs, and build artifacts are excluded through `.gitignore`.
 
-## Nutzung / Usage
+## Usage
 
 ```bash
 python MediaBrain.py
 ```
 
-Windows-Start per Doppelklick:
+Windows double-click launcher:
 
 ```bat
 START.bat
 ```
 
-Ein schlanker Windows-Starter kann mit folgendem Skript gebaut werden:
+A lightweight Windows launcher can be built with:
 
 ```bat
 build_exe.bat
@@ -69,30 +88,16 @@ build_exe.bat
 python -m pytest tests/ -q
 ```
 
-Die Tests decken Datenbankmanager, Metadaten, Tags, QueryBuilder, Playlists und die Playlist-GUI im Offscreen-Modus ab.
+The test suite covers database managers, metadata, tags, QueryBuilder, playlists, and playlist GUI behavior in offscreen mode.
 
-## Datenschutz / Privacy
+## Privacy
 
-MediaBrain speichert Nutzungsdaten lokal in SQLite-Dateien und Konfigurationsdateien. Es gibt keine Telemetrie und keine automatische Cloud-Synchronisation. Optionale Metadatenabfragen nutzen nur die vom Nutzer konfigurierten TMDb-/OMDb-API-Keys oder öffentliche MusicBrainz-Daten. Details stehen in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+MediaBrain stores usage data locally in SQLite databases and configuration files. It has no telemetry and no automatic cloud sync. Optional metadata requests use only user-configured TMDb/OMDb API keys or public MusicBrainz data. Details: [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
 
-## Roadmap
+## License
 
-Siehe [ROADMAP.md](ROADMAP.md).
+MIT, see [LICENSE](LICENSE). The GUI uses PySide6 under LGPL terms.
 
-## Lizenz / License
+## Liability
 
-GPL v3, siehe [LICENSE](LICENSE). Die GUI basiert auf PySide6 (LGPL).
-
----
-
-**Autor:** Lukas Geiger
-
-**Zuletzt aktualisiert:** Mai 2026
-
-## Haftung / Liability
-
-Dieses Projekt ist eine unentgeltliche Open-Source-Schenkung im Sinne der §§ 516 ff. BGB. Die Haftung des Urhebers ist gemäß § 521 BGB auf Vorsatz und grobe Fahrlässigkeit beschränkt. Ergänzend gelten die Haftungsausschlüsse aus GPL-3.0.
-
-Nutzung auf eigenes Risiko. Keine Wartungszusage, keine Verfügbarkeitsgarantie, keine Gewähr für Fehlerfreiheit oder Eignung für einen bestimmten Zweck.
-
-This project is an unpaid open-source donation. Liability is limited to intent and gross negligence (§ 521 German Civil Code). Use at your own risk. No warranty, maintenance guarantee, or fitness-for-purpose is assumed.
+This project is provided free of charge and "as is", without warranty, maintenance guarantee, or fitness-for-purpose guarantee. Use it at your own risk.

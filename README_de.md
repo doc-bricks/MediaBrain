@@ -1,0 +1,103 @@
+# MediaBrain
+
+**MediaBrain ist ein lokaler PySide6-Medienmanager für persönliche Video-, Musik-, Playlist- und Streaming-Verläufe.**
+
+[English](README.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+
+![MediaBrain Hauptfenster](README/screenshots/main.png)
+
+## Schnellstart
+
+| Bedarf | Einstieg |
+|---|---|
+| Desktop-App starten | `python MediaBrain.py` |
+| Datenschutzgrenzen prüfen | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) |
+| Architektur verstehen | [ARCH.md](ARCH.md) |
+| Geplante Arbeit ansehen | [ROADMAP.md](ROADMAP.md) |
+| Maschinenlesbaren Kontext nutzen | [llms.txt](llms.txt) |
+
+## Wofür MediaBrain gedacht ist
+
+MediaBrain bündelt Medien, die Sie ansehen, sammeln, taggen, ausblenden oder in Playlists organisieren. Das Projekt ist kein Streaming-Dienst und lädt keine private Mediensammlung in eine Cloud.
+
+- Lokale SQLite-Speicherung für Medien, Favoriten, Tags, Blacklist-Einträge und Playlists
+- PySide6-Desktopoberfläche mit Dashboard, Bibliotheken, Suche, Statistiken, Einstellungen und High-Contrast-Theme
+- Provider-Schicht für Netflix, YouTube, Spotify, Disney+, Prime Video, Apple TV+, Twitch und lokale Dateien
+- Manuelle Playlists und Smart-Playlists mit QueryBuilder-Regeln
+- Optionale Metadatenabfragen über selbst konfigurierte TMDb-/OMDb-Keys oder öffentliche MusicBrainz-Daten
+- Keine Telemetrie, kein Tracking und keine automatische Cloud-Synchronisation
+
+## Suchkontext
+
+Dieses Repository ist die kanonische GitHub-Adresse für:
+
+- `doc-bricks MediaBrain`
+- `MediaBrain Medienmanager`
+- `lokaler PySide6 Medienmanager`
+- `offline media hub smart playlists`
+- `privacy-first media history desktop app`
+
+Der Name „MediaBrain“ kollidiert mit generischen KI- und Medienergebnissen. Deshalb nutzt die öffentliche Beschreibung bewusst präzisere Formulierungen wie `doc-bricks MediaBrain` und `local-first media library manager`.
+
+## Architektur
+
+```text
+Core Layer        Database, MediaManager, BlacklistManager, TagManager, PlaylistManager
+Query Layer       QueryBuilder für erweiterte Filter und Smart-Playlists
+Provider Layer    Netflix, YouTube, Spotify, Disney+, Prime, AppleTV+, Twitch, Local
+Background Layer  FileIndexer, WindowWatcher
+GUI Layer         Dashboard, Libraries, Favorites, Blacklist, Playlists, Search, Stats, Settings
+```
+
+Vollständiges Diagramm: [ARCH.md](ARCH.md)
+
+## Installation
+
+Voraussetzungen:
+
+- Python 3.8 oder neuer
+- Windows, Linux oder macOS mit Qt-/PySide6-Unterstützung
+
+```bash
+pip install -r requirements.txt
+```
+
+Beim ersten Start wird `settings.json` lokal erzeugt. Die öffentliche Vorlage liegt in [settings.example.json](settings.example.json). Persönliche Einstellungen, Datenbanken, Logs und Build-Artefakte sind per `.gitignore` ausgeschlossen.
+
+## Nutzung
+
+```bash
+python MediaBrain.py
+```
+
+Windows-Start per Doppelklick:
+
+```bat
+START.bat
+```
+
+Ein schlanker Windows-Starter kann mit folgendem Skript gebaut werden:
+
+```bat
+build_exe.bat
+```
+
+## Tests
+
+```bash
+python -m pytest tests/ -q
+```
+
+Die Tests decken Datenbankmanager, Metadaten, Tags, QueryBuilder, Playlists und Playlist-GUI-Verhalten im Offscreen-Modus ab.
+
+## Datenschutz
+
+MediaBrain speichert Nutzungsdaten lokal in SQLite-Dateien und Konfigurationsdateien. Es gibt keine Telemetrie und keine automatische Cloud-Synchronisation. Optionale Metadatenabfragen nutzen nur die vom Nutzer konfigurierten TMDb-/OMDb-API-Keys oder öffentliche MusicBrainz-Daten. Details stehen in [PRIVACY_POLICY.md](PRIVACY_POLICY.md).
+
+## Lizenz
+
+MIT, siehe [LICENSE](LICENSE). Die GUI nutzt PySide6 unter LGPL-Bedingungen.
+
+## Haftung
+
+Dieses Projekt wird kostenlos und ohne Gewährleistung bereitgestellt. Es gibt keine Wartungszusage, keine Verfügbarkeitsgarantie und keine Gewähr für Fehlerfreiheit oder Eignung für einen bestimmten Zweck. Nutzung auf eigenes Risiko.

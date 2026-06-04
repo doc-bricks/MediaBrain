@@ -1,0 +1,37 @@
+# doc-bricks MediaBrain
+
+Canonical repository: https://github.com/doc-bricks/MediaBrain
+
+## Summary
+
+MediaBrain is a local-first PySide6 desktop application for managing personal media history, local files, streaming-provider entries, favorites, blacklists, tags, and playlists. It stores data locally in SQLite and configuration files. It has no telemetry, no tracking, and no automatic cloud sync.
+
+## Primary Audience
+
+- Users who want a private local media hub
+- Developers looking for a PySide6 desktop media-library example
+- Maintainers evaluating doc-bricks local-first desktop tools
+
+## Key Files
+
+- `README.md` - English public landing page
+- `README_de.md` - German public landing page
+- `PRIVACY_POLICY.md` - privacy boundaries and optional metadata calls
+- `ARCH.md` - architecture overview
+- `MediaBrain.py` - desktop application entry point
+- `core.py` - media, tags, playlists, blacklist, and database logic
+- `providers.py` - streaming and local-provider detection
+- `gui.py` and `gui_playlists.py` - PySide6 user interface
+- `tests/` - pytest regression and GUI smoke tests
+
+## Search Phrases
+
+- doc-bricks MediaBrain
+- MediaBrain media library manager
+- local-first PySide6 media manager
+- privacy-first media history desktop app
+- offline media hub smart playlists
+
+## Boundaries
+
+MediaBrain is not a streaming service, not a cloud sync product, and not an AI media generator. Optional metadata lookup depends on user-configured API keys or public metadata services.

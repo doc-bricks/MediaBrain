@@ -5,6 +5,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Geändert / Changed
+
+- README auf English-first GitHub-Landing-Page umgestellt und separate deutsche README ergänzt.
+- `llms.txt` mit kanonischem Projektkontext, Suchphrasen und Privacy-Grenzen ergänzt.
+- Community-Workflows auf aktuelle Major-Versionen gehoben.
+
 ### Hinzugefügt / Added
 
 - Playlist-GUI in `gui_playlists.py`: `PlaylistsView` als Sidebar-Eintrag,
