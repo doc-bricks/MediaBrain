@@ -326,17 +326,23 @@ class SearchEngine:
     def __init__(self, db):
         self.db = db
         
+    @staticmethod
+    def _escape_like(value: str) -> str:
+        """Escapes LIKE wildcards so user input is treated literally."""
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
     def search(self, criteria: SearchCriteria):
         """Führt Suche basierend auf Kriterien aus."""
-        
+
         # Basis-Query
         query = "SELECT * FROM media_items WHERE 1=1"
         params = []
-        
+
         # Textsuche
         if criteria.text:
-            query += " AND (title LIKE ? OR description LIKE ?)"
-            search_term = f"%{criteria.text}%"
+            escaped = self._escape_like(criteria.text)
+            query += " AND (title LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')"
+            search_term = f"%{escaped}%"
             params.extend([search_term, search_term])
         
         # Typ-Filter
@@ -364,7 +370,7 @@ class SearchEngine:
             params.append(cutoff)
         
         # Sortierung (Whitelist gegen SQL Injection)
-        allowed_sort_fields = {"last_opened_at", "title", "created_at", "rating", "type", "source"}
+        allowed_sort_fields = {"last_opened_at", "title", "created_at", "type", "source"}
         sort_field = criteria.sort_field if criteria.sort_field in allowed_sort_fields else "last_opened_at"
         order_dir = "DESC" if criteria.sort_desc else "ASC"
         query += f" ORDER BY {sort_field} {order_dir}"
@@ -385,12 +391,13 @@ class SearchEngine:
             return []
         
         query = """
-            SELECT DISTINCT title FROM media_items 
-            WHERE title LIKE ? AND blacklist_flag = 0
+            SELECT DISTINCT title FROM media_items
+            WHERE title LIKE ? ESCAPE '\\' AND blacklist_flag = 0
             ORDER BY last_opened_at DESC
             LIMIT ?
         """
-        rows = self.db.fetchall(query, (f"%{text}%", limit))
+        escaped = self._escape_like(text)
+        rows = self.db.fetchall(query, (f"%{escaped}%", limit))
         return [row["title"] for row in rows]
     
     def get_all_tags(self):
