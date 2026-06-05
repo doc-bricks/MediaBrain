@@ -644,6 +644,13 @@ class TagManager:
         new_name = new_name.strip()
         if not new_name:
             raise ValueError("Tag name cannot be empty")
+        if len(new_name) > 50:
+            raise ValueError("Tag name too long (max 50 chars)")
+        existing = self.db.fetchone(
+            "SELECT id FROM tags WHERE name = ? AND id != ?", (new_name, tag_id)
+        )
+        if existing:
+            raise ValueError(f"Tag '{new_name}' already exists")
         self.db.execute(
             "UPDATE tags SET name = ? WHERE id = ?", (new_name, tag_id)
         )

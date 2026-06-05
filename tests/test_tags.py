@@ -112,6 +112,28 @@ class TestTagManager(unittest.TestCase):
         found = [t for t in tags if t["id"] == tag_id]
         self.assertEqual(found[0]["name"], "NewName")
 
+    def test_rename_tag_too_long_raises(self):
+        tag_id = self.tm.create_tag("Short")
+        with self.assertRaises(ValueError):
+            self.tm.rename_tag(tag_id, "x" * 51)
+
+    def test_rename_tag_empty_raises(self):
+        tag_id = self.tm.create_tag("HasName")
+        with self.assertRaises(ValueError):
+            self.tm.rename_tag(tag_id, "")
+
+    def test_rename_tag_to_existing_name_raises(self):
+        t1 = self.tm.create_tag("Action")
+        t2 = self.tm.create_tag("Comedy")
+        with self.assertRaises(ValueError):
+            self.tm.rename_tag(t2, "Action")
+
+    def test_rename_tag_to_existing_name_case_insensitive_raises(self):
+        t1 = self.tm.create_tag("Action")
+        t2 = self.tm.create_tag("Comedy")
+        with self.assertRaises(ValueError):
+            self.tm.rename_tag(t2, "action")
+
     # --- List Tags ---
 
     def test_list_tags_with_counts(self):
