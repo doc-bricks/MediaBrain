@@ -1437,6 +1437,7 @@ class BlacklistView(QWidget):
                 expired = expiry and datetime.now() > expiry
             else:
                 expired = False
+                expiry = None
 
             if expiry_filter == "Nur abgelaufen" and not expired:
                 continue
