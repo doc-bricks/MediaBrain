@@ -8,6 +8,7 @@ gui.py – Erweiterte GUI für MediaBrain
 """
 
 import logging
+from threading import Thread
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ from PySide6.QtWidgets import (
     QStackedWidget, QMenu, QScrollArea, QFrame, QSplitter, QTabWidget,
     QComboBox, QCheckBox, QSystemTrayIcon, QFileDialog, QMessageBox
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, Signal
 from PySide6.QtGui import QAction, QIcon, QPixmap, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
 
 from core import MediaManager, MediaItem, BlacklistManager, TagManager
@@ -57,6 +58,92 @@ def notify_gui_refresh():
 
     if mw and hasattr(mw, "refresh_all_views"):
         mw.refresh_all_views()
+
+
+def build_online_metadata_fetch_kwargs(item):
+    """Ermittelt die Fetch-Parameter für Online-Metadaten aus einem MediaItem."""
+    media_type = getattr(item, "type", None) or "movie"
+    source = getattr(item, "source", None)
+    provider_id = getattr(item, "provider_id", None)
+
+    if media_type in {"clip", "video", "short", "youtube"} or source == "youtube":
+        media_type = "clip"
+
+    kwargs = {
+        "title": getattr(item, "title", ""),
+        "media_type": media_type,
+        "artist": getattr(item, "artist", None),
+        "source": source,
+        "provider_id": provider_id,
+        "provider_subtype": getattr(item, "provider_subtype", None),
+    }
+
+    local_path = getattr(item, "local_path", None)
+    if isinstance(local_path, str) and local_path.startswith(("http://", "https://")):
+        kwargs["url"] = local_path
+
+    return kwargs
+
+
+def format_online_metadata(result, current_description=None):
+    """Formatiert Metadaten für die Anzeige im Detail-Panel."""
+    if not result:
+        return [], None, "Keine Online-Metadaten gefunden."
+
+    if "error" in result:
+        return [], None, f"Fehler: {result['error']}"
+
+    lines = []
+
+    title = result.get("title")
+    if title:
+        lines.append(f"Titel: {title}")
+
+    year = result.get("year")
+    if year:
+        lines.append(f"Jahr: {year}")
+
+    rating = result.get("rating")
+    if rating not in (None, ""):
+        lines.append(f"Bewertung: {rating}/10")
+
+    genres = result.get("genres")
+    if genres:
+        if isinstance(genres, list):
+            genres = ", ".join(str(genre) for genre in genres if genre)
+        lines.append(f"Genres: {genres}")
+
+    runtime = result.get("runtime")
+    if runtime:
+        lines.append(f"Laufzeit: {runtime} Min")
+
+    director = result.get("director")
+    if director:
+        lines.append(f"Regie: {director}")
+
+    channel = result.get("channel") or result.get("author_name")
+    if channel:
+        lines.append(f"Kanal: {channel}")
+
+    source = result.get("source")
+    if source:
+        lines.append(f"Quelle: {source}")
+
+    if result.get("thumbnail_url"):
+        lines.append("Vorschaubild: verfügbar")
+
+    description = result.get("description")
+    if description and description != current_description:
+        description = str(description)
+        if len(description) > 500:
+            description = description[:500].rstrip() + "..."
+    else:
+        description = None
+
+    if not lines and not description:
+        return [], None, "Online-Metadaten gefunden, aber keine Felder zum Anzeigen."
+
+    return lines, description, None
 
 
 # ============================================================
@@ -177,7 +264,7 @@ class MediaItemWidget(QFrame):
             handler.open_item(self.item)
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht oeffnen: {e}")
+            QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht öffnen: {e}")
 
     def open_detail_page(self):
         try:
@@ -187,7 +274,7 @@ class MediaItemWidget(QFrame):
                 mw.open_detail(self.item)
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Detailseite konnte nicht geoeffnet werden: {e}")
+            QMessageBox.warning(self, "Fehler", f"Detailseite konnte nicht geöffnet werden: {e}")
 
     def toggle_favorite(self):
         try:
@@ -334,7 +421,9 @@ class MediaItemWidget(QFrame):
 
             # Status prüfen
             status = fetcher.get_status()
-            if not any(status.values()):
+            needs_api_keys = self.item.type in {"movie", "series"}
+            has_required_api = status.get("tmdb") or status.get("omdb")
+            if needs_api_keys and not has_required_api:
                 QMessageBox.warning(self, "API nicht verfügbar",
                     "Keine API-Keys konfiguriert. Bitte in settings.json eintragen.")
                 return
@@ -344,7 +433,10 @@ class MediaItemWidget(QFrame):
                 title=self.item.title,
                 media_type=self.item.type,
                 year=getattr(self.item, 'year', None),
-                artist=getattr(self.item, 'artist', None)
+                artist=getattr(self.item, 'artist', None),
+                source=getattr(self.item, 'source', None),
+                provider_id=getattr(self.item, 'provider_id', None),
+                provider_subtype=getattr(self.item, 'provider_subtype', None)
             )
 
             if not result:
@@ -1001,7 +1093,7 @@ class SettingsWindow(QWidget):
         provider.setLayout(p_layout)
 
         for name in config.config.get("providers", {}).keys():
-            label = QLabel(f"{name} Oeffnen mit:")
+            label = QLabel(f"{name} Öffnen mit:")
             combo = QComboBox()
             combo.addItems(["browser", "app", "local", "auto"])
             combo.setCurrentText(config.config.get(f"providers.{name}.preferred_open_method", "auto"))
@@ -1134,7 +1226,7 @@ class DashboardView(QWidget):
                     widget = MediaItemWidget(item, self.media_manager, self.blacklist_manager)
                     self.container_layout.addWidget(widget)
             else:
-                self.container_layout.addWidget(QLabel("Noch keine Aktivitaeten."))
+                self.container_layout.addWidget(QLabel("Noch keine Aktivitäten."))
 
             self.container_layout.addStretch()
         except Exception as e:
@@ -1467,6 +1559,8 @@ class BlacklistView(QWidget):
             QMessageBox.warning(self, "Fehler", f"Blacklist konnte nicht geleert werden: {e}")
 
 class MediaDetailView(QWidget):
+    online_metadata_loaded = Signal(object)
+
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager, back_callback):
         super().__init__()
 
@@ -1504,6 +1598,19 @@ class MediaDetailView(QWidget):
         )
         layout.addWidget(meta)
 
+        # Online-Metadaten
+        online_label = QLabel("Online-Metadaten:")
+        online_label.setObjectName("sectionHeader")
+        layout.addWidget(online_label)
+
+        self.online_meta_container = QVBoxLayout()
+        self.online_meta_container.setContentsMargins(0, 0, 0, 0)
+        self.online_meta_status = QLabel("Lade Online-Metadaten...")
+        self.online_meta_status.setWordWrap(True)
+        self.online_meta_status.setStyleSheet("color: #888; padding-left: 10px;")
+        self.online_meta_container.addWidget(self.online_meta_status)
+        layout.addLayout(self.online_meta_container)
+
         # Buttons
         btn_row = QHBoxLayout()
 
@@ -1515,12 +1622,87 @@ class MediaDetailView(QWidget):
         fav_btn.clicked.connect(self.toggle_favorite)
         btn_row.addWidget(fav_btn)
 
+        refresh_btn = QPushButton("Metadaten neu laden")
+        refresh_btn.clicked.connect(self._load_online_metadata)
+        btn_row.addWidget(refresh_btn)
+
         back_btn = QPushButton("Zurück")
         back_btn.clicked.connect(self.back_callback)
         btn_row.addWidget(back_btn)
 
         btn_row.addStretch()
         layout.addLayout(btn_row)
+        layout.addStretch()
+
+        self.online_metadata_loaded.connect(self._update_online_metadata)
+        self._load_online_metadata()
+
+    def _clear_online_metadata(self):
+        while self.online_meta_container.count():
+            item = self.online_meta_container.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+    def _load_online_metadata(self):
+        """Lädt Online-Metadaten asynchron im Hintergrund."""
+
+        def fetch():
+            try:
+                from metadata_v2 import MetadataFetcher
+
+                fetcher = MetadataFetcher()
+                kwargs = build_online_metadata_fetch_kwargs(self.item)
+                result = fetcher.auto_fetch(**kwargs)
+            except Exception as exc:
+                result = {"error": str(exc)}
+            try:
+                self.online_metadata_loaded.emit(result)
+            except RuntimeError:
+                pass  # widget destroyed while fetch was in flight
+
+        self._clear_online_metadata()
+        self.online_meta_status = QLabel("Lade Online-Metadaten...")
+        self.online_meta_status.setWordWrap(True)
+        self.online_meta_status.setStyleSheet("color: #888; padding-left: 10px;")
+        self.online_meta_container.addWidget(self.online_meta_status)
+        Thread(target=fetch, daemon=True).start()
+
+    def _update_online_metadata(self, result):
+        """Aktualisiert die Online-Metadaten-Anzeige."""
+        self._clear_online_metadata()
+
+        lines, description, message = format_online_metadata(result, self.item.description)
+
+        if message:
+            label = QLabel(message)
+            label.setWordWrap(True)
+            label.setStyleSheet("padding-left: 10px; color: #888;")
+            self.online_meta_container.addWidget(label)
+            return
+
+        if lines:
+            meta_text = "\n".join(f"  {line}" for line in lines)
+            label = QLabel(meta_text)
+            label.setWordWrap(True)
+            label.setStyleSheet("padding-left: 10px; font-family: monospace;")
+            self.online_meta_container.addWidget(label)
+
+        if description:
+            desc_label = QLabel("Online-Beschreibung:")
+            desc_label.setStyleSheet("font-weight: bold; margin-top: 10px; padding-left: 10px;")
+            self.online_meta_container.addWidget(desc_label)
+
+            desc = QLabel(description)
+            desc.setWordWrap(True)
+            desc.setStyleSheet("padding-left: 20px; color: #555;")
+            self.online_meta_container.addWidget(desc)
+
+        if not lines and not description:
+            label = QLabel("Online-Metadaten gefunden, aber keine Felder zum Anzeigen.")
+            label.setWordWrap(True)
+            label.setStyleSheet("padding-left: 10px; color: #888;")
+            self.online_meta_container.addWidget(label)
 
     def open_item(self):
         try:
@@ -1529,7 +1711,7 @@ class MediaDetailView(QWidget):
             handler.open_item(self.item)
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht oeffnen: {e}")
+            QMessageBox.warning(self, "Fehler", f"Konnte Medium nicht öffnen: {e}")
 
     def toggle_favorite(self):
         try:
@@ -1552,8 +1734,8 @@ class StatsView(QWidget):
     Zeigt:
     - Gesamtanzahl Medien in der Bibliothek
     - Medien pro Typ (movie, series, music, clip, etc.)
-    - Geschaetzter Speicherverbrauch lokaler Dateien
-    - Top 5 zuletzt hinzugefuegte Medien
+    - Geschätzter Speicherverbrauch lokaler Dateien
+    - Top 5 zuletzt hinzugefügte Medien
     """
 
     def __init__(self, media_manager: MediaManager, parent=None):
@@ -1577,7 +1759,7 @@ class StatsView(QWidget):
         self.lbl_total.setObjectName("sectionHeader")
         layout.addWidget(self.lbl_total)
 
-        self.lbl_storage = QLabel("Geschaetzter Speicher (lokal): –")
+        self.lbl_storage = QLabel("Geschätzter Speicher (lokal): –")
         layout.addWidget(self.lbl_storage)
 
         # --- Medien pro Typ ---
@@ -1587,7 +1769,7 @@ class StatsView(QWidget):
         layout.addWidget(self.type_list)
 
         # --- Zuletzt hinzugefuegt ---
-        layout.addWidget(QLabel("<b>Zuletzt hinzugefuegt (Top 5):</b>"))
+        layout.addWidget(QLabel("<b>Zuletzt hinzugefügt (Top 5):</b>"))
         self.recent_list = QListWidget()
         self.recent_list.setMaximumHeight(150)
         layout.addWidget(self.recent_list)
@@ -1637,9 +1819,9 @@ class StatsView(QWidget):
                     pass
             if total_bytes > 0:
                 total_gb = total_bytes / (1024 ** 3)
-                self.lbl_storage.setText(f"Geschaetzter Speicher (lokal): {total_gb:.2f} GB ({len(local_rows)} Dateien)")
+                self.lbl_storage.setText(f"Geschätzter Speicher (lokal): {total_gb:.2f} GB ({len(local_rows)} Dateien)")
             else:
-                self.lbl_storage.setText(f"Geschaetzter Speicher (lokal): Keine lokalen Dateien erfasst")
+                self.lbl_storage.setText("Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst")
 
             # 4. Zuletzt hinzugefuegt (Top 5)
             recent_rows = db.conn.execute(
@@ -1996,7 +2178,7 @@ class MainWindow(QMainWindow):
             self.hide()
             self.tray_icon.showMessage(
                 "MediaBrain",
-                "MediaBrain laeuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum öffnen.",
+                "MediaBrain läuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum öffnen.",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000
             )
