@@ -17,6 +17,7 @@ import sqlite3
 import hashlib
 from pathlib import Path
 from datetime import datetime, timedelta
+from urllib.parse import parse_qs, urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +28,85 @@ try:
 except ImportError:
     HAS_BS4 = False
 
+try:
+    from mutagen import File as MutagenFile
+    HAS_MUTAGEN = True
+except ImportError:
+    MutagenFile = None
+    HAS_MUTAGEN = False
+
+try:
+    from pymediainfo import MediaInfo
+    HAS_MEDIAINFO = True
+except ImportError:
+    MediaInfo = None
+    HAS_MEDIAINFO = False
+
 # ============================================================
 # Konfiguration - API Keys werden aus Umgebung oder Config geladen
 # ============================================================
 
 CONFIG_PATH = Path(__file__).parent / "settings.json"
+YOUTUBE_OEMBED_URL = "https://www.youtube.com/oembed"
+SPOTIFY_OEMBED_URL = "https://open.spotify.com/oembed"
+
+
+def _extract_youtube_video_id(url):
+    """Extrahiert eine YouTube-Video-ID aus verschiedenen URL-Formen."""
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+
+    if "youtu.be" in host:
+        return parsed.path.strip("/").split("/")[0] or None
+
+    if "youtube.com" in host:
+        query_id = parse_qs(parsed.query).get("v", [None])[0]
+        if query_id:
+            return query_id
+
+        parts = [part for part in parsed.path.split("/") if part]
+        if len(parts) >= 2 and parts[0] in {"shorts", "embed"}:
+            return parts[1]
+
+    return None
+
+
+def _is_youtube_url(url):
+    """Prueft, ob eine URL auf YouTube zeigt."""
+    if not url:
+        return False
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    return "youtube.com" in host or "youtu.be" in host
+
+
+def _normalize_youtube_url(url):
+    """Gibt eine kanonische YouTube-Watch-URL zurueck, wenn moeglich."""
+    video_id = _extract_youtube_video_id(url)
+    if not video_id:
+        return None
+    return f"https://www.youtube.com/watch?v={video_id}"
+
+
+def _is_spotify_url(url):
+    """Prueft, ob eine URL auf Spotify zeigt."""
+    if not url:
+        return False
+    parsed = urlparse(url)
+    host = parsed.netloc.lower()
+    return "spotify.com" in host or "spotify.link" in host
+
+
+def _normalize_spotify_url(url=None, provider_subtype=None, provider_id=None):
+    """Gibt eine kanonische Spotify-URL fuer oEmbed zurueck, wenn moeglich."""
+    if url and _is_spotify_url(url):
+        return url
+
+    if provider_id:
+        spotify_kind = provider_subtype or "track"
+        return f"https://open.spotify.com/{spotify_kind}/{provider_id}"
+
+    return None
 
 def get_api_key(service):
     """Holt API-Key aus settings.json oder Umgebungsvariable."""
@@ -94,6 +169,312 @@ def fetch_opengraph(url):
     except Exception as e:
         logger.error(f"[Metadata] OpenGraph Fehler bei {url}: {e}")
         return None
+
+
+def fetch_youtube_oembed(url):
+    """Holt Metadaten von YouTube ueber das oEmbed-Endpunkt."""
+    watch_url = _normalize_youtube_url(url)
+    if not watch_url:
+        return None
+
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        response = requests.get(
+            YOUTUBE_OEMBED_URL,
+            params={"url": watch_url, "format": "json"},
+            headers=headers,
+            timeout=5
+        )
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+        if not data:
+            return None
+
+        return {
+            "title": data.get("title"),
+            "thumbnail_url": data.get("thumbnail_url"),
+            "channel": data.get("author_name"),
+            "author_name": data.get("author_name"),
+            "provider_id": _extract_youtube_video_id(watch_url),
+            "source": "youtube",
+            "metadata_source": "youtube_oembed",
+            "type": "clip",
+        }
+
+    except Exception as e:
+        logger.warning(f"[Metadata] YouTube oEmbed Fehler bei {url}: {e}")
+        return None
+
+
+def fetch_spotify_oembed(url, provider_subtype=None, provider_id=None):
+    """Holt Metadaten von Spotify ueber den oEmbed-Endpunkt."""
+    spotify_url = _normalize_spotify_url(url, provider_subtype, provider_id) or url
+    if not spotify_url or not _is_spotify_url(spotify_url):
+        return None
+
+    if not provider_id:
+        parsed = urlparse(spotify_url)
+        parts = [part for part in parsed.path.split("/") if part]
+        if len(parts) >= 2 and parts[0] in {"track", "album", "playlist", "artist", "episode", "show"}:
+            provider_subtype = provider_subtype or parts[0]
+            provider_id = parts[1]
+
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+        response = requests.get(
+            SPOTIFY_OEMBED_URL,
+            params={"url": spotify_url},
+            headers=headers,
+            timeout=5
+        )
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+        if not data:
+            return None
+
+        result = {
+            "title": data.get("title"),
+            "thumbnail_url": data.get("thumbnail_url"),
+            "source": "spotify",
+            "metadata_source": "spotify_oembed",
+            "type": "music",
+        }
+
+        if provider_id:
+            result["provider_id"] = provider_id
+        if provider_subtype:
+            result["provider_subtype"] = provider_subtype
+        if data.get("provider_url"):
+            result["provider_url"] = data.get("provider_url")
+
+        return result
+
+    except Exception as e:
+        logger.warning(f"[Metadata] Spotify oEmbed Fehler bei {url}: {e}")
+        return None
+
+
+LOCAL_SUFFIX_TYPES = {
+    # Video
+    ".mp4": "movie",
+    ".mkv": "movie",
+    ".avi": "movie",
+    ".mov": "movie",
+    ".wmv": "movie",
+    ".webm": "clip",
+    # Audio
+    ".mp3": "music",
+    ".flac": "music",
+    ".wav": "music",
+    ".m4a": "music",
+    ".aac": "music",
+    ".ogg": "music",
+    ".m4b": "audiobook",
+    # Dokumente
+    ".pdf": "document",
+    ".epub": "document",
+}
+
+
+def _local_media_type(path: Path) -> str:
+    return LOCAL_SUFFIX_TYPES.get(path.suffix.lower(), "file")
+
+
+LOCAL_COVER_FILENAMES = ("cover", "folder", "front", "poster", "album", "art", "thumbnail")
+LOCAL_COVER_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp", ".bmp", ".gif")
+
+
+def _find_local_cover_art(path: Path):
+    """Findet ein lokales Coverbild neben der Mediendatei."""
+    if not path.exists():
+        return None
+
+    search_dir = path if path.is_dir() else path.parent
+    candidate_stems = [path.stem] + list(LOCAL_COVER_FILENAMES)
+
+    for stem in candidate_stems:
+        for extension in LOCAL_COVER_EXTENSIONS:
+            candidate = search_dir / f"{stem}{extension}"
+            if candidate.is_file():
+                try:
+                    return candidate.resolve().as_uri()
+                except ValueError:
+                    return str(candidate.resolve())
+
+    return None
+
+
+def _tag_value_text(value):
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        if "text" in value:
+            return _tag_value_text(value["text"])
+        if "value" in value:
+            return _tag_value_text(value["value"])
+    if hasattr(value, "text"):
+        return _tag_value_text(value.text)
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            text = _tag_value_text(item)
+            if text:
+                return text
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _tag_lookup(tags, *keys):
+    if not tags:
+        return None
+
+    for key in keys:
+        value = None
+        if hasattr(tags, "get"):
+            value = tags.get(key)
+        else:
+            try:
+                value = tags[key]
+            except Exception:
+                value = None
+
+        text = _tag_value_text(value)
+        if text:
+            return text
+
+    return None
+
+
+def _extract_mutagen_metadata(path: Path):
+    if not HAS_MUTAGEN or MutagenFile is None:
+        return None
+
+    try:
+        audio = MutagenFile(str(path))
+    except Exception as e:
+        logger.debug("[Metadata] Mutagen Fehler bei %s: %s", path, e)
+        return None
+
+    if not audio:
+        return None
+
+    tags = getattr(audio, "tags", None)
+    result = {}
+
+    title = _tag_lookup(tags, "TIT2", "\xa9nam", "title", "TITLE")
+    if title:
+        result["title"] = title
+
+    artist = _tag_lookup(tags, "TPE1", "\xa9ART", "artist", "ARTIST")
+    if artist:
+        result["artist"] = artist
+
+    album = _tag_lookup(tags, "TALB", "\xa9alb", "album", "ALBUM")
+    if album:
+        result["album"] = album
+
+    description = _tag_lookup(tags, "COMM", "\xa9cmt", "comment", "description")
+    if description:
+        result["description"] = description
+
+    year = _tag_lookup(tags, "TDRC", "\xa9day", "date", "year")
+    if year:
+        result["year"] = year[:4]
+
+    info = getattr(audio, "info", None)
+    length = getattr(info, "length", None)
+    if length is not None:
+        try:
+            result["length_seconds"] = int(round(float(length)))
+        except (TypeError, ValueError):
+            pass
+
+    return result or None
+
+
+def _extract_mediainfo_metadata(path: Path):
+    if not HAS_MEDIAINFO or MediaInfo is None:
+        return None
+
+    try:
+        media_info = MediaInfo.parse(str(path))
+    except Exception as e:
+        logger.debug("[Metadata] MediaInfo Fehler bei %s: %s", path, e)
+        return None
+
+    result = {}
+    for track in getattr(media_info, "tracks", []):
+        track_type = getattr(track, "track_type", "").lower()
+        if track_type == "general":
+            title = getattr(track, "title", None) or getattr(track, "movie_name", None)
+            if title:
+                result["title"] = title
+
+            artist = getattr(track, "performer", None) or getattr(track, "track_performer", None)
+            if artist:
+                result["artist"] = artist
+
+            album = getattr(track, "album", None)
+            if album:
+                result["album"] = album
+
+            description = getattr(track, "comment", None)
+            if description:
+                result["description"] = description
+
+            duration = getattr(track, "duration", None)
+            if duration is not None:
+                try:
+                    result["length_seconds"] = int(round(float(duration) / 1000.0))
+                except (TypeError, ValueError):
+                    pass
+
+        elif track_type in {"audio", "video"} and "length_seconds" not in result:
+            duration = getattr(track, "duration", None)
+            if duration is not None:
+                try:
+                    result["length_seconds"] = int(round(float(duration) / 1000.0))
+                except (TypeError, ValueError):
+                    pass
+
+    return result or None
+
+
+def fetch_local_metadata(file_path):
+    """Holt lokale Datei-Metadaten ueber optionale Parser und Sidecar-Cover."""
+    path = Path(file_path)
+    if not path.exists() or not path.is_file():
+        return None
+
+    result = {
+        "title": path.stem,
+        "type": _local_media_type(path),
+        "source": "local",
+        "provider_id": str(path.resolve()),
+        "is_local_file": True,
+        "local_path": str(path.resolve()),
+        "has_real_id": True,
+    }
+
+    extracted = _extract_mutagen_metadata(path) or _extract_mediainfo_metadata(path) or {}
+    for key, value in extracted.items():
+        if value is None:
+            continue
+        if key == "type" and value == "file":
+            continue
+        result[key] = value
+
+    cover_art = _find_local_cover_art(path)
+    if cover_art:
+        result["thumbnail_url"] = cover_art
+
+    return result
 
 # ============================================================
 # 2. TMDb (The Movie Database)
@@ -382,9 +763,9 @@ class MusicBrainzFetcher:
                 if images:
                     return images[0].get("image")
 
-        except (KeyError, IndexError, AttributeError):
-            pass
-        
+        except Exception as e:
+            logger.error(f"[MusicBrainz] Cover-Art Fehler fuer {release_id}: {e}")
+
         return None
 
 # ============================================================
@@ -563,9 +944,31 @@ class MetadataFetcher:
         self._cache_put("series", title, result, "series", str(year) if year else None)
         return result
 
-    def fetch_music(self, title, artist=None):
-        """Holt Musik-Metadaten (Cache → MusicBrainz)."""
-        cached = self._cache_get("music", title, "music", artist=artist)
+    def fetch_music(self, title, artist=None, source=None, provider_id=None, provider_subtype=None, url=None):
+        """Holt Musik-Metadaten (Spotify oEmbed -> MusicBrainz)."""
+        spotify_url = _normalize_spotify_url(url, provider_subtype, provider_id)
+        if source == "spotify" and not spotify_url:
+            spotify_url = _normalize_spotify_url(None, provider_subtype, provider_id)
+
+        if spotify_url:
+            cached = self._cache_get("spotify", spotify_url, "music")
+            if cached:
+                return cached
+
+            result = fetch_spotify_oembed(
+                spotify_url,
+                provider_subtype=provider_subtype,
+                provider_id=provider_id
+            )
+            if result:
+                if title and not result.get("title"):
+                    result["title"] = title
+                if artist and not result.get("artist"):
+                    result["artist"] = artist
+                self._cache_put("spotify", spotify_url, result, "music")
+                return result
+
+        cached = self._cache_get("musicbrainz", title, "music", artist=artist)
         if cached:
             return cached
 
@@ -582,10 +985,44 @@ class MetadataFetcher:
                 "source": "musicbrainz"
             }
 
-        self._cache_put("music", title, result, "music", artist=artist)
+        self._cache_put("musicbrainz", title, result, "music", artist=artist)
         return result
 
-    def auto_fetch(self, title, media_type="movie", year=None, artist=None):
+    def fetch_clip(self, title, source=None, provider_id=None, url=None):
+        """Holt Clip-Metadaten, bevorzugt via YouTube oEmbed."""
+        cache_query = url or provider_id or title
+        cached = self._cache_get("clip", cache_query, "clip", artist=source)
+        if cached:
+            return cached
+
+        result = None
+
+        candidate_url = url
+        if not candidate_url and source == "youtube" and provider_id:
+            candidate_url = f"https://www.youtube.com/watch?v={provider_id}"
+        if not candidate_url and _is_youtube_url(title):
+            candidate_url = title
+
+        if candidate_url and _is_youtube_url(candidate_url):
+            result = fetch_youtube_oembed(candidate_url)
+            if result and not result.get("title"):
+                result["title"] = title
+        elif title:
+            result = fetch_opengraph(title)
+
+        if result:
+            result["type"] = "clip"
+            if source:
+                result["source"] = source
+            if provider_id and not result.get("provider_id"):
+                result["provider_id"] = provider_id
+            if title and not result.get("title"):
+                result["title"] = title
+
+        self._cache_put("clip", cache_query, result, "clip", artist=source)
+        return result
+
+    def auto_fetch(self, title, media_type="movie", year=None, artist=None, source=None, provider_id=None, provider_subtype=None, url=None):
         """
         Automatischer Fetch basierend auf Medientyp.
         
@@ -600,7 +1037,16 @@ class MetadataFetcher:
         elif media_type in ["series", "show", "tv"]:
             return self.fetch_series(title, year)
         elif media_type in ["music", "song", "album"]:
-            return self.fetch_music(title, artist)
+            return self.fetch_music(
+                title,
+                artist,
+                source=source,
+                provider_id=provider_id,
+                provider_subtype=provider_subtype,
+                url=url
+            )
+        elif media_type in ["clip", "video", "short", "youtube"]:
+            return self.fetch_clip(title, source=source, provider_id=provider_id, url=url)
         else:
             # Versuche Film zuerst
             result = self.fetch_movie(title, year)
@@ -622,6 +1068,15 @@ class MetadataFetcher:
 
 def fetch_metadata(url):
     """Legacy-Funktion für Abwärtskompatibilität."""
+    if _is_spotify_url(url):
+        result = fetch_spotify_oembed(url)
+        if result:
+            return result
+
+    if _is_youtube_url(url):
+        result = fetch_youtube_oembed(url)
+        if result:
+            return result
     return fetch_opengraph(url)
 
 # ============================================================

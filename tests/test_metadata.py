@@ -9,13 +9,14 @@ import json
 import hashlib
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from metadata_v2 import MetadataCache, MetadataFetcher, TMDbFetcher, OMDbFetcher
+from metadata_v2 import MetadataCache, MetadataFetcher, TMDbFetcher, OMDbFetcher, fetch_metadata, fetch_local_metadata
 
 
 # ============================================================
@@ -224,6 +225,200 @@ class TestMetadataFetcherMusic:
         assert result["thumbnail_url"] == cover_url
 
 
+class TestYouTubeOEmbed:
+    def _mock_oembed_response(self):
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = {
+            "title": "Never Gonna Give You Up",
+            "thumbnail_url": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+            "author_name": "RickAstleyVEVO",
+        }
+        return response
+
+    def test_fetch_metadata_uses_youtube_oembed(self):
+        """fetch_metadata() nutzt YouTube oEmbed fuer YouTube-URLs."""
+        def fake_get(url, params=None, headers=None, timeout=None):
+            assert "oembed" in url
+            assert params["format"] == "json"
+            assert params["url"] == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            return self._mock_oembed_response()
+
+        with patch("metadata_v2.requests.get", side_effect=fake_get):
+            result = fetch_metadata("https://youtu.be/dQw4w9WgXcQ")
+
+        assert result is not None
+        assert result["title"] == "Never Gonna Give You Up"
+        assert result["thumbnail_url"].endswith("hqdefault.jpg")
+        assert result["channel"] == "RickAstleyVEVO"
+        assert result["source"] == "youtube"
+        assert result["metadata_source"] == "youtube_oembed"
+        assert result["provider_id"] == "dQw4w9WgXcQ"
+
+    def test_fetch_clip_uses_youtube_provider_id(self):
+        """fetch_clip() baut fuer YouTube eine Watch-URL aus provider_id."""
+        fetcher = MetadataFetcher(cache_enabled=False)
+
+        def fake_get(url, params=None, headers=None, timeout=None):
+            assert "oembed" in url
+            assert params["url"] == "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            return self._mock_oembed_response()
+
+        with patch("metadata_v2.requests.get", side_effect=fake_get):
+            result = fetcher.fetch_clip(
+                "YouTube Video dQw4w9WgXcQ",
+                source="youtube",
+                provider_id="dQw4w9WgXcQ"
+            )
+
+        assert result is not None
+        assert result["type"] == "clip"
+        assert result["source"] == "youtube"
+        assert result["title"] == "Never Gonna Give You Up"
+        assert result["channel"] == "RickAstleyVEVO"
+
+
+class TestSpotifyOEmbed:
+    def _mock_spotify_response(self):
+        response = MagicMock()
+        response.status_code = 200
+        response.json.return_value = {
+            "title": "Never Gonna Give You Up",
+            "thumbnail_url": "https://i.scdn.co/image/ab67616d0000b273abcdef1234567890abcdef12",
+            "provider_name": "Spotify",
+            "provider_url": "https://spotify.com",
+        }
+        return response
+
+    def test_fetch_metadata_uses_spotify_oembed(self):
+        """fetch_metadata() nutzt Spotify oEmbed fuer Spotify-URLs."""
+        def fake_get(url, params=None, headers=None, timeout=None):
+            assert url == "https://open.spotify.com/oembed"
+            assert params["url"] == "https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC"
+            return self._mock_spotify_response()
+
+        with patch("metadata_v2.requests.get", side_effect=fake_get):
+            result = fetch_metadata("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC")
+
+        assert result is not None
+        assert result["title"] == "Never Gonna Give You Up"
+        assert result["source"] == "spotify"
+        assert result["metadata_source"] == "spotify_oembed"
+        assert result["type"] == "music"
+
+    def test_fetch_music_uses_spotify_oembed_before_musicbrainz(self):
+        """fetch_music() bevorzugt Spotify oEmbed fuer Spotify-Quellen."""
+        fetcher = MetadataFetcher(cache_enabled=False)
+
+        def fake_get(url, params=None, headers=None, timeout=None):
+            assert url == "https://open.spotify.com/oembed"
+            assert params["url"] == "https://open.spotify.com/album/6DEjYFkNZh67HP7R9PSZvv"
+            return self._mock_spotify_response()
+
+        with patch("metadata_v2.requests.get", side_effect=fake_get):
+            with patch.object(fetcher.musicbrainz, "search_release") as mock_search:
+                result = fetcher.fetch_music(
+                    "Album Title",
+                    artist="The Beatles",
+                    source="spotify",
+                    provider_id="6DEjYFkNZh67HP7R9PSZvv",
+                    provider_subtype="album"
+                )
+
+        mock_search.assert_not_called()
+        assert result is not None
+        assert result["title"] == "Never Gonna Give You Up"
+        assert result["source"] == "spotify"
+        assert result["metadata_source"] == "spotify_oembed"
+        assert result["provider_id"] == "6DEjYFkNZh67HP7R9PSZvv"
+        assert result["provider_subtype"] == "album"
+
+class TestLocalMetadata:
+    def test_fetch_local_metadata_falls_back_to_filename(self, tmp_path, monkeypatch):
+        """fetch_local_metadata() nutzt den Dateinamen, wenn keine Parser aktiv sind."""
+        media_file = tmp_path / "My Local Movie.mp4"
+        media_file.write_bytes(b"")
+
+        monkeypatch.setattr("metadata_v2.HAS_MUTAGEN", False)
+        monkeypatch.setattr("metadata_v2.HAS_MEDIAINFO", False)
+
+        result = fetch_local_metadata(media_file)
+
+        assert result is not None
+        assert result["title"] == "My Local Movie"
+        assert result["type"] == "movie"
+        assert result["source"] == "local"
+        assert result["is_local_file"] is True
+        assert result["local_path"] == str(media_file.resolve())
+        assert result["provider_id"] == str(media_file.resolve())
+
+    def test_fetch_local_metadata_detects_sidecar_cover_art(self, tmp_path, monkeypatch):
+        """fetch_local_metadata() erkennt ein lokales Coverbild neben der Datei."""
+        media_file = tmp_path / "My Local Movie.mp4"
+        media_file.write_bytes(b"")
+        cover_file = tmp_path / "My Local Movie.jpg"
+        cover_file.write_bytes(b"")
+
+        monkeypatch.setattr("metadata_v2.HAS_MUTAGEN", False)
+        monkeypatch.setattr("metadata_v2.HAS_MEDIAINFO", False)
+
+        result = fetch_local_metadata(media_file)
+
+        assert result is not None
+        assert result["thumbnail_url"] == cover_file.resolve().as_uri()
+
+    def test_fetch_local_metadata_uses_mutagen_tags(self, tmp_path, monkeypatch):
+        """fetch_local_metadata() liest Titel, Artist, Album und Laufzeit aus Mutagen."""
+        media_file = tmp_path / "Song Title.mp3"
+        media_file.write_bytes(b"")
+
+        class FakeAudio:
+            def __init__(self):
+                self.tags = {
+                    "TIT2": SimpleNamespace(text=["Actual Song"]),
+                    "TPE1": SimpleNamespace(text=["Actual Artist"]),
+                    "TALB": SimpleNamespace(text=["Actual Album"]),
+                    "TDRC": SimpleNamespace(text=["2024"]),
+                }
+                self.info = SimpleNamespace(length=245.2)
+
+        monkeypatch.setattr("metadata_v2.HAS_MUTAGEN", True)
+        monkeypatch.setattr("metadata_v2.MutagenFile", lambda path: FakeAudio())
+        monkeypatch.setattr("metadata_v2.HAS_MEDIAINFO", False)
+
+        result = fetch_local_metadata(media_file)
+
+        assert result is not None
+        assert result["title"] == "Actual Song"
+        assert result["artist"] == "Actual Artist"
+        assert result["album"] == "Actual Album"
+        assert result["year"] == "2024"
+        assert result["length_seconds"] == 245
+        assert result["type"] == "music"
+        assert result["source"] == "local"
+
+    def test_auto_fetch_clip_calls_fetch_clip(self):
+        """auto_fetch() leitet clip an fetch_clip() weiter."""
+        fetcher = MetadataFetcher(cache_enabled=False)
+        expected = {"title": "Clip", "type": "clip", "source": "youtube"}
+
+        with patch.object(fetcher, "fetch_clip", return_value=expected) as mock_fetch_clip:
+            result = fetcher.auto_fetch(
+                "YouTube Video dQw4w9WgXcQ",
+                media_type="clip",
+                source="youtube",
+                provider_id="dQw4w9WgXcQ"
+            )
+
+        mock_fetch_clip.assert_called_once_with(
+            "YouTube Video dQw4w9WgXcQ",
+            source="youtube",
+            provider_id="dQw4w9WgXcQ",
+            url=None
+        )
+        assert result["type"] == "clip"
+
+
 # ============================================================
 # TMDbFetcher.format_result Tests
 # ============================================================
@@ -424,9 +619,23 @@ class TestMetadataFetcherAutoFetch:
         expected = {"title": "Abbey Road", "type": "music", "source": "musicbrainz"}
 
         with patch.object(fetcher, "fetch_music", return_value=expected) as mock_fm:
-            result = fetcher.auto_fetch("Abbey Road", media_type="album", artist="The Beatles")
+            result = fetcher.auto_fetch(
+                "Abbey Road",
+                media_type="album",
+                artist="The Beatles",
+                source="spotify",
+                provider_id="6DEjYFkNZh67HP7R9PSZvv",
+                provider_subtype="album"
+            )
 
-        mock_fm.assert_called_once_with("Abbey Road", "The Beatles")
+        mock_fm.assert_called_once_with(
+            "Abbey Road",
+            "The Beatles",
+            source="spotify",
+            provider_id="6DEjYFkNZh67HP7R9PSZvv",
+            provider_subtype="album",
+            url=None
+        )
         assert result["type"] == "music"
 
     def test_auto_fetch_unknown_type_tries_movie_first(self):
@@ -436,7 +645,7 @@ class TestMetadataFetcherAutoFetch:
 
         with patch.object(fetcher, "fetch_movie", return_value=movie_result):
             with patch.object(fetcher, "fetch_series") as mock_series:
-                result = fetcher.auto_fetch("Unknown Media", media_type="clip")
+                result = fetcher.auto_fetch("Unknown Media", media_type="unknown")
 
         mock_series.assert_not_called()
         assert result["type"] == "movie"
@@ -448,7 +657,7 @@ class TestMetadataFetcherAutoFetch:
 
         with patch.object(fetcher, "fetch_movie", return_value=None):
             with patch.object(fetcher, "fetch_series", return_value=series_result):
-                result = fetcher.auto_fetch("Some Show", media_type="clip")
+                result = fetcher.auto_fetch("Some Show", media_type="unknown")
 
         assert result["type"] == "series"
 
@@ -509,3 +718,33 @@ class TestMetadataCacheMakeKey:
         k1 = MetadataCache._make_key("movie", "Inception")
         k2 = MetadataCache._make_key("MOVIE", "INCEPTION")
         assert k1 == k2
+
+
+# ============================================================
+# MusicBrainzFetcher.get_cover_art Tests
+# ============================================================
+
+class TestMusicBrainzFetcherCoverArt:
+    def test_get_cover_art_returns_none_on_network_error(self):
+        """get_cover_art() returns None on network errors instead of raising."""
+        import requests as req_module
+        from metadata_v2 import MusicBrainzFetcher
+
+        fetcher = MusicBrainzFetcher()
+        with patch("metadata_v2.requests.get",
+                   side_effect=req_module.exceptions.ConnectionError("no route")):
+            result = fetcher.get_cover_art("abc-release-id")
+
+        assert result is None
+
+    def test_get_cover_art_returns_none_on_timeout(self):
+        """get_cover_art() returns None on request timeout instead of raising."""
+        import requests as req_module
+        from metadata_v2 import MusicBrainzFetcher
+
+        fetcher = MusicBrainzFetcher()
+        with patch("metadata_v2.requests.get",
+                   side_effect=req_module.exceptions.Timeout("timed out")):
+            result = fetcher.get_cover_art("abc-release-id")
+
+        assert result is None
