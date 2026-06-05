@@ -748,3 +748,35 @@ class TestMusicBrainzFetcherCoverArt:
             result = fetcher.get_cover_art("abc-release-id")
 
         assert result is None
+
+
+# ============================================================
+# Regression: artist-credit IndexError bei leerer Liste
+# ============================================================
+
+class TestMusicBrainzArtistCreditEdgeCases:
+    """Regression: artist-credit: [] verursacht IndexError in fetch_music()."""
+
+    def test_fetch_music_empty_artist_credit_does_not_crash(self):
+        """fetch_music() darf nicht abstürzen wenn artist-credit eine leere Liste ist.
+
+        MusicBrainz kann artist-credit: [] zurückgeben (z.B. bei unvollständigen
+        Releases). raw.get('artist-credit', [{}])[0] schlägt dann mit IndexError fehl,
+        weil .get() nur den Default liefert wenn der Key FEHLT, nicht wenn er leer ist.
+        """
+        fetcher = MetadataFetcher(cache_enabled=False)
+        mb_release = {
+            "id": "edge-case-id",
+            "title": "Untitled Release",
+            "artist-credit": [],
+            "date": "2020",
+        }
+
+        with patch.object(fetcher.musicbrainz, "search_release", return_value=mb_release):
+            with patch.object(fetcher.musicbrainz, "get_cover_art", return_value=None):
+                result = fetcher.fetch_music("Untitled Release")
+
+        assert result is not None, "fetch_music() muss ein Ergebnis liefern, nicht crashen"
+        assert result["title"] == "Untitled Release"
+        assert result["artist"] is None, "artist muss None sein wenn artist-credit leer ist"
+        assert result["year"] == "2020"

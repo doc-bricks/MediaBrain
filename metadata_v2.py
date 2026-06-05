@@ -978,7 +978,7 @@ class MetadataFetcher:
             release_id = raw.get("id")
             result = {
                 "title": raw.get("title"),
-                "artist": raw.get("artist-credit", [{}])[0].get("name"),
+                "artist": (raw.get("artist-credit") or [{}])[0].get("name"),
                 "year": raw.get("date", "")[:4] if raw.get("date") else None,
                 "thumbnail_url": self.musicbrainz.get_cover_art(release_id) if release_id else None,
                 "type": "music",
