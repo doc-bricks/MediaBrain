@@ -196,5 +196,24 @@ class TestQueryBuilder(unittest.TestCase):
         self.assertNotIn(scixfi_id, ids)
 
 
+    def test_skipped_first_condition_does_not_produce_where_and(self):
+        """If the first condition yields no SQL clause, later conditions must not
+        receive a dangling conjunction (e.g. 'WHERE AND type = ?').
+
+        Regression: build() used loop index (i > 0) instead of whether any
+        clause had been emitted, causing invalid SQL when condition[0] was
+        silently skipped (tags field + unimplemented operator like 'is_empty').
+        """
+        builder = QueryBuilder()
+        builder.add_condition("tags", "is_empty", None)
+        builder.add_condition("type", "=", "movie")
+        sql, rows = self._run(builder)
+
+        self.assertNotIn("WHERE AND", sql)
+        self.assertIn("type = ?", sql)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["title"], "The Matrix")
+
+
 if __name__ == "__main__":
     unittest.main()

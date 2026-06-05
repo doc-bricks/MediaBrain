@@ -128,10 +128,10 @@ class QueryBuilder:
         params = []
         where_parts = []
 
-        for i, cond in enumerate(self.conditions):
+        for cond in self.conditions:
             clause, clause_params = self._build_condition(cond)
             if clause:
-                if i > 0:
+                if where_parts:
                     where_parts.append(cond.conjunction)
                 where_parts.append(clause)
                 params.extend(clause_params)
