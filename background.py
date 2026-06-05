@@ -5,6 +5,7 @@ Hintergrundprozesse:
 - FileIndexer (scannt lokale Dateien)
 - TrayApp (Systemtray)
 """
+import os
 import threading
 import time
 import traceback
@@ -151,8 +152,6 @@ class FileIndexer(threading.Thread):
 
     def scan(self):
         """Scannt alle Watch-Pfade mit mtime-Check (Incremental Scan)."""
-        import os
-        
         for folder_path in self.watch_paths:
             if not self.running: return
             if not folder_path.exists(): continue
