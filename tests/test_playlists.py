@@ -132,5 +132,45 @@ class TestPlaylistManager(unittest.TestCase):
         self.assertEqual(self.playlists.get_items(playlist_id), [])
 
 
+class TestPlaylistManagerDeleteCascade(unittest.TestCase):
+    """Regression: delete_playlist() ließ playlist_items als Waisen zurück.
+
+    SQLite aktiviert CASCADE-Deletes nur mit PRAGMA foreign_keys = ON.
+    Da dieses PRAGMA nirgends gesetzt wird, muss delete_playlist()
+    playlist_items explizit löschen — andernfalls häufen sich tote Zeilen an.
+    """
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        self.playlists = PlaylistManager(self.db.conn)
+        self.media_id = self.db.execute(
+            "INSERT INTO media_items (title, type, source, provider_id) "
+            "VALUES ('Test', 'movie', 'local', 'test-1')"
+        ).lastrowid
+
+    def tearDown(self):
+        self.db.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def test_delete_playlist_removes_playlist_items(self):
+        """delete_playlist() muss zugehörige playlist_items entfernen.
+
+        Ohne explizites DELETE bleiben Waisen-Zeilen in playlist_items, weil
+        SQLite CASCADE ohne PRAGMA foreign_keys = ON nicht ausführt.
+        """
+        playlist_id = self.playlists.create_playlist("Zu löschende Playlist")
+        self.playlists.add_item(playlist_id, self.media_id)
+
+        self.playlists.delete_playlist(playlist_id)
+
+        orphans = self.db.conn.execute(
+            "SELECT COUNT(*) FROM playlist_items WHERE playlist_id = ?",
+            (playlist_id,)
+        ).fetchone()[0]
+        self.assertEqual(orphans, 0, "playlist_items wurden nicht gelöscht (Waisen-Zeilen)")
+
+
 if __name__ == "__main__":
     unittest.main()

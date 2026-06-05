@@ -87,6 +87,7 @@ class PlaylistManager:
 
     def delete_playlist(self, playlist_id: int):
         """Deletes a playlist and all its item associations."""
+        self.conn.execute("DELETE FROM playlist_items WHERE playlist_id = ?", (playlist_id,))
         self.conn.execute("DELETE FROM playlists WHERE id = ?", (playlist_id,))
         self.conn.commit()
 
