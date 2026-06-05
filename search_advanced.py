@@ -368,7 +368,16 @@ class SearchEngine:
             cutoff = (datetime.now() - timedelta(days=criteria.time_filter_days)).isoformat()
             query += " AND last_opened_at >= ?"
             params.append(cutoff)
-        
+
+        # Tag-Filter (AND-Logik: alle genannten Tags müssen exakt vorkommen)
+        if criteria.tags:
+            for tag in criteria.tags:
+                query += (
+                    " AND id IN (SELECT media_id FROM media_tags mt"
+                    " JOIN tags t ON mt.tag_id = t.id WHERE t.name = ?)"
+                )
+                params.append(tag)
+
         # Sortierung (Whitelist gegen SQL Injection)
         allowed_sort_fields = {"last_opened_at", "title", "created_at", "type", "source"}
         sort_field = criteria.sort_field if criteria.sort_field in allowed_sort_fields else "last_opened_at"

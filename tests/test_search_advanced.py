@@ -72,5 +72,59 @@ class TestSearchEngineLikeEscaping(unittest.TestCase):
         self.assertNotIn("1000 Ways", suggestions)
 
 
+class TestSearchEngineTagFilter(unittest.TestCase):
+    """Regression: criteria.tags wurde in search() ignoriert — Tag-Filter hatte keinen Effekt."""
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        from core import TagManager
+        self.tag_manager = TagManager(self.db)
+        self.engine = SearchEngine(self.db)
+
+    def tearDown(self):
+        self.db.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _insert(self, title, provider_id):
+        self.db.conn.execute(
+            "INSERT INTO media_items (title, type, source, provider_id) VALUES (?, 'movie', 'local', ?)",
+            (title, provider_id),
+        )
+        self.db.conn.commit()
+        row = self.db.conn.execute(
+            "SELECT id FROM media_items WHERE provider_id = ?", (provider_id,)
+        ).fetchone()
+        return row["id"]
+
+    def test_tag_filter_excludes_items_without_tag(self):
+        """search() mit criteria.tags muss Items ohne den Tag herausfiltern.
+
+        'Reaction Movie' hat den Tag 'Reaction' — ein LIKE-Substring-Match würde
+        'Action' in 'Reaction' finden und es fälschlicherweise einschließen.
+        Exakter Match darf es nicht zurückgeben.
+        """
+        id1 = self._insert("Action Movie", "id-action")
+        id2 = self._insert("Drama Movie", "id-drama")
+        id3 = self._insert("Reaction Movie", "id-reaction")
+
+        tag_action = self.tag_manager.create_tag("Action")
+        tag_reaction = self.tag_manager.create_tag("Reaction")
+        self.tag_manager.add_tag_to_media(id1, tag_action)
+        self.tag_manager.add_tag_to_media(id3, tag_reaction)
+
+        c = SearchCriteria()
+        c.tags = ["Action"]
+        c.exclude_blacklist = False
+
+        results = self.engine.search(c)
+        titles = [r.title for r in results]
+
+        self.assertIn("Action Movie", titles)
+        self.assertNotIn("Drama Movie", titles)
+        self.assertNotIn("Reaction Movie", titles)
+
+
 if __name__ == "__main__":
     unittest.main()
