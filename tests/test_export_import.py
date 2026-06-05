@@ -252,5 +252,44 @@ class TestExportImportJson(unittest.TestCase):
                 db.close()
 
 
+class TestProviderSubtypeRoundtrip(unittest.TestCase):
+    """Regression: provider_subtype was missing from valid_fields and silently dropped on import."""
+
+    def test_provider_subtype_preserved_in_json_roundtrip(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            source_db = Database(tmpdir / "source.db")
+            try:
+                source_db.execute(
+                    """
+                    INSERT INTO media_items
+                        (title, type, source, provider_id, provider_subtype)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    ("Bohemian Rhapsody", "music", "spotify", "spotify-abc", "track"),
+                )
+                json_path = tmpdir / "export.json"
+                MediaExporter(source_db.conn).export_json(str(json_path), include_playlists=False)
+            finally:
+                source_db.close()
+
+            target_db = Database(tmpdir / "target.db")
+            try:
+                stats = MediaImporter(target_db.conn).import_json(str(json_path))
+                self.assertEqual(stats["imported"], 1)
+                self.assertEqual(stats["errors"], 0)
+                row = target_db.fetchone(
+                    "SELECT provider_subtype FROM media_items WHERE provider_id = ?",
+                    ("spotify-abc",),
+                )
+                self.assertIsNotNone(row, "Item must be importiert")
+                self.assertEqual(
+                    row["provider_subtype"], "track",
+                    "provider_subtype must survive export/import roundtrip",
+                )
+            finally:
+                target_db.close()
+
+
 if __name__ == "__main__":
     unittest.main()

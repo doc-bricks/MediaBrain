@@ -8,12 +8,33 @@ import csv
 import hashlib
 import json
 import logging
+import os
+import platform
 import sqlite3
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
 logger = logging.getLogger("MediaBrain.ExportImport")
+
+EXPORT_SCHEMA = "mediabrain-library-v1"
+EXPORT_SCHEMA_VERSION = 1
+EXPORT_APP_NAME = "MediaBrain Desktop"
+LEGACY_EXPORT_VERSION = "1.0"
+
+
+def _detect_app_version() -> str:
+    """Returns a human-readable app version for exports.
+
+    MediaBrain currently has no single authoritative version module.
+    Exporters therefore prefer an injected environment variable and
+    otherwise mark the payload as a development export.
+    """
+    for env_name in ("MEDIABRAIN_VERSION", "APP_VERSION"):
+        value = os.getenv(env_name, "").strip()
+        if value:
+            return value
+    return "dev"
 
 
 class MediaExporter:
@@ -22,24 +43,34 @@ class MediaExporter:
     def __init__(self, conn: sqlite3.Connection):
         self.conn = conn
 
-    def export_json(self, output_path: str, include_tags: bool = True,
-                   include_playlists: bool = True) -> int:
-        """Exports the entire library to a JSON file.
-
-        Args:
-            output_path: Target file path.
-            include_tags: Include tag associations.
-            include_playlists: Include playlists and their items.
-
-        Returns:
-            Number of items exported.
-        """
+    def build_export_payload(
+        self,
+        include_tags: bool = True,
+        include_playlists: bool = True,
+    ) -> Dict[str, object]:
+        """Builds the stable JSON exchange payload for MediaBrain exports."""
         self.conn.row_factory = sqlite3.Row
         items = self.conn.execute("SELECT * FROM media_items ORDER BY title").fetchall()
+        app_version = _detect_app_version()
 
-        data = {
-            "version": "1.0",
-            "exported_at": datetime.now().isoformat(),
+        data: Dict[str, object] = {
+            "schema": EXPORT_SCHEMA,
+            "schema_version": EXPORT_SCHEMA_VERSION,
+            "version": LEGACY_EXPORT_VERSION,
+            "app_name": EXPORT_APP_NAME,
+            "app_version": app_version,
+            "source": {
+                "app_name": EXPORT_APP_NAME,
+                "app_version": app_version,
+                "platform": platform.system().lower(),
+            },
+            "capabilities": {
+                "tags": include_tags,
+                "playlists": include_playlists,
+                "stable_media_refs": include_playlists,
+                "legacy_alias_import": True,
+            },
+            "exported_at": datetime.now().astimezone().isoformat(),
             "item_count": len(items),
             "items": [],
         }
@@ -89,13 +120,33 @@ class MediaExporter:
                 ]
                 data["playlists"].append(pl_dict)
 
+        return data
+
+    def export_json(self, output_path: str, include_tags: bool = True,
+                   include_playlists: bool = True) -> int:
+        """Exports the entire library to a JSON file.
+
+        Args:
+            output_path: Target file path.
+            include_tags: Include tag associations.
+            include_playlists: Include playlists and their items.
+
+        Returns:
+            Number of items exported.
+        """
+        data = self.build_export_payload(
+            include_tags=include_tags,
+            include_playlists=include_playlists,
+        )
+
         Path(output_path).write_text(
             json.dumps(data, indent=2, ensure_ascii=False, default=str),
             encoding="utf-8"
         )
 
-        logger.info("Exportiert: %d Items nach %s", len(items), output_path)
-        return len(items)
+        item_count = int(data.get("item_count", 0))
+        logger.info("Exportiert: %d Items nach %s", item_count, output_path)
+        return item_count
 
     def export_csv(self, output_path: str) -> int:
         """Exports media items to a CSV file.
@@ -155,6 +206,17 @@ class MediaImporter:
             data = json.loads(Path(input_path).read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError) as e:
             logger.error("Import-Fehler: %s", e)
+            stats["errors"] = 1
+            return stats
+
+        if not isinstance(data, dict):
+            logger.error("Import-Fehler: JSON-Wurzel ist kein Objekt")
+            stats["errors"] = 1
+            return stats
+
+        error = self._validate_payload_metadata(data)
+        if error:
+            logger.error("Import-Fehler: %s", error)
             stats["errors"] = 1
             return stats
 
@@ -245,24 +307,38 @@ class MediaImporter:
                 reader = csv.DictReader(f)
                 for row in reader:
                     try:
-                        title = row.get("title", "")
-                        if not title:
+                        if not isinstance(row, dict):
                             stats["errors"] += 1
                             continue
 
-                        existing = self.conn.execute(
-                            "SELECT id FROM media_items WHERE title = ? AND type = ?",
-                            (title, row.get("type", ""))
-                        ).fetchone()
-                        if existing:
+                        item = self._normalize_item_payload(row)
+                        title = str(item.get("title", "")).strip()
+                        item_type = str(item.get("type", "")).strip()
+                        source = str(item.get("source", "")).strip()
+                        provider_id = str(item.get("provider_id", "")).strip()
+
+                        if not title or not item_type or not source:
+                            stats["errors"] += 1
+                            continue
+
+                        if not provider_id:
+                            provider_id = self._make_provider_id(source, title)
+                            item["provider_id"] = provider_id
+
+                        existing_id = self._find_existing_media(
+                            title=title,
+                            media_type=item_type,
+                            source=source,
+                            provider_id=provider_id,
+                        )
+                        if existing_id:
                             stats["skipped"] += 1
                             continue
 
-                        valid_fields = {
-                            "title", "type", "provider", "source_url", "status",
-                            "rating", "genre", "year",
-                        }
-                        filtered = {k: v for k, v in row.items() if k in valid_fields and v}
+                        filtered = self._filter_media_fields(item)
+                        if not filtered:
+                            stats["errors"] += 1
+                            continue
 
                         columns = ", ".join(filtered.keys())
                         placeholders = ", ".join(["?"] * len(filtered))
@@ -321,7 +397,8 @@ class MediaImporter:
         )
 
         valid_fields = {
-            "title", "type", "source", "provider_id", "length_seconds", "created_at",
+            "title", "type", "source", "provider_id", "provider_subtype",
+            "length_seconds", "created_at",
             "last_opened_at", "open_method", "is_favorite", "is_local_file",
             "local_path", "description", "thumbnail_url", "season", "episode",
             "artist", "album", "channel", "blacklist_flag", "blacklisted_at",
@@ -409,6 +486,31 @@ class MediaImporter:
         if "is_favourite" in normalized and "is_favorite" not in normalized:
             normalized["is_favorite"] = normalized["is_favourite"]
         return normalized
+
+    def _validate_payload_metadata(self, payload: Dict) -> Optional[str]:
+        schema = payload.get("schema")
+        if schema not in (None, "", EXPORT_SCHEMA):
+            return (
+                f"Schema '{schema}' wird nicht unterstützt "
+                f"(erwartet: {EXPORT_SCHEMA})."
+            )
+
+        schema_version = payload.get("schema_version")
+        if schema_version in (None, ""):
+            return None
+
+        try:
+            normalized = int(schema_version)
+        except (TypeError, ValueError):
+            return f"Ungültige schema_version: {schema_version!r}"
+
+        if normalized != EXPORT_SCHEMA_VERSION:
+            return (
+                f"schema_version {normalized} wird nicht unterstützt "
+                f"(erwartet: {EXPORT_SCHEMA_VERSION})."
+            )
+
+        return None
 
     def _import_playlists(self, playlists, merge: bool, stats: Dict[str, int]) -> None:
         if not isinstance(playlists, list) or not playlists:
