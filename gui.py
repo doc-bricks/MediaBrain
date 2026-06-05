@@ -456,9 +456,9 @@ class MediaItemWidget(QFrame):
                 updates.append("thumbnail_url = ?")
                 params.append(result["thumbnail_url"])
 
-            if result.get("rating"):
-                updates.append("rating = ?")
-                params.append(result["rating"])
+            if result.get("channel") and result.get("channel") != getattr(self.item, "channel", None):
+                updates.append("channel = ?")
+                params.append(result["channel"])
 
             if updates:
                 params.append(self.item.id)

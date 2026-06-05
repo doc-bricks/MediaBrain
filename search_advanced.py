@@ -55,7 +55,7 @@ SORT_OPTIONS = [
     ("Titel Z-A", "title", True),
     ("Hinzugefügt (neu)", "created_at", True),
     ("Hinzugefügt (alt)", "created_at", False),
-    ("Bewertung", "rating", True)
+
 ]
 
 TIME_FILTERS = [

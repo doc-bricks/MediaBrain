@@ -5,7 +5,7 @@ import sys
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -14,7 +14,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from PySide6.QtWidgets import QApplication
 
 from gui import build_online_metadata_fetch_kwargs, format_online_metadata
-from gui import MediaDetailView
+from gui import MediaDetailView, MediaItemWidget
 
 
 _app = QApplication.instance() or QApplication(sys.argv)
@@ -156,6 +156,54 @@ class TestOnlineMetadataHelpers(unittest.TestCase):
                     widget.close()
                     widget.deleteLater()
                     _app.processEvents()
+
+
+class TestFetchOnlineMetadata(unittest.TestCase):
+    """Regression: rating column does not exist in media_items schema."""
+
+    def _make_item(self, **kwargs):
+        defaults = dict(
+            id=42, title="Inception", type="movie", source="netflix",
+            provider_id="nf-123", artist=None, year=2010,
+            description="Old description", provider_subtype=None,
+            is_favorite=False, thumbnail_url=None, local_path=None,
+        )
+        defaults.update(kwargs)
+        return SimpleNamespace(**defaults)
+
+    def test_rating_not_included_in_db_update(self):
+        """fetch_online_metadata must not include 'rating' in UPDATE — no such column in schema."""
+        item = self._make_item()
+        executed_queries = []
+
+        mock_db = SimpleNamespace(execute=lambda q, p=None: executed_queries.append((q, p)))
+        media_manager = SimpleNamespace(db=mock_db)
+        blacklist_manager = SimpleNamespace(set_blacklist=lambda *a: None)
+
+        widget = MediaItemWidget(item, media_manager, blacklist_manager)
+        try:
+            mock_fetcher = MagicMock()
+            mock_fetcher.get_status.return_value = {"tmdb": True}
+            mock_fetcher.auto_fetch.return_value = {
+                "title": "Inception",
+                "rating": 8.8,
+                "description": "New description",
+                "source": "tmdb",
+            }
+            with patch("metadata_v2.MetadataFetcher", return_value=mock_fetcher), \
+                 patch("PySide6.QtWidgets.QMessageBox.information"), \
+                 patch("gui.notify_gui_refresh"):
+                widget.fetch_online_metadata()
+
+            self.assertTrue(executed_queries, "Expected db.execute to be called for updates")
+            sql, _ = executed_queries[-1]
+            self.assertNotIn("rating", sql,
+                "rating must not appear in UPDATE — no such column in media_items")
+            self.assertIn("description", sql, "description should still be updated")
+        finally:
+            widget.close()
+            widget.deleteLater()
+            _app.processEvents()
 
 
 if __name__ == "__main__":
