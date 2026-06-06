@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">tail761bc7.ts.net</domain>
+        <domain includeSubdomains="false">macstudvonlukas</domain>
+        <domain includeSubdomains="false">100.119.69.90</domain>
+        <trust-anchors>
+            <certificates src="system"/>
+            <certificates src="@raw/syncbox_root_ca"/>
+        </trust-anchors>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+</network-security-config>
