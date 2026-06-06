@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/screens/importscreen.tsx","./src/screens/itemdetailscreen.tsx","./src/screens/libraryscreen.tsx","./src/screens/playlistsscreen.tsx","./src/screens/settingsscreen.tsx","./src/services/db.ts","./src/types/media.test.ts","./src/types/media.ts"],"version":"5.9.3"}

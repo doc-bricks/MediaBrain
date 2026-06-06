@@ -1,0 +1,38 @@
+{
+  "name": "mediabrain-companion",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Web/PWA Companion für MediaBrain (Vite + React + TS + Tailwind + Capacitor)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "test": "vitest run",
+    "preview": "vite preview",
+    "cap:sync": "npm run build && cap sync",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "dexie": "^4.0.10",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "vite": "^6.4.2",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^4.1.8"
+  }
+}
