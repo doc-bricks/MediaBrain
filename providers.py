@@ -253,6 +253,7 @@ class SpotifyProvider(BaseProvider):
                 "type": "music",
                 "source": self.source,
                 "provider_id": content_id,
+                "provider_subtype": content_type,
                 "has_real_id": True
             }
 

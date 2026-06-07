@@ -19,7 +19,8 @@ import unittest
 import tempfile
 import os
 from datetime import datetime, timedelta
-from core import Database, MediaManager, MediaItem, BlacklistManager
+from unittest.mock import patch
+from core import Database, MediaManager, MediaItem, BlacklistManager, OpenHandler
 
 
 class TestDatabase(unittest.TestCase):
@@ -183,6 +184,80 @@ class TestMediaManager(unittest.TestCase):
 
         # Timestamp sollte aktualisiert sein
         self.assertNotEqual(timestamp1, timestamp2)
+
+    def test_spotify_album_uses_album_url_and_persists_subtype(self):
+        """Spotify-Alben behalten ihren Inhaltstyp durchgehend."""
+        data = {
+            "title": "Album Title",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "6DEjYFkNZh67HP7R9PSZvv",
+            "provider_subtype": "album",
+            "has_real_id": True,
+        }
+
+        with patch("core.metadata.fetch_metadata", return_value={
+            "title": "Album Title",
+            "source": "spotify",
+            "type": "music",
+        }) as mock_fetch:
+            self.manager.add_or_update(data)
+
+        mock_fetch.assert_called_once_with("https://open.spotify.com/album/6DEjYFkNZh67HP7R9PSZvv")
+
+        item = self.manager.get_by_provider("6DEjYFkNZh67HP7R9PSZvv", "spotify")
+        self.assertIsNotNone(item)
+        self.assertEqual(item.provider_subtype, "album")
+        handler = OpenHandler(self.manager)
+        self.assertEqual(
+            handler._build_browser_url(item),
+            "https://open.spotify.com/album/6DEjYFkNZh67HP7R9PSZvv"
+        )
+        self.assertEqual(
+            handler._build_deep_link(item),
+            "spotify:album:6DEjYFkNZh67HP7R9PSZvv"
+        )
+
+    def test_add_or_update_local_file_uses_local_metadata(self):
+        """Lokale Dateien uebernehmen erkannte Metadaten beim Speichern."""
+        tmp_file = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tmp_file.close()
+
+        local_path = str(Path(tmp_file.name).resolve())
+        local_data = {
+            "title": "Fallback Title",
+            "type": "music",
+            "source": "local",
+            "provider_id": local_path,
+            "is_local_file": True,
+            "local_path": local_path,
+            "has_real_id": True,
+        }
+
+        try:
+            with patch("core.metadata.fetch_local_metadata", return_value={
+                "title": "Tagged Song",
+                "description": "From local tags",
+                "artist": "Tagged Artist",
+                "album": "Tagged Album",
+                "year": "2024",
+                "length_seconds": 321,
+                "type": "music",
+            }):
+                self.manager.add_or_update(local_data)
+
+            item = self.manager.get_by_provider(local_path, "local")
+            self.assertIsNotNone(item)
+            self.assertEqual(item.title, "Tagged Song")
+            self.assertEqual(item.description, "From local tags")
+            self.assertEqual(item.artist, "Tagged Artist")
+            self.assertEqual(item.album, "Tagged Album")
+            self.assertEqual(item.length_seconds, 321)
+            self.assertEqual(item.type, "music")
+            self.assertTrue(item.is_local_file)
+            self.assertEqual(item.local_path, local_path)
+        finally:
+            os.unlink(tmp_file.name)
 
     def test_list_by_type_filters_correctly(self):
         """list_by_type filtert nach Typ"""

@@ -13,6 +13,7 @@ import logging
 import shutil
 import os
 import time
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
@@ -96,8 +97,7 @@ class Config:
         # 1. Versuch: Normale Datei laden
         if SETTINGS_PATH.exists():
             try:
-                with open(SETTINGS_PATH, "r", encoding="utf-8") as f:
-                    self.settings = json.load(f)
+                self.settings = self._read_json(SETTINGS_PATH)
                 return  # Erfolg
             except Exception as e:
                 logger.error(f"[Config] settings.json korrupt: {e}")
@@ -107,20 +107,24 @@ class Config:
         if backup_path.exists():
             try:
                 logger.warning(f"[Config] Versuche Recovery aus {backup_path.name}...")
-                with open(backup_path, "r", encoding="utf-8") as f:
-                    self.settings = json.load(f)
-                # Backup ist gut -> Wiederherstellen
-                self.save()
+                self.settings = self._read_json(backup_path)
+                # Backup ist gut -> Nur settings.json neu schreiben, Backup unveraendert lassen
+                self.save(create_backup=False)
                 return  # Erfolg
             except Exception as e:
                 logger.error(f"[Config] Backup auch korrupt: {e}")
 
         # 3. Fallback: Defaults
         logger.warning("[Config] Lade Defaults (keine gultige Config gefunden).")
-        self.settings = DEFAULT_SETTINGS.copy()
-        self.save()
+        self.settings = deepcopy(DEFAULT_SETTINGS)
+        self.save(create_backup=False)
 
-    def save(self):
+    def _read_json(self, path):
+        """Liest eine JSON-Datei und gibt den Inhalt zurueck."""
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def save(self, create_backup=True):
         """
         Speichert Einstellungen sicher.
         Features:
@@ -130,7 +134,7 @@ class Config:
         SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
         
         # 1. Backup erstellen (falls Original existiert)
-        if SETTINGS_PATH.exists():
+        if create_backup and SETTINGS_PATH.exists():
             try:
                 backup_path = SETTINGS_PATH.with_suffix(".json.bak")
                 shutil.copy2(SETTINGS_PATH, backup_path)

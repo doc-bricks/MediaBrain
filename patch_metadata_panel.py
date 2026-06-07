@@ -94,8 +94,7 @@ from threading import Thread"""
             "UPDATE media_items SET is_favorite = ? WHERE id = ?",
             (new_value, self.item.id)
         )
-        from MediaBrain import controller
-        controller.notify_data_changed()'''
+        notify_gui_refresh()'''
     
     new_class = '''class MediaDetailView(QWidget):
     """Detailansicht für ein Medium - zeigt alle verfügbaren Metadaten."""
@@ -309,8 +308,7 @@ from threading import Thread"""
                 QMessageBox.information(self, "Gespeichert", 
                     f"Metadaten aktualisiert. Quelle: {result.get('source', 'unbekannt')}")
                 
-                from MediaBrain import controller
-                controller.notify_data_changed()
+                notify_gui_refresh()
             else:
                 QMessageBox.information(self, "Keine änderungen", "Keine neuen Daten zum Speichern.")
                 
@@ -328,8 +326,7 @@ from threading import Thread"""
             "UPDATE media_items SET is_favorite = ? WHERE id = ?",
             (new_value, self.item.id)
         )
-        from MediaBrain import controller
-        controller.notify_data_changed()'''
+        notify_gui_refresh()'''
     
     # Ersetzen (vorsichtig - exakter Match)
     if old_class in content:

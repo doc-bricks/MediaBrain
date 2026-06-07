@@ -61,14 +61,14 @@ FIELD_DEFS = [
     ("channel",        "Kanal",            _OPS_TEXT,      "text",   None),
     ("description",    "Beschreibung",     _OPS_TEXT,      "text",   None),
     ("local_path",     "Lokaler Pfad",     _OPS_TEXT,      "text",   None),
-    ("length_seconds", "Laenge (Sekunden)", _OPS_NUMERIC,  "number", None),
+    ("length_seconds", "Länge (Sekunden)", _OPS_NUMERIC,  "number", None),
     ("season",         "Staffel",          _OPS_NUMERIC,   "number", None),
     ("episode",        "Episode",          _OPS_NUMERIC,   "number", None),
     ("favorite",       "Favorit",          _OPS_BOOLEAN,   "bool",   None),
     ("is_local_file",  "Lokale Datei",     _OPS_BOOLEAN,   "bool",   None),
     ("blacklisted",    "Auf Blacklist",    _OPS_BOOLEAN,   "bool",   None),
     ("created_at",     "Erstellt am",      _OPS_TIMESTAMP, "text",   None),
-    ("last_watched",   "Zuletzt geoeffnet", _OPS_TIMESTAMP, "text",  None),
+    ("last_watched",   "Zuletzt geöffnet", _OPS_TIMESTAMP, "text",  None),
     ("tags",           "Tag",              _OPS_TAG,       "text",   None),
 ]
 
@@ -302,7 +302,7 @@ class SmartPlaylistDialog(QDialog):
         scroll.setWidget(self.conditions_container)
         outer.addWidget(scroll, stretch=1)
 
-        add_row_btn = QPushButton("+ Bedingung hinzufuegen")
+        add_row_btn = QPushButton("+ Bedingung hinzufügen")
         add_row_btn.clicked.connect(self._add_condition_row)
         outer.addWidget(add_row_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -443,21 +443,21 @@ class SmartPlaylistDialog(QDialog):
     def _on_accept(self):
         if not self.name():
             QMessageBox.warning(self, "Name fehlt",
-                                "Bitte einen Namen fuer die Playlist angeben.")
+                                "Bitte einen Namen für die Playlist angeben.")
             return
         # Validate by serializing - if no conditions are valid the JSON is
         # still well formed but we warn the user explicitly.
         try:
             payload = json.loads(self.smart_query_json())
         except json.JSONDecodeError:
-            QMessageBox.warning(self, "Ungueltige Bedingungen",
+            QMessageBox.warning(self, "Ungültige Bedingungen",
                                 "Die Smart-Query konnte nicht erzeugt werden.")
             return
         if not payload.get("conditions"):
             answer = QMessageBox.question(
                 self, "Keine Bedingungen",
-                "Diese Smart-Playlist enthaelt keine Bedingungen und liefert "
-                "alle Medien zurueck. Trotzdem speichern?",
+                "Diese Smart-Playlist enthält keine Bedingungen und liefert "
+                "alle Medien zurück. Trotzdem speichern?",
             )
             if answer != QMessageBox.StandardButton.Yes:
                 return
@@ -504,7 +504,7 @@ class ManualPlaylistDialog(QDialog):
     def _on_accept(self):
         if not self.name():
             QMessageBox.warning(self, "Name fehlt",
-                                "Bitte einen Namen fuer die Playlist angeben.")
+                                "Bitte einen Namen für die Playlist angeben.")
             return
         self.accept()
 
@@ -596,7 +596,7 @@ class PlaylistsView(QWidget):
         toolbar.addWidget(edit_btn)
         self._edit_btn = edit_btn
 
-        delete_btn = QPushButton("Loeschen")
+        delete_btn = QPushButton("Löschen")
         delete_btn.clicked.connect(self._on_delete)
         toolbar.addWidget(delete_btn)
         self._delete_btn = delete_btn
@@ -622,7 +622,7 @@ class PlaylistsView(QWidget):
         right = QWidget()
         right_layout = QVBoxLayout()
         right.setLayout(right_layout)
-        self.detail_label = QLabel("Keine Playlist ausgewaehlt.")
+        self.detail_label = QLabel("Keine Playlist ausgewählt.")
         right_layout.addWidget(self.detail_label)
         self.items_list = QListWidget()
         right_layout.addWidget(self.items_list, stretch=1)
@@ -669,12 +669,12 @@ class PlaylistsView(QWidget):
     def _populate_items(self, playlist: Optional[Playlist]):
         self.items_list.clear()
         if playlist is None:
-            self.detail_label.setText("Keine Playlist ausgewaehlt.")
+            self.detail_label.setText("Keine Playlist ausgewählt.")
             return
         kind = "Smart" if playlist.playlist_type == "smart" else "Manuell"
         desc = playlist.description or "(keine Beschreibung)"
         self.detail_label.setText(
-            f"{playlist.name} | {kind} | {playlist.item_count} Eintraege\n{desc}"
+            f"{playlist.name} | {kind} | {playlist.item_count} Einträge\n{desc}"
         )
         try:
             rows = self.playlist_manager.get_media_rows(playlist.id)
@@ -788,9 +788,9 @@ class PlaylistsView(QWidget):
         if not playlist:
             return
         answer = QMessageBox.question(
-            self, "Playlist loeschen",
-            f"Playlist '{playlist.name}' wirklich loeschen?\n"
-            "Manuelle Eintraege werden ebenfalls entfernt; die Mediendateien "
+            self, "Playlist löschen",
+            f"Playlist '{playlist.name}' wirklich löschen?\n"
+            "Manuelle Einträge werden ebenfalls entfernt; die Mediendateien "
             "bleiben unangetastet."
         )
         if answer != QMessageBox.StandardButton.Yes:
@@ -814,6 +814,6 @@ class PlaylistsView(QWidget):
         menu = QMenu(self)
         menu.addAction(QAction("Bearbeiten", self,
                                triggered=lambda: self._on_edit()))
-        menu.addAction(QAction("Loeschen", self,
+        menu.addAction(QAction("Löschen", self,
                                triggered=lambda: self._on_delete()))
         menu.exec(self.playlists_list.viewport().mapToGlobal(pos))

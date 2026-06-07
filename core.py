@@ -40,6 +40,15 @@ class Database:
         self.conn.row_factory = sqlite3.Row
         self._setup()
 
+    def _ensure_column(self, table_name: str, column_name: str, column_def: str):
+        """Legt eine optionale Spalte nach, wenn sie in einer alten DB fehlt."""
+        columns = {
+            row["name"]
+            for row in self.conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        }
+        if column_name not in columns:
+            self.conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_def}")
+
     def _setup(self):
         """Initialisiert die Datenbank und Tabellen."""
         self.conn.execute("""
@@ -49,6 +58,7 @@ class Database:
             type TEXT NOT NULL,
             source TEXT NOT NULL,
             provider_id TEXT,
+            provider_subtype TEXT,
             length_seconds INTEGER,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             last_opened_at TEXT,
@@ -88,6 +98,9 @@ class Database:
 
         # Composite Index für Blacklist-Ablaufprüfung (procedure_code + blacklisted_at)
         self.conn.execute("CREATE INDEX IF NOT EXISTS idx_media_blacklist_expiry ON media_items(blacklist_flag, procedure_code, blacklisted_at);")
+
+        # Rückwärtskompatible Migration für vorhandene Datenbanken
+        self._ensure_column("media_items", "provider_subtype", "TEXT")
 
         # Tag-System (Many-to-Many)
         self.conn.execute("""
@@ -225,6 +238,7 @@ class MediaItem:
         self.type = row["type"]
         self.source = row["source"]
         self.provider_id = row["provider_id"]
+        self.provider_subtype = row["provider_subtype"] if "provider_subtype" in row.keys() else None
         self.length_seconds = row["length_seconds"]
         self.created_at = row["created_at"]
         self.last_opened_at = row["last_opened_at"]
@@ -411,6 +425,16 @@ class MediaManager:
                 if data[field] < 0:
                     raise ValueError(f"{field} cannot be negative")
 
+        if "provider_subtype" in data and data["provider_subtype"] is not None:
+            provider_subtype = str(data["provider_subtype"]).strip().lower()
+            if provider_subtype:
+                if data["source"] == "spotify" and provider_subtype not in {"track", "album", "playlist"}:
+                    raise ValueError(
+                        "Invalid provider_subtype for spotify: "
+                        f"{data['provider_subtype']}"
+                    )
+                data["provider_subtype"] = provider_subtype
+
         # === END VALIDATION ===
 
         existing = self.get_by_provider(data["provider_id"], data["source"])
@@ -422,9 +446,15 @@ class MediaManager:
             self.db.execute("""
                 UPDATE media_items
                 SET last_opened_at = ?,
-                    open_method = COALESCE(?, open_method)
+                    open_method = COALESCE(?, open_method),
+                    provider_subtype = COALESCE(?, provider_subtype)
                 WHERE id = ?
-            """, (datetime.now().isoformat(), data.get("open_method"), existing.id))
+            """, (
+                datetime.now().isoformat(),
+                data.get("open_method"),
+                data.get("provider_subtype"),
+                existing.id,
+            ))
             return
 
         # --- METADATEN NUR LADEN, WENN WIR EINE ECHTE ID HABEN ---
@@ -433,42 +463,79 @@ class MediaManager:
         
         # Prüfe auto_fetch_metadata Setting (nur wenn config verfügbar)
         auto_fetch_enabled = HAS_CONFIG and config.config.get("auto_fetch_metadata", True)
-        should_fetch_meta = HAS_METADATA and auto_fetch_enabled and data.get("has_real_id", False) and origin == "external"
+        should_fetch_meta = (
+            HAS_METADATA
+            and auto_fetch_enabled
+            and data.get("has_real_id", False)
+            and origin == "external"
+            and data["source"] != "local"
+        )
+        should_fetch_local_meta = (
+            HAS_METADATA
+            and auto_fetch_enabled
+            and origin == "external"
+            and data["source"] == "local"
+            and data.get("local_path")
+        )
 
-        if should_fetch_meta:
+        meta = None
+        if should_fetch_local_meta:
+            try:
+                meta = metadata.fetch_local_metadata(data["local_path"])
+            except Exception as e:
+                logger.warning(f"[MediaManager] Lokale Metadaten-Fehler: {e}")
+        elif should_fetch_meta:
             url_to_check = None
             if data["source"] == "youtube":
                 url_to_check = f"https://www.youtube.com/watch?v={data['provider_id']}"
             elif data["source"] == "netflix":
                 url_to_check = f"https://www.netflix.com/watch/{data['provider_id']}"
             elif data["source"] == "spotify":
-                url_to_check = f"https://open.spotify.com/track/{data['provider_id']}"
+                spotify_kind = data.get("provider_subtype") or "track"
+                url_to_check = f"https://open.spotify.com/{spotify_kind}/{data['provider_id']}"
 
             if url_to_check:
                 try:
                     meta = metadata.fetch_metadata(url_to_check)
-                    if meta:
-                        if meta.get("title"): data["title"] = meta["title"]
-                        if meta.get("description"): data["description"] = meta["description"]
-                        if meta.get("thumbnail_url"): data["thumbnail_url"] = meta["thumbnail_url"]
                 except Exception as e:
                     logger.warning(f"[MediaManager] Metadaten-Fehler: {e}")
+
+        if meta:
+            if meta.get("title"):
+                data["title"] = meta["title"]
+            if meta.get("description"):
+                data["description"] = meta["description"]
+            if meta.get("thumbnail_url"):
+                data["thumbnail_url"] = meta["thumbnail_url"]
+            if meta.get("channel"):
+                data["channel"] = meta["channel"]
+            if meta.get("artist"):
+                data["artist"] = meta["artist"]
+            if meta.get("album"):
+                data["album"] = meta["album"]
+            if meta.get("year"):
+                data["year"] = meta["year"]
+            if meta.get("length_seconds") is not None:
+                data["length_seconds"] = meta["length_seconds"]
+            if meta.get("type") and data["source"] == "local":
+                data["type"] = meta["type"]
 
         # Insert (DB)
         try:
             self.db.execute("""
                 INSERT INTO media_items (
-                    title, type, source, provider_id,
+                    title, type, source, provider_id, provider_subtype,
                     length_seconds, last_opened_at,
                     open_method, is_local_file, local_path,
                     description, thumbnail_url, season, episode,
                     artist, album, channel
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 data.get("title", "Unbekannt"),
                 data["type"],
                 data["source"],
                 data["provider_id"],
+                data.get("provider_subtype"),
                 data.get("length_seconds"),
                 datetime.now().isoformat(),
                 data.get("open_method", "auto"),
@@ -868,14 +935,16 @@ class OpenHandler:
         if item.source == "youtube":
             return f"https://www.youtube.com/watch?v={item.provider_id}"
         if item.source == "spotify":
-            return f"https://open.spotify.com/track/{item.provider_id}"
+            spotify_kind = item.provider_subtype or "track"
+            return f"https://open.spotify.com/{spotify_kind}/{item.provider_id}"
         return None
 
     def _build_deep_link(self, item: MediaItem):
         if item.source == "netflix":
             return f"netflix://title/{item.provider_id}"
         if item.source == "spotify":
-            return f"spotify:track:{item.provider_id}"
+            spotify_kind = item.provider_subtype or "track"
+            return f"spotify:{spotify_kind}:{item.provider_id}"
         if item.source == "youtube":
             return f"vnd.youtube:{item.provider_id}"
         return None

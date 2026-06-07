@@ -13,7 +13,12 @@ SCRIPT_NAME = "MediaBrain.py"
 
 def _project_dir() -> Path:
     if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent
+        exe_dir = Path(sys.executable).resolve().parent
+        if (exe_dir / SCRIPT_NAME).exists():
+            return exe_dir
+        if exe_dir.name.lower() == "dist" and (exe_dir.parent / SCRIPT_NAME).exists():
+            return exe_dir.parent
+        return exe_dir
     return Path(__file__).resolve().parent
 
 

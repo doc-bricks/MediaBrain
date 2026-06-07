@@ -5,8 +5,9 @@ Verbindet GUI, Datenbank und Hintergrundprozesse.
 """
 import queue
 import os
+import socket as _socket
 import sys
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QTimer # Import nach oben verschoben
 from PySide6.QtGui import QIcon
 
@@ -21,6 +22,24 @@ import config
 from logger_system import logger
 
 APP_ICON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MediaBrain.ico")
+
+# Single-Instance-Lock: verhindert mehrere parallele Prozessinstanzen.
+# Der Socket wird automatisch freigegeben wenn der Prozess endet (auch bei Absturz).
+_INSTANCE_PORT = 47389
+_instance_lock: "_socket.socket | None" = None
+
+
+def _acquire_single_instance() -> bool:
+    global _instance_lock
+    s = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
+    try:
+        s.bind(("127.0.0.1", _INSTANCE_PORT))
+        s.listen(1)
+        _instance_lock = s
+        return True
+    except OSError:
+        s.close()
+        return False
 
 class AppController:
     def __init__(self):
@@ -38,7 +57,8 @@ class AppController:
         self.event_processor.queue = queue.Queue()
 
         # 3. GUI starten
-        self.app = QApplication(sys.argv)
+        existing_app = QApplication.instance()
+        self.app = existing_app if existing_app is not None else QApplication(sys.argv)
         self.app_icon = QIcon(APP_ICON_PATH) if os.path.exists(APP_ICON_PATH) else None
         if self.app_icon is not None:
             self.app.setWindowIcon(self.app_icon)
@@ -126,5 +146,14 @@ class AppController:
 controller = None
 
 if __name__ == "__main__":
+    if not _acquire_single_instance():
+        _app = QApplication(sys.argv)
+        QMessageBox.information(
+            None,
+            "MediaBrain",
+            "MediaBrain läuft bereits im Hintergrund.\n"
+            "Tray-Icon doppelklicken um das Fenster zu öffnen.",
+        )
+        sys.exit(0)
     controller = AppController()
     controller.run()

@@ -136,8 +136,17 @@ class TestSpotifyProvider(unittest.TestCase):
         result = self.provider.extract_info("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC")
         self.assertIsNotNone(result)
         self.assertEqual(result["provider_id"], "4uLU6hMCjMI75M1A2tKUQC")
+        self.assertEqual(result["provider_subtype"], "track")
         self.assertEqual(result["type"], "music")
         self.assertTrue(result["has_real_id"])
+
+    def test_extract_from_album_url_marks_subtype(self):
+        """Album-URLs behalten ihren Inhaltstyp."""
+        result = self.provider.extract_info("https://open.spotify.com/album/6DEjYFkNZh67HP7R9PSZvv")
+        self.assertIsNotNone(result)
+        self.assertEqual(result["provider_id"], "6DEjYFkNZh67HP7R9PSZvv")
+        self.assertEqual(result["provider_subtype"], "album")
+        self.assertEqual(result["type"], "music")
 
     def test_extract_from_window_title(self):
         """Extraktion aus Fenstertitel"""

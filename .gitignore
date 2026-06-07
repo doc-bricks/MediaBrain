@@ -1,4 +1,4 @@
-# Python
+﻿# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -52,6 +52,7 @@ releases/
 *.msix
 *.appx
 *.spec
+!MediaBrain.spec
 
 # IDE
 .claude/
@@ -107,3 +108,7 @@ token.json
 *.key
 id_rsa
 id_ed25519
+DECISIONS.md
+PORTIERUNGSPLAN.md
+TODO.md
+DONE.md

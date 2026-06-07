@@ -22,11 +22,11 @@ Diese Roadmap beschreibt die nächsten geplanten Schritte für MediaBrain.
 
 ## 🔶 Phase 2 – Metadaten & APIs (in Arbeit)
 
-- YouTube oEmbed Integration  
-- Spotify API Integration  
+- YouTube oEmbed Integration  ✅
+- Spotify API Integration  ✅ (oEmbed)
 - Netflix Scraper  
-- Lokale Metadaten (ID3, MP4, MKV)  
-- Automatische Cover‑Erkennung  
+- Lokale Metadaten (ID3, MP4, MKV)  ✅
+- Automatische Cover-Erkennung ✅
 - Beschreibungstexte laden  
 
 ---

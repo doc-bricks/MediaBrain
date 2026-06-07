@@ -1,46 +1,226 @@
 {
   "Blacklist anzeigen": {
     "de": "Blacklist anzeigen",
-    "en": "Show Blacklist"
+    "en": "Show Blacklist",
+    "es": "Mostrar lista negra",
+    "zh": "显示黑名单",
+    "ja": "ブラックリストを表示",
+    "ru": "Показать черный список"
   },
   "Dauer ändern": {
     "de": "Dauer ändern",
-    "en": "Change Duration"
+    "en": "Change Duration",
+    "es": "Cambiar duración",
+    "zh": "更改时长",
+    "ja": "時間を変更",
+    "ru": "Изменить длительность"
   },
   "Einstellungen": {
     "de": "Einstellungen",
-    "en": "Settings"
+    "en": "Settings",
+    "es": "Configuración",
+    "zh": "设置",
+    "ja": "設定",
+    "ru": "Настройки"
   },
   "Keine Details verfügbar": {
     "de": "Keine Details verfügbar",
-    "en": "No details available"
-  },
-  "Oeffnen": {
-    "de": "Oeffnen",
-    "en": "Open"
+    "en": "No details available",
+    "es": "No hay detalles disponibles",
+    "zh": "无可用详情",
+    "ja": "詳細はありません",
+    "ru": "Нет доступных деталей"
   },
   "Suche speichern": {
     "de": "Suche speichern",
-    "en": "Save Search"
-  },
-  "Zurueck": {
-    "de": "Zurueck",
-    "en": "Back"
+    "en": "Save Search",
+    "es": "Guardar búsqueda",
+    "zh": "保存搜索",
+    "ja": "検索を保存",
+    "ru": "Сохранить поиск"
   },
   "Zurück": {
     "de": "Zurück",
-    "en": "Back"
+    "en": "Back",
+    "es": "Volver",
+    "zh": "返回",
+    "ja": "戻る",
+    "ru": "Назад"
   },
   "Öffnen": {
     "de": "Öffnen",
-    "en": "Open"
+    "en": "Open",
+    "es": "Abrir",
+    "zh": "打开",
+    "ja": "開く",
+    "ru": "Открыть"
   },
   "Übersicht": {
     "de": "Übersicht",
-    "en": "Overview"
+    "en": "Overview",
+    "es": "Resumen",
+    "zh": "概览",
+    "ja": "概要",
+    "ru": "Обзор"
   },
   "🌐 Metadaten aktualisieren": {
     "de": "🌐 Metadaten aktualisieren",
-    "en": "🌐 Update Metadata"
+    "en": "🌐 Update Metadata",
+    "es": "🌐 Actualizar metadatos",
+    "zh": "🌐 更新元数据",
+    "ja": "🌐 メタデータを更新",
+    "ru": "🌐 Obновить метаданные"
+  },
+  "+ Bedingung hinzufügen": {
+    "de": "+ Bedingung hinzufügen",
+    "en": "",
+    "es": "+ Añadir condición",
+    "zh": "+ 添加条件",
+    "ja": "+ 条件を追加",
+    "ru": "+ Добавить условие"
+  },
+  "<b>Zuletzt hinzugefügt (Top 5):</b>": {
+    "de": "<b>Zuletzt hinzugefügt (Top 5):</b>",
+    "en": "",
+    "es": "<b>Añadido recientemente (Top 5):</b>",
+    "zh": "<b>最近添加 (前 5 个):</b>",
+    "ja": "<b>最近追加された項目 (トップ 5):</b>",
+    "ru": "<b>Недавно добавленные (лучшие 5):</b>"
+  },
+  "Bearbeiten": {
+    "de": "Bearbeiten",
+    "en": "",
+    "es": "Editar",
+    "zh": "编辑",
+    "ja": "編集",
+    "ru": "Редактировать"
+  },
+  "Export (JSON)": {
+    "de": "Export (JSON)",
+    "en": "",
+    "es": "Exportar (JSON)",
+    "zh": "导出 (JSON)",
+    "ja": "エクスポート (JSON)",
+    "ru": "Экспорт (JSON)"
+  },
+  "Filter \\u25BC": {
+    "de": "Filter \\u25BC",
+    "en": "",
+    "es": "Filtrar \\u25BC",
+    "zh": "筛选 \\u25BC",
+    "ja": "フィルター \\u25BC",
+    "ru": "Фильтр \\u25BC"
+  },
+  "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst": {
+    "de": "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst",
+    "en": "",
+    "es": "Espacio estimado (local): No se detectaron archivos locales",
+    "zh": "估计存储空间 (本地): 未检测到本地文件",
+    "ja": "推定容量 (ローカル): ローカルファイルが検出されませんでした",
+    "ru": "Оценочный объем (локальный): локальные файлы не обнаружены"
+  },
+  "Geschätzter Speicher (lokal): –": {
+    "de": "Geschätzter Speicher (lokal): –",
+    "en": "",
+    "es": "Espacio estimado (local): –",
+    "zh": "估计存储空间 (本地): –",
+    "ja": "推定容量 (ローカル): –",
+    "ru": "Оценочный объем (локальный): –"
+  },
+  "Import (JSON)": {
+    "de": "Import (JSON)",
+    "en": "",
+    "es": "Importar (JSON)",
+    "zh": "导入 (JSON)",
+    "ja": "インポート (JSON)",
+    "ru": "Импорт (JSON)"
+  },
+  "Keine Playlist ausgewählt.": {
+    "de": "Keine Playlist ausgewählt.",
+    "en": "",
+    "es": "No se ha seleccionado ninguna lista de reproducción.",
+    "zh": "未选择播放列表。",
+    "ja": "プレイリストが選択されていません。",
+    "ru": "Плейлист не выбран."
+  },
+  "Löschen": {
+    "de": "Löschen",
+    "en": "",
+    "es": "Eliminar",
+    "zh": "删除",
+    "ja": "削除",
+    "ru": "Удалить"
+  },
+  "Metadaten neu laden": {
+    "de": "Metadaten neu laden",
+    "en": "",
+    "es": "Recargar metadatos",
+    "zh": "重新加载元数据",
+    "ja": "メタデータを再読み込み",
+    "ru": "Перезагрузить метаданные"
+  },
+  "Noch keine Aktivitäten.": {
+    "de": "Noch keine Aktivitäten.",
+    "en": "",
+    "es": "Aún no hay actividad.",
+    "zh": "尚无活动。",
+    "ja": "アクティビティはまだありません。",
+    "ru": "Активностей пока нет."
+  },
+  "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.": {
+    "de": "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.",
+    "en": "",
+    "es": "Se encontraron metadatos en línea, pero no hay campos para mostrar.",
+    "zh": "找到在线元数据，但没有可显示的字段。",
+    "ja": "オンラインメタデータが見つかりましたが、表示する項目がありません。",
+    "ru": "Найдены онлайн-метаданные, но нет полей для отображения."
+  },
+  "Tag-Filter:": {
+    "de": "Tag-Filter:",
+    "en": "",
+    "es": "Filtro de etiquetas:",
+    "zh": "标签筛选:",
+    "ja": "タグフィルター:",
+    "ru": "Фильтр тегов:"
+  },
+  "Zuletzt geöffnet": {
+    "de": "Zuletzt geöffnet",
+    "en": "",
+    "es": "Abierto recientemente",
+    "zh": "最近打开",
+    "ja": "最近開いた項目",
+    "ru": "Недавно открытые"
+  },
+  "Zurücksetzen": {
+    "de": "Zurücksetzen",
+    "en": "",
+    "es": "Restablecer",
+    "zh": "重置",
+    "ja": "リセット",
+    "ru": "Сбросить"
+  },
+  "\\u25B6 öffnen": {
+    "de": "\\u25B6 öffnen",
+    "en": "",
+    "es": "\\u25B6 abrir",
+    "zh": "\\u25B6 打开",
+    "ja": "\\u25B6 開く",
+    "ru": "\\u25B6 открыть"
+  },
+  "öffnen": {
+    "de": "öffnen",
+    "en": "",
+    "es": "abrir",
+    "zh": "打开",
+    "ja": "開く",
+    "ru": "открыть"
+  },
+  "🔄 Aktualisieren": {
+    "de": "🔄 Aktualisieren",
+    "en": "",
+    "es": "🔄 Actualizar",
+    "zh": "🔄 更新",
+    "ja": "🔄 更新",
+    "ru": "🔄 Обновить"
   }
 }
