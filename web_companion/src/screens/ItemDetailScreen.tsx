@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { db } from '../services/db'
@@ -12,6 +12,12 @@ export function ItemDetailScreen() {
   const { id = '' } = useParams()
   const nav = useNavigate()
   const [item, setItem] = useState<MediaItem | null>(null)
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   useEffect(() => {
     db.getItem(parseInt(id, 10)).then((i) => setItem(i ?? null))
@@ -24,7 +30,7 @@ export function ItemDetailScreen() {
   async function toggleFav() {
     await db.toggleFavorite(item!.id)
     const fresh = await db.getItem(item!.id)
-    setItem(fresh ?? null)
+    if (mountedRef.current) setItem(fresh ?? null)
   }
 
   function openExternal() {

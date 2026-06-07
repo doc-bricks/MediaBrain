@@ -1,44 +1,51 @@
+import { describe, it, expect } from 'vitest'
 import { readFileSync, existsSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import assert from 'node:assert/strict'
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const distDir = join(__dir, '..', 'dist')
 
-// Read manifest
-const manifestPath = join(distDir, 'manifest.webmanifest')
-assert.ok(existsSync(manifestPath), 'manifest.webmanifest fehlt in dist/')
-const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+describe('PWA dist/ checks', () => {
+  it('dist/ directory exists (build required before tests)', () => {
+    expect(existsSync(distDir)).toBe(true)
+  })
 
-// Required manifest fields
-assert.ok(manifest.name, 'manifest.name fehlt')
-assert.ok(manifest.short_name, 'manifest.short_name fehlt')
-assert.ok(manifest.start_url, 'manifest.start_url fehlt')
-assert.ok(manifest.display, 'manifest.display fehlt')
-assert.ok(manifest.id, 'manifest.id fehlt')
+  it('manifest.webmanifest exists in dist/', () => {
+    expect(existsSync(join(distDir, 'manifest.webmanifest'))).toBe(true)
+  })
 
-// Icons not empty
-assert.ok(Array.isArray(manifest.icons), 'manifest.icons ist kein Array')
-assert.ok(manifest.icons.length >= 2, `manifest.icons hat ${manifest.icons.length} Einträge, mindestens 2 erwartet`)
+  it('manifest.webmanifest has required fields', () => {
+    const manifest = JSON.parse(readFileSync(join(distDir, 'manifest.webmanifest'), 'utf-8'))
+    expect(manifest.name).toBeTruthy()
+    expect(manifest.short_name).toBeTruthy()
+    expect(manifest.start_url).toBeTruthy()
+    expect(manifest.display).toBeTruthy()
+    expect(manifest.id).toBeTruthy()
+  })
 
-// At least one 192x192 and one 512x512 icon
-const has192 = manifest.icons.some(i => i.sizes?.includes('192x192'))
-const has512 = manifest.icons.some(i => i.sizes?.includes('512x512'))
-assert.ok(has192, 'Kein 192x192 Icon in manifest.icons')
-assert.ok(has512, 'Kein 512x512 Icon in manifest.icons')
+  it('manifest has at least 2 icons including 192x192 and 512x512', () => {
+    const manifest = JSON.parse(readFileSync(join(distDir, 'manifest.webmanifest'), 'utf-8'))
+    expect(Array.isArray(manifest.icons)).toBe(true)
+    expect(manifest.icons.length).toBeGreaterThanOrEqual(2)
+    expect(manifest.icons.some((i) => i.sizes?.includes('192x192'))).toBe(true)
+    expect(manifest.icons.some((i) => i.sizes?.includes('512x512'))).toBe(true)
+  })
 
-// Each icon file actually exists in dist/
-for (const icon of manifest.icons) {
-  const iconPath = join(distDir, icon.src.replace(/^\//, ''))
-  assert.ok(existsSync(iconPath), `Icon-Datei fehlt in dist/: ${icon.src}`)
-}
+  it('all declared icon files exist in dist/', () => {
+    const manifest = JSON.parse(readFileSync(join(distDir, 'manifest.webmanifest'), 'utf-8'))
+    for (const icon of manifest.icons) {
+      const iconPath = join(distDir, icon.src.replace(/^\//, ''))
+      expect(existsSync(iconPath), `Icon fehlt in dist/: ${icon.src}`).toBe(true)
+    }
+  })
 
-// sw.js exists
-assert.ok(existsSync(join(distDir, 'sw.js')), 'sw.js fehlt in dist/')
+  it('sw.js exists in dist/', () => {
+    expect(existsSync(join(distDir, 'sw.js'))).toBe(true)
+  })
 
-// index.html has pwa meta
-const html = readFileSync(join(distDir, 'index.html'), 'utf-8')
-assert.ok(html.includes('manifest'), 'index.html verlinkt kein Manifest')
-
-console.log('PWA-Tests: alle OK')
+  it('index.html references manifest', () => {
+    const html = readFileSync(join(distDir, 'index.html'), 'utf-8')
+    expect(html).toContain('manifest')
+  })
+})

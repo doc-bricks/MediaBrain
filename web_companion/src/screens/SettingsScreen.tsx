@@ -22,10 +22,18 @@ export function SettingsScreen() {
   async function clearAll() {
     if (!confirm('Alle Companion-Daten löschen? Dies betrifft nur das Handy.')) return
     await db.clearAll()
-    refresh()
+    await refresh()
   }
 
-  const last = lastImport ? JSON.parse(lastImport) : null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let last: any = null
+  if (lastImport) {
+    try {
+      last = JSON.parse(lastImport)
+    } catch {
+      last = null
+    }
+  }
 
   return (
     <div className="p-4">
