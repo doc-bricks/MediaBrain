@@ -20,6 +20,7 @@
 | 9. Einstellungen | FERTIG | `lib/screens/settings_screen.dart` |
 | 10. App-Icon + Name | FERTIG | flutter_launcher_icons + AndroidManifest |
 | 11. Debug-APK | FERTIG | 2026-06-03 im lokalen Mirror mit Flutter 3.44.0 verifiziert (`flutter analyze`, `flutter test`, `flutter build apk --debug`) |
+| 12. Flutter L10n DE+EN | FERTIG | 2026-06-07 — handgeschriebene `AppLocalizations` (DE+EN), ARB-Referenzdateien, alle Screens/Dialoge lokalisiert. `flutter analyze` 0 Fehler, 8/8 L10n-Tests + widget_test grün. |
 
 ## Was die App macht
 

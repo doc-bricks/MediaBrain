@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import 'library_screen.dart';
 import 'scan_screen.dart';
 import 'settings_screen.dart';
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final screens = [
       const LibraryScreen(),
       const ScanScreen(),
@@ -29,10 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.library_books), label: 'Bibliothek'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Scan'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Mehr'),
+        destinations: [
+          NavigationDestination(icon: const Icon(Icons.library_books), label: loc.navLibrary),
+          NavigationDestination(icon: const Icon(Icons.search), label: loc.navScan),
+          NavigationDestination(icon: const Icon(Icons.settings), label: loc.navMore),
         ],
       ),
     );

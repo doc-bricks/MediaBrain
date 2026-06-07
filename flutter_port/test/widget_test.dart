@@ -10,6 +10,8 @@ import 'package:mediabrain/main.dart';
 
 void main() {
   testWidgets('MediaBrainApp baut ohne Fehler auf', (WidgetTester tester) async {
+    tester.platformDispatcher.localesTestValue = [const Locale('de')];
+    addTearDown(() => tester.platformDispatcher.clearLocalesTestValue());
     await tester.pumpWidget(const MediaBrainApp());
     expect(find.byType(MaterialApp), findsOneWidget);
   });

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/background_scan.dart';
 import '../services/media_usage_service.dart';
 
@@ -45,29 +46,23 @@ class _ScanScreenState extends State<ScanScreen> {
       _result = null;
       _error = null;
     });
+    final loc = AppLocalizations.of(context);
     try {
       if (!MediaUsageService.instance.available) {
-        setState(() {
-          _error = 'Scan ist nur unter Android verfügbar.';
-        });
+        setState(() => _error = loc.scanAndroidOnly);
         return;
       }
       final hasPerm = await MediaUsageService.instance.probePermission();
+      if (!mounted) return;
       if (!hasPerm) {
-        setState(() {
-          _error =
-              'Nutzungsdatenzugriff fehlt. Bitte in den System-Einstellungen für MediaBrain aktivieren:\n\n'
-              'Einstellungen → Apps → Spezieller App-Zugriff → Nutzungsdatenzugriff → MediaBrain.';
-        });
+        setState(() => _error = loc.scanPermissionMissing);
       }
       final (matched, persisted) =
           await MediaUsageService.instance.scanAndPersist(daysBack: 30);
-      setState(() {
-        _result =
-            'Apps-Scan: $matched Medien-Apps gefunden, $persisted Einträge übernommen.';
-      });
+      if (!mounted) return;
+      setState(() => _result = loc.scanResult(matched, persisted));
     } catch (e) {
-      setState(() => _error = '$e');
+      if (mounted) setState(() => _error = '$e');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -90,29 +85,28 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _runBgNow() async {
     await BackgroundScan.instance.runOnce();
     if (!mounted) return;
+    final loc = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Hintergrund-Scan in der Warteschlange — Resultat in ~1 min sichtbar')),
+      SnackBar(content: Text(loc.bgScanQueued)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Scan', style: Theme.of(context).textTheme.headlineMedium),
+        Text(loc.screenScan, style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 8),
-        const Text(
-          'Sucht installierte Medien-Apps (Streaming, Musik, Podcasts, '
-          'Dokumente) und schreibt sie als Einträge in deine Bibliothek. '
-          'Mit aktiviertem Nutzungsdatenzugriff bekommst du zusätzlich die '
-          'tatsächliche Nutzungszeit.',
-          style: TextStyle(color: Colors.black54),
+        Text(
+          loc.scanDescription,
+          style: const TextStyle(color: Colors.black54),
         ),
         const SizedBox(height: 24),
         ElevatedButton.icon(
           icon: const Icon(Icons.search),
-          label: const Text('App-Scan (Aggregat-Nutzung)'),
+          label: Text(loc.btnAppScan),
           style: ElevatedButton.styleFrom(
             minimumSize: const Size.fromHeight(56),
           ),
@@ -123,10 +117,10 @@ class _ScanScreenState extends State<ScanScreen> {
           child: Column(
             children: [
               SwitchListTile(
-                title: const Text('Hintergrund-Scan'),
+                title: Text(loc.bgScanTitle),
                 subtitle: Text(
-                  'Alle ~${BackgroundScan.interval.inHours} h scannen, auch wenn die App geschlossen ist.\n'
-                  'Letzter Lauf: ${_short(_bgLastRun)}\n'
+                  '${loc.bgScanSubtitle(BackgroundScan.interval.inHours)}\n'
+                  '${loc.lastRun(_short(_bgLastRun, loc.neverText))}\n'
                   '${_bgLastResult ?? ""}',
                 ),
                 isThreeLine: true,
@@ -136,10 +130,8 @@ class _ScanScreenState extends State<ScanScreen> {
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.flash_on),
-                title: const Text('Jetzt einmal im Hintergrund laufen lassen'),
-                subtitle: const Text(
-                  'Sendet einen One-Off-Task an Android. Resultat erscheint nach 1–2 Minuten.',
-                ),
+                title: Text(loc.bgScanNow),
+                subtitle: Text(loc.bgScanNowSubtitle),
                 onTap: _busy ? null : _runBgNow,
               ),
             ],
@@ -169,31 +161,27 @@ class _ScanScreenState extends State<ScanScreen> {
         const SizedBox(height: 24),
         Card(
           color: Colors.blue.shade50,
-          child: const Padding(
-            padding: EdgeInsets.all(12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('📡 Was wird erkannt?',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                SizedBox(height: 8),
+                Text(loc.detectedTitle,
+                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
                 Text(
-                  'Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · '
-                  'Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · '
-                  'Audible · Kindle · Pocket Casts · Google Podcasts · '
-                  'Adobe Acrobat · Google Docs · Notion · Obsidian und weitere.',
-                  style: TextStyle(fontSize: 13),
+                  loc.detectedApps,
+                  style: const TextStyle(fontSize: 13),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
-                  '🔍 App-Scan',
-                  style: TextStyle(fontWeight: FontWeight.w700),
+                  loc.appScanTitle,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'App-Scan: ein Eintrag pro Medien-App mit Gesamt-Nutzung '
-                  'der letzten Tage (über Android-Nutzungsdaten).',
-                  style: TextStyle(fontSize: 13),
+                  loc.appScanDescription,
+                  style: const TextStyle(fontSize: 13),
                 ),
               ],
             ),
@@ -203,8 +191,8 @@ class _ScanScreenState extends State<ScanScreen> {
     );
   }
 
-  String _short(String? iso) {
-    if (iso == null || iso.isEmpty) return 'nie';
+  String _short(String? iso, String never) {
+    if (iso == null || iso.isEmpty) return never;
     if (iso.length < 16) return iso;
     return iso.substring(0, 16).replaceAll('T', ' ');
   }

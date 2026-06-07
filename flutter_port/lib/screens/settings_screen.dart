@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../services/database_service.dart';
 import '../services/sync_service.dart';
@@ -45,23 +46,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _clearAll() async {
+    final loc = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Alle Bibliotheks-Daten löschen?'),
-        content: const Text(
-          'Entfernt alle Einträge aus dem lokalen MediaBrain.',
-        ),
+        title: Text(loc.deleteAllTitle),
+        content: Text(loc.deleteAllContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Abbrechen'),
+            child: Text(loc.cancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Löschen',
-                style: TextStyle(color: Colors.white)),
+            child: Text(loc.delete,
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -71,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!mounted) return;
     _reload();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bibliothek gelöscht.')),
+      SnackBar(content: Text(AppLocalizations.of(context).libraryCleared)),
     );
   }
 
@@ -81,7 +81,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final r = await SyncService.instance.exportViaShare();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export: ${r.message ?? ""}')),
+        SnackBar(content: Text(AppLocalizations.of(context).exportResult(r.message ?? ''))),
       );
     } catch (e) {
       _showError('$e');
@@ -95,13 +95,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final r = await SyncService.instance.importViaFilePicker();
       if (!mounted) return;
+      final loc = AppLocalizations.of(context);
       if (r == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Abgebrochen.')),
+          SnackBar(content: Text(loc.cancelled)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Import: $r')),
+          SnackBar(content: Text(loc.importResult('$r'))),
         );
         _reload();
       }
@@ -115,31 +116,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _editServerConfig() async {
     final cfg = await SyncService.instance.getServerConfig();
     if (!mounted) return;
+    final loc = AppLocalizations.of(context);
     final url = TextEditingController(text: _serverUrl ?? '');
     final token = TextEditingController(text: cfg.token ?? '');
     try {
       final ok = await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text('Server-Sync konfigurieren'),
+          title: Text(loc.serverConfigTitle),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: url,
-                decoration: const InputDecoration(
-                  labelText: 'Server-URL',
-                  hintText: 'z.B. macstudvonlukas:8082',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: loc.fieldServerUrl,
+                  hintText: loc.fieldServerUrlHint,
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: token,
                 obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Bearer-Token',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: loc.fieldBearerToken,
+                  border: const OutlineInputBorder(),
                 ),
               ),
             ],
@@ -147,11 +149,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Abbrechen'),
+              child: Text(loc.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Speichern'),
+              child: Text(loc.save),
             ),
           ],
         ),
@@ -173,7 +175,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final r = await SyncService.instance.push();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Push: $r')));
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.actionPush}: $r')),
+      );
       _reload();
     } catch (e) {
       _showError('$e');
@@ -187,7 +192,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final r = await SyncService.instance.pull();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Pull: $r')));
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${loc.actionPull}: $r')),
+      );
       _reload();
     } catch (e) {
       _showError('$e');
@@ -197,9 +205,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showError(String msg) {
+    final loc = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Fehler: $msg'),
+        content: Text(loc.error(msg)),
         backgroundColor: Colors.red.shade700,
       ),
     );
@@ -207,24 +216,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final total = _counts.values.fold<int>(0, (a, b) => a + b);
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-          child: Text('Einstellungen',
+          child: Text(loc.screenSettings,
               style: Theme.of(context).textTheme.headlineMedium),
         ),
 
-        _section('Datenstand'),
+        _section(loc.sectionDataStatus),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               ListTile(
                 leading: const Icon(Icons.library_books),
-                title: const Text('Gesamt-Einträge'),
+                title: Text(loc.settingsTotalEntries),
                 trailing: Text('$total'),
               ),
               ...MediaCategory.values
@@ -239,38 +249,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (_lastScan != null)
                 ListTile(
                   leading: const Icon(Icons.history),
-                  title: const Text('Letzter Scan'),
-                  subtitle: Text(_short(_lastScan)),
+                  title: Text(loc.settingsLastScan),
+                  subtitle: Text(_short(_lastScan, loc.neverText)),
                 ),
             ],
           ),
         ),
 
-        _section('Datei-Sync'),
+        _section(loc.sectionFileSync),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               ListTile(
                 leading: const Icon(Icons.upload_file),
-                title: const Text('Export per Share'),
-                subtitle: const Text(
-                  'JSON über Mail, OneDrive, Telegram an dich selbst …',
-                ),
+                title: Text(loc.exportTitle),
+                subtitle: Text(loc.exportSubtitle),
                 onTap: _busy ? null : _exportFile,
               ),
               const Divider(height: 0),
               ListTile(
                 leading: const Icon(Icons.download_for_offline),
-                title: const Text('Import-Datei wählen'),
-                subtitle: const Text('Überschreibt den lokalen Stand'),
+                title: Text(loc.importTitle),
+                subtitle: Text(loc.importSubtitle),
                 onTap: _busy ? null : _importFile,
               ),
             ],
           ),
         ),
 
-        _section('Server-Sync (Mac Studio)'),
+        _section(loc.sectionServerSync),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
@@ -278,10 +286,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 leading: const Icon(Icons.cloud_outlined),
                 title: Text(_serverUrl == null || _serverUrl!.isEmpty
-                    ? 'Kein Server konfiguriert'
+                    ? loc.noServerConfigured
                     : _serverUrl!),
                 subtitle: Text(
-                  'Push: ${_short(_lastPush)} · Pull: ${_short(_lastPull)}',
+                  loc.pushPullStatus(
+                    _short(_lastPush, loc.neverText),
+                    _short(_lastPull, loc.neverText),
+                  ),
                 ),
                 trailing: const Icon(Icons.edit),
                 onTap: _editServerConfig,
@@ -293,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: TextButton.icon(
                       onPressed: _busy ? null : _push,
                       icon: const Icon(Icons.arrow_upward),
-                      label: const Text('Push'),
+                      label: Text(loc.actionPush),
                     ),
                   ),
                   const SizedBox(
@@ -304,7 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: TextButton.icon(
                       onPressed: _busy ? null : _pull,
                       icon: const Icon(Icons.arrow_downward),
-                      label: const Text('Pull'),
+                      label: Text(loc.actionPull),
                     ),
                   ),
                 ],
@@ -313,20 +324,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
 
-        _section('Aktionen'),
+        _section(loc.sectionActions),
         Card(
           margin: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               ListTile(
                 leading: const Icon(Icons.refresh),
-                title: const Text('Datenstand aktualisieren'),
+                title: Text(loc.refreshData),
                 onTap: _reload,
               ),
               ListTile(
                 leading: const Icon(Icons.delete_forever, color: Colors.red),
-                title: const Text('Alle Bibliotheks-Daten löschen',
-                    style: TextStyle(color: Colors.red)),
+                title: Text(loc.deleteAllData,
+                    style: const TextStyle(color: Colors.red)),
                 onTap: _clearAll,
               ),
             ],
@@ -334,15 +345,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
 
         const SizedBox(height: 16),
-        const Card(
-          margin: EdgeInsets.symmetric(horizontal: 8),
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
           child: ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('MediaBrain Mobile'),
-            subtitle: Text(
-              'Standalone Flutter-App. Erkennt installierte Medien-Apps, '
-              'führt manuelle Einträge und syncronisiert per Datei oder Server.',
-            ),
+            leading: const Icon(Icons.info_outline),
+            title: Text(loc.aboutTitle),
+            subtitle: Text(loc.aboutSubtitle),
             isThreeLine: true,
           ),
         ),
@@ -363,8 +371,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       );
 
-  String _short(String? iso) {
-    if (iso == null || iso.isEmpty) return 'nie';
+  String _short(String? iso, String never) {
+    if (iso == null || iso.isEmpty) return never;
     if (iso.length < 16) return iso;
     return iso.substring(0, 16).replaceAll('T', ' ');
   }

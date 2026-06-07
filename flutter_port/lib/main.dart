@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
 import 'services/background_scan.dart';
 
@@ -22,8 +23,10 @@ class MediaBrainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'MediaBrain',
+      onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

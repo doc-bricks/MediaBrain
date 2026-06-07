@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../dialogs/media_item_dialog.dart';
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../services/database_service.dart';
 import 'item_detail_screen.dart';
@@ -62,11 +63,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addManual,
         icon: const Icon(Icons.add),
-        label: const Text('Eintrag'),
+        label: Text(loc.fabAdd),
       ),
       body: Column(
       children: [
@@ -75,14 +77,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Bibliothek', style: Theme.of(context).textTheme.headlineMedium),
+              Text(loc.screenLibrary, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 8),
               TextField(
                 controller: _searchCtrl,
-                decoration: const InputDecoration(
-                  hintText: 'Suchen (Titel, Künstler, Kanal …)',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: loc.searchHint,
+                  prefixIcon: const Icon(Icons.search),
+                  border: const OutlineInputBorder(),
                   isDense: true,
                 ),
                 onChanged: (v) {
@@ -101,7 +103,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             children: [
               _chip(
-                label: 'Alle',
+                label: loc.filterAll,
                 selected: _category == null && !_favorites,
                 onSelected: () {
                   setState(() {
@@ -112,7 +114,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 },
               ),
               _chip(
-                label: '⭐ Favoriten',
+                label: loc.filterFavorites,
                 selected: _favorites,
                 onSelected: () {
                   setState(() => _favorites = !_favorites);
@@ -136,7 +138,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             future: _future,
             builder: (context, snap) {
               if (snap.hasError) {
-                return Center(child: Text('Fehler: ${snap.error}'));
+                return Center(child: Text(loc.error('${snap.error}')));
               }
               if (!snap.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -199,6 +201,7 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Center(
@@ -208,9 +211,7 @@ class _EmptyState extends StatelessWidget {
             const Text('📚', style: TextStyle(fontSize: 64)),
             const SizedBox(height: 16),
             Text(
-              hasAnyData
-                  ? 'Keine Treffer für deine Filter.'
-                  : 'Noch leer.\nTippe auf den "Scan"-Tab, um deine Medien-Apps automatisch zu erfassen.',
+              hasAnyData ? loc.emptyNoMatch : loc.emptyNoItems,
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 16, color: Colors.black54),
             ),
@@ -228,6 +229,7 @@ class _MediaRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: item.category.color.withValues(alpha: 0.18),
@@ -244,7 +246,7 @@ class _MediaRow extends StatelessWidget {
           ),
           if (item.foregroundMinutes > 0)
             Text(
-              '${item.foregroundMinutes} Min insgesamt',
+              loc.foregroundMinutesLabel(item.foregroundMinutes),
               style: TextStyle(fontSize: 11, color: Colors.green.shade700),
             ),
         ],

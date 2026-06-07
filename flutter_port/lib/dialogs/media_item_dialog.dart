@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 
 class MediaItemDialog extends StatefulWidget {
@@ -93,9 +94,10 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(
-        widget.initial == null ? 'Neuer Eintrag' : 'Eintrag bearbeiten',
+        widget.initial == null ? loc.dialogTitleNew : loc.dialogTitleEdit,
       ),
       content: SingleChildScrollView(
         child: Column(
@@ -105,13 +107,13 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             TextField(
               controller: _title,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Titel',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldTitle,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
-            const Text('Kategorie', style: TextStyle(color: Colors.black54)),
+            Text(loc.categoryLabel, style: const TextStyle(color: Colors.black54)),
             const SizedBox(height: 4),
             Wrap(
               spacing: 6,
@@ -127,49 +129,49 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _artist,
-              decoration: const InputDecoration(
-                labelText: 'Künstler / Regie (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldArtistOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _album,
-              decoration: const InputDecoration(
-                labelText: 'Album / Serie (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldAlbumOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _channel,
-              decoration: const InputDecoration(
-                labelText: 'Kanal / Quelle (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldChannelOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _description,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Beschreibung (optional)',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldDescriptionOptional,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _tags,
-              decoration: const InputDecoration(
-                labelText: 'Tags (Komma-getrennt)',
-                hintText: 'z.B. Dokumentation, Wochenende',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: loc.fieldTags,
+                hintText: loc.fieldTagsHint,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 8),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Als Favorit markieren'),
+              title: Text(loc.markAsFavorite),
               value: _favorite,
               onChanged: (v) => setState(() => _favorite = v),
             ),
@@ -179,11 +181,11 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Abbrechen'),
+          child: Text(loc.cancel),
         ),
         ElevatedButton(
           onPressed: _save,
-          child: const Text('Speichern'),
+          child: Text(loc.save),
         ),
       ],
     );

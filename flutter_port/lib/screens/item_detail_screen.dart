@@ -4,6 +4,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import '../services/database_service.dart';
 
@@ -45,7 +46,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Link konnte nicht geöffnet werden.')),
+        SnackBar(content: Text(AppLocalizations.of(context).linkError)),
       );
     }
   }
@@ -53,8 +54,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   String? _guessUrl(MediaItem i) {
     if (i.providerId.isEmpty) return null;
     if (i.providerId.contains('.')) {
-      // Vermutlich Android-Package — kann von der Companion nicht direkt
-      // gestartet werden, aber wir können dem User den Play-Store-Link anbieten.
       return 'https://play.google.com/store/apps/details?id=${i.providerId}';
     }
     switch (i.source) {
@@ -71,6 +70,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final i = _item;
     if (i == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -115,11 +115,11 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             ),
           ),
           if (i.description != null && i.description!.isNotEmpty)
-            _section('Beschreibung', Text(i.description!)),
-          _section('Details', _details(i)),
+            _section(loc.detailDescription, Text(i.description!)),
+          _section(loc.detailDetails, _details(i, loc)),
           if (i.tags.isNotEmpty)
             _section(
-              'Tags',
+              loc.detailTags,
               Wrap(
                 spacing: 6,
                 children: i.tags
@@ -136,8 +136,8 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               icon: const Icon(Icons.open_in_new),
               label: Text(
                 i.providerId.contains('.')
-                    ? 'Im Play Store öffnen'
-                    : 'Im Browser öffnen',
+                    ? loc.openPlayStore
+                    : loc.openBrowser,
               ),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
@@ -168,7 +168,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     );
   }
 
-  Widget _details(MediaItem i) {
+  Widget _details(MediaItem i, AppLocalizations loc) {
     final rows = <Widget>[];
     void add(String k, String? v) {
       if (v == null || v.isEmpty) return;
@@ -184,24 +184,24 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       ));
     }
 
-    add('Künstler', i.artist);
-    add('Album', i.album);
-    add('Kanal', i.channel);
+    add(loc.fieldArtist, i.artist);
+    add(loc.fieldAlbum, i.album);
+    add(loc.fieldChannel, i.channel);
     if (i.season != null && i.episode != null) {
-      add('Staffel/Folge', 'S${i.season} E${i.episode}');
+      add(loc.fieldSeasonEpisodeLabel, loc.seasonEpisode(i.season!, i.episode!));
     }
     if (i.lengthSeconds != null) {
-      add('Länge', _formatSec(i.lengthSeconds!));
+      add(loc.fieldLength, _formatSec(i.lengthSeconds!));
     }
     if (i.lastOpenedAt != null) {
-      add('Zuletzt geöffnet',
+      add(loc.fieldLastOpened,
           '${i.lastOpenedAt!.toLocal().toIso8601String().substring(0, 16).replaceAll('T', ' ')} Uhr');
     }
     if (i.foregroundMinutes > 0) {
-      add('Nutzung', '${i.foregroundMinutes} Minuten');
+      add(loc.fieldUsage, loc.usageMinutes(i.foregroundMinutes));
     }
-    if (i.providerId.isNotEmpty) add('Provider-ID', i.providerId);
-    if (i.localPath != null) add('Lokaler Pfad', i.localPath!);
+    if (i.providerId.isNotEmpty) add(loc.fieldProviderId, i.providerId);
+    if (i.localPath != null) add(loc.fieldLocalPath, i.localPath!);
     if (rows.isEmpty) return const SizedBox.shrink();
     final spaced = rows.expand((w) => [w, const SizedBox(height: 6)]).toList()
       ..removeLast();
