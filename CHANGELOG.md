@@ -5,6 +5,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Behoben / Fixed
+
+- MB-001: `SearchCriteria.local_only` hatte keinen Effekt — Feld fehlte in `SearchCriteria`, `_on_local_only_toggle`-Handler war nicht angeschlossen. Regressionstests in `tests/test_search_advanced.py` hinzugefügt.
+
 ### Geändert / Changed
 
 - README auf English-first GitHub-Landing-Page umgestellt und separate deutsche README ergänzt.

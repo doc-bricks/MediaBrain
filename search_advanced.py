@@ -85,7 +85,8 @@ class SearchCriteria:
         self.sort_desc = True
         self.tags = []
         self.min_rating = None
-        
+        self.local_only = False
+
     def to_dict(self):
         return {
             "text": self.text,
@@ -97,9 +98,10 @@ class SearchCriteria:
             "sort_field": self.sort_field,
             "sort_desc": self.sort_desc,
             "tags": self.tags,
-            "min_rating": self.min_rating
+            "min_rating": self.min_rating,
+            "local_only": self.local_only,
         }
-    
+
     @classmethod
     def from_dict(cls, data):
         c = cls()
@@ -113,6 +115,7 @@ class SearchCriteria:
         c.sort_desc = data.get("sort_desc", True)
         c.tags = data.get("tags", [])
         c.min_rating = data.get("min_rating")
+        c.local_only = data.get("local_only", False)
         return c
 
 # ============================================================
@@ -224,7 +227,7 @@ class AdvancedSearchBar(QWidget):
         options_layout.addWidget(self.chk_blacklist)
         
         self.chk_local_only = QCheckBox("Nur lokale Dateien")
-        self.chk_local_only.toggled.connect(self._trigger_search)
+        self.chk_local_only.toggled.connect(self._on_local_only_toggle)
         options_layout.addWidget(self.chk_local_only)
         
         filter_layout.addWidget(options_group)
@@ -278,7 +281,11 @@ class AdvancedSearchBar(QWidget):
     def _on_blacklist_toggle(self, checked):
         self.criteria.exclude_blacklist = checked
         self._trigger_search()
-        
+
+    def _on_local_only_toggle(self, checked):
+        self.criteria.local_only = checked
+        self._trigger_search()
+
     def _add_tag(self):
         tag = self.tag_input.text().strip()
         if tag and tag not in self.criteria.tags:
@@ -362,7 +369,11 @@ class SearchEngine:
         # Blacklist
         if criteria.exclude_blacklist:
             query += " AND blacklist_flag = 0"
-        
+
+        # Lokale Dateien
+        if criteria.local_only:
+            query += " AND is_local_file = 1"
+
         # Zeitraum
         if criteria.time_filter_days:
             cutoff = (datetime.now() - timedelta(days=criteria.time_filter_days)).isoformat()

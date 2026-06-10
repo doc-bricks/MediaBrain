@@ -126,5 +126,74 @@ class TestSearchEngineTagFilter(unittest.TestCase):
         self.assertNotIn("Reaction Movie", titles)
 
 
+class TestSearchEnginelocalOnly(unittest.TestCase):
+    """Regression MB-001: criteria.local_only hatte keinen Effekt.
+    SearchCriteria fehlte das Feld, SearchEngine.search() filterte nicht."""
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        self.engine = SearchEngine(self.db)
+
+    def tearDown(self):
+        self.db.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _insert(self, title, provider_id, is_local_file=0):
+        self.db.conn.execute(
+            "INSERT INTO media_items (title, type, source, provider_id, is_local_file)"
+            " VALUES (?, 'movie', 'local', ?, ?)",
+            (title, provider_id, is_local_file),
+        )
+        self.db.conn.commit()
+
+    def test_local_only_excludes_non_local(self):
+        """Mit local_only=True dürfen Online-Items nicht erscheinen."""
+        self._insert("Lokaler Film", "local-1", is_local_file=1)
+        self._insert("Online Film", "online-1", is_local_file=0)
+
+        c = SearchCriteria()
+        c.local_only = True
+        c.exclude_blacklist = False
+        results = self.engine.search(c)
+        titles = [r.title for r in results]
+
+        self.assertIn("Lokaler Film", titles)
+        self.assertNotIn("Online Film", titles)
+
+    def test_local_only_false_returns_all(self):
+        """Mit local_only=False werden alle Items zurückgegeben."""
+        self._insert("Lokaler Film", "local-2", is_local_file=1)
+        self._insert("Online Film", "online-2", is_local_file=0)
+
+        c = SearchCriteria()
+        c.local_only = False
+        c.exclude_blacklist = False
+        results = self.engine.search(c)
+        titles = [r.title for r in results]
+
+        self.assertIn("Lokaler Film", titles)
+        self.assertIn("Online Film", titles)
+
+    def test_search_criteria_local_only_roundtrip(self):
+        """SearchCriteria.local_only wird korrekt serialisiert und deserialisiert."""
+        c = SearchCriteria()
+        c.local_only = True
+        d = c.to_dict()
+        self.assertTrue(d["local_only"])
+
+        c2 = SearchCriteria.from_dict(d)
+        self.assertTrue(c2.local_only)
+
+    def test_search_criteria_local_only_default_false(self):
+        """local_only ist standardmäßig False (kein Breaking-Change)."""
+        c = SearchCriteria()
+        self.assertFalse(c.local_only)
+
+        c2 = SearchCriteria.from_dict({})
+        self.assertFalse(c2.local_only)
+
+
 if __name__ == "__main__":
     unittest.main()

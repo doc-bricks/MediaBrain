@@ -35,3 +35,5 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 ## Boundaries
 
 MediaBrain is not a streaming service, not a cloud sync product, and not an AI media generator. Optional metadata lookup depends on user-configured API keys or public metadata services.
+
+## Last-checked: 2026-06-11
