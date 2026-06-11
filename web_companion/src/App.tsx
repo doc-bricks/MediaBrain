@@ -12,6 +12,7 @@ import { LibraryScreen } from './screens/LibraryScreen'
 import { ItemDetailScreen } from './screens/ItemDetailScreen'
 import { PlaylistsScreen } from './screens/PlaylistsScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
+import { PwaInstallHint } from './components/PwaInstallHint'
 
 export default function App() {
   return (
@@ -33,8 +34,9 @@ export default function App() {
 
 function AppShell() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900">
-      <main className="flex-1 pb-16">
+    <div className="app-shell flex flex-col min-h-screen bg-gray-50 text-gray-900">
+      <main className="app-main flex-1">
+        <PwaInstallHint />
         <Outlet />
       </main>
       <BottomNav />
@@ -50,13 +52,13 @@ function BottomNav() {
     { to: '/einstellungen', label: 'Mehr', icon: '⚙️' },
   ]
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex">
+    <nav className="app-bottom-nav fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 flex">
       {tabs.map((t) => (
         <NavLink
           key={t.to}
           to={t.to}
           className={({ isActive }) =>
-            'flex-1 flex flex-col items-center justify-center py-2 text-xs ' +
+            'touch-target flex-1 flex flex-col items-center justify-center py-2 text-xs ' +
             (isActive ? 'text-blue-600 font-semibold' : 'text-gray-500')
           }
         >

@@ -3,7 +3,7 @@
 **Quelle:** `../` (Python/PySide6, core.py + export_import.py)
 **Ziel:** Web/PWA + Capacitor (Android jetzt, iOS später)
 **Bundle-ID:** `com.lukas.mediabrain`
-**Aktualisiert:** 2026-06-04 (Companion-MVP verifiziert)
+**Aktualisiert:** 2026-06-11 (PWA-Installierbarkeit für Android/iOS gehärtet)
 
 ## Status
 
@@ -18,6 +18,7 @@
 | 7. Playlists | FERTIG | Read-only Vorschau mit `item_refs` aus aktuellem Desktop-Export |
 | 8. Einstellungen | FERTIG | Stand letzter Import, Schema-/Export-Metadaten, Alles löschen |
 | 9. Regressionen | FERTIG | `npm test` via Vitest für Schema und Playlist-Mapping |
+| 10. Mobile PWA-Härtung | FERTIG | `viewport-fit=cover`, Apple-Web-App-Metadaten, Safe-Area-Layout, 44px-Touch-Ziele und Android-/iOS-Install-Hinweise |
 
 ## Companion-Screens
 
@@ -71,5 +72,5 @@ cd android && ./gradlew assembleDebug
 - Rück-Sync der Favoriten-Änderungen
 - Smart-Playlist-Regel-Engine (Companion-Seite)
 - iOS-Build nach Xcode-Installation
-- Android-/iOS-PWA-Installationssmokes mit echter Exportdatei
+- Android-/iOS-PWA-Installationssmokes mit echter Exportdatei und großem Bibliotheksstand
 - Dependency-Audit der JS-Toolchain (`npm audit`) ohne unnötige Breaking Changes

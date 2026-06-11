@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --safe-area-right: env(safe-area-inset-right, 0px);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-left: env(safe-area-inset-left, 0px);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #f9fafb;
+  color: #111827;
+}
+
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: var(--safe-area-top);
+}
+
+.app-main {
+  padding-bottom: calc(4rem + var(--safe-area-bottom));
+}
+
+.app-bottom-nav {
+  padding-right: var(--safe-area-right);
+  padding-bottom: max(0.5rem, var(--safe-area-bottom));
+  padding-left: var(--safe-area-left);
+}
+
+.touch-target {
+  min-height: 44px;
+}
