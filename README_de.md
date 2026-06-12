@@ -24,6 +24,7 @@ MediaBrain bündelt Medien, die Sie ansehen, sammeln, taggen, ausblenden oder in
 - PySide6-Desktopoberfläche mit Dashboard, Bibliotheken, Suche, Statistiken, Einstellungen und High-Contrast-Theme
 - Provider-Schicht für Netflix, YouTube, Spotify, Disney+, Prime Video, Apple TV+, Twitch und lokale Dateien
 - Manuelle Playlists und Smart-Playlists mit QueryBuilder-Regeln
+- Read-only Web-/PWA-Companion für den Import von `mediabrain-library-v1.json`-Exporten auf Mobilgeräten
 - Optionale Metadatenabfragen über selbst konfigurierte TMDb-/OMDb-Keys oder öffentliche MusicBrainz-Daten
 - Keine Telemetrie, kein Tracking und keine automatische Cloud-Synchronisation
 
@@ -33,11 +34,15 @@ Dieses Repository ist die kanonische GitHub-Adresse für:
 
 - `doc-bricks MediaBrain`
 - `MediaBrain Medienmanager`
+- `private SQLite Medienbibliothek`
 - `lokaler PySide6 Medienmanager`
+- `PySide6 Smart-Playlist Medienmanager`
 - `offline media hub smart playlists`
+- `Desktop Medienverlauf Tracker`
+- `MediaBrain PWA Companion`
 - `privacy-first media history desktop app`
 
-Der Name „MediaBrain“ kollidiert mit generischen KI- und Medienergebnissen. Deshalb nutzt die öffentliche Beschreibung bewusst präzisere Formulierungen wie `doc-bricks MediaBrain` und `local-first media library manager`.
+Der Name „MediaBrain“ kollidiert mit Media-Analytics-Firmen, KI-Medienlaboren und generischen Media-Planning-Tools. Dieses Repository ist konkret die lokale Desktop-Medienbibliothek `doc-bricks/MediaBrain`, keine Cloud-Plattform für Werbeanalysen, kein Multimedia-Forschungslabor und kein KI-Mediengenerator.
 
 ## Architektur
 

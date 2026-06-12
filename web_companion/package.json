@@ -3,7 +3,16 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "Web/PWA Companion für MediaBrain (Vite + React + TS + Tailwind + Capacitor)",
+  "description": "Read-only MediaBrain Web/PWA companion for imported local-first media library exports",
+  "keywords": [
+    "mediabrain",
+    "media-library",
+    "pwa",
+    "local-first",
+    "smart-playlists",
+    "indexeddb",
+    "capacitor"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
