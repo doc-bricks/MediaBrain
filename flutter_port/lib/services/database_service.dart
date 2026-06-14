@@ -14,18 +14,18 @@ class DatabaseService {
   // Set in tests to redirect the DB to an in-memory path.
   static String? overrideDbPath;
 
-  Database? _db;
+  Future<Database>? _dbFuture;
 
-  Future<Database> get database async {
-    if (_db != null) return _db!;
+  Future<Database> get database => _dbFuture ??= _openDatabase();
+
+  Future<Database> _openDatabase() async {
     final dbPath = overrideDbPath ?? p.join(await getDatabasesPath(), 'mediabrain.db');
-    _db = await openDatabase(
+    return openDatabase(
       dbPath,
       version: 1,
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, _) async => _createSchema(db),
     );
-    return _db!;
   }
 
   Future<void> _createSchema(Database db) async {
@@ -215,8 +215,9 @@ CREATE TABLE IF NOT EXISTS settings (
 
   /// Closes the database and resets the cached instance (used in tests).
   Future<void> close() async {
-    await _db?.close();
-    _db = null;
+    final db = await _dbFuture;
+    _dbFuture = null;
+    await db?.close();
   }
 
   static bool _asBool(dynamic v) => v == true || v == 1;

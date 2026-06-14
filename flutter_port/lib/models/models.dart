@@ -155,14 +155,14 @@ class MediaItem {
         artist: m['artist'] as String?,
         album: m['album'] as String?,
         channel: m['channel'] as String?,
-        season: m['season'] as int?,
-        episode: m['episode'] as int?,
-        lengthSeconds: m['length_seconds'] as int?,
+        season: (m['season'] as num?)?.toInt(),
+        episode: (m['episode'] as num?)?.toInt(),
+        lengthSeconds: (m['length_seconds'] as num?)?.toInt(),
         lastOpenedAt: m['last_opened_at'] == null
             ? null
             : DateTime.tryParse(m['last_opened_at'] as String),
         foregroundMinutes: (m['foreground_minutes'] as int?) ?? 0,
-        isFavorite: (m['is_favorite'] as int?) == 1,
+        isFavorite: m['is_favorite'] == 1 || m['is_favorite'] == true,
         description: m['description'] as String?,
         thumbnailUrl: m['thumbnail_url'] as String?,
         localPath: m['local_path'] as String?,

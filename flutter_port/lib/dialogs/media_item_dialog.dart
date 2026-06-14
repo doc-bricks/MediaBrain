@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/models.dart';
@@ -68,8 +69,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
         .toList();
     final base = widget.initial;
     final newItem = MediaItem(
-      id: base?.id ??
-          'manual:${DateTime.now().microsecondsSinceEpoch}',
+      id: base?.id ?? const Uuid().v4(),
       title: _title.text.trim(),
       category: _category,
       source: base?.source ?? 'manual',

@@ -56,6 +56,7 @@ class _ScanScreenState extends State<ScanScreen> {
       if (!mounted) return;
       if (!hasPerm) {
         setState(() => _error = loc.scanPermissionMissing);
+        return;
       }
       final (matched, persisted) =
           await MediaUsageService.instance.scanAndPersist(daysBack: 30);

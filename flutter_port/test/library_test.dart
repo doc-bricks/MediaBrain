@@ -84,7 +84,7 @@ void main() {
 
   // ── buildExportPayload — mit einem Item ───────────────────────────────────
 
-  Future<void> _insertTestItem(DatabaseService svc,
+  Future<void> insertTestItem(DatabaseService svc,
       {String id = 'uuid-001',
       String title = 'Test Film',
       String category = 'movie',
@@ -103,7 +103,7 @@ void main() {
 
   test('buildExportPayload enthält kein local_path', () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc);
+    await insertTestItem(svc);
     final payload = await svc.buildExportPayload();
     final item = (payload['items'] as List).first as Map;
     expect(item.containsKey('local_path'), isFalse);
@@ -111,7 +111,7 @@ void main() {
 
   test('buildExportPayload exportiert is_favorite als bool', () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc, isFavorite: true);
+    await insertTestItem(svc, isFavorite: true);
     final payload = await svc.buildExportPayload();
     final item = (payload['items'] as List).first as Map;
     expect(item['is_favorite'], isA<bool>());
@@ -120,7 +120,7 @@ void main() {
 
   test('buildExportPayload exportiert tags als List<String>', () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc, tags: 'action|drama');
+    await insertTestItem(svc, tags: 'action|drama');
     final payload = await svc.buildExportPayload();
     final item = (payload['items'] as List).first as Map;
     expect(item['tags'], isA<List>());
@@ -130,7 +130,7 @@ void main() {
   test('buildExportPayload enthält type == category für Desktop-Kompatibilität',
       () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc, category: 'music');
+    await insertTestItem(svc, category: 'music');
     final payload = await svc.buildExportPayload();
     final item = (payload['items'] as List).first as Map;
     expect(item['type'], item['category']);
@@ -140,8 +140,8 @@ void main() {
   test('buildExportPayload item_count stimmt mit items.length überein',
       () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc, id: 'u1', title: 'Film A');
-    await _insertTestItem(svc, id: 'u2', title: 'Film B');
+    await insertTestItem(svc, id: 'u1', title: 'Film A');
+    await insertTestItem(svc, id: 'u2', title: 'Film B');
     final payload = await svc.buildExportPayload();
     expect(payload['item_count'], 2);
     expect((payload['items'] as List).length, 2);
@@ -264,11 +264,101 @@ void main() {
     );
   });
 
+  // ── is_favorite bool/int Typflexibilität (Bug #4) ────────────────────────
+
+  test('fromMap akzeptiert is_favorite als bool (JSON-Format)', () async {
+    final svc = DatabaseService.instance;
+    final result = await svc.importLibraryBundle({
+      'schema': librarySchemaName,
+      'schema_version': 1,
+      'items': [
+        {
+          'id': 'b1000000-0000-4000-8000-000000000001',
+          'title': 'Bool-Favorite Test',
+          'category': 'movie',
+          'source': 'test',
+          'provider_id': 'bool-fav-001',
+          'is_favorite': true, // bool statt int — kein TypeError
+          'tags': <String>[],
+        }
+      ],
+    });
+    expect(result.imported, 1);
+    final item = await svc.getItem('b1000000-0000-4000-8000-000000000001');
+    expect(item!.isFavorite, isTrue);
+  });
+
+  test('fromMap akzeptiert is_favorite als int (SQLite-Format)', () async {
+    final svc = DatabaseService.instance;
+    final result = await svc.importLibraryBundle({
+      'schema': librarySchemaName,
+      'schema_version': 1,
+      'items': [
+        {
+          'id': 'b2000000-0000-4000-8000-000000000002',
+          'title': 'Int-Favorite Test',
+          'category': 'music',
+          'source': 'test',
+          'provider_id': 'int-fav-002',
+          'is_favorite': 1,
+          'tags': <String>[],
+        }
+      ],
+    });
+    expect(result.imported, 1);
+    final item = await svc.getItem('b2000000-0000-4000-8000-000000000002');
+    expect(item!.isFavorite, isTrue);
+  });
+
+  // ── DB-Singleton Race Condition (Bug #2) ─────────────────────────────────
+
+  test('database getter gibt bei parallelen Aufrufen dieselbe Instanz zurück',
+      () async {
+    final svc = DatabaseService.instance;
+    final futures = List.generate(5, (_) => svc.database);
+    final dbs = await Future.wait(futures);
+    for (final db in dbs) {
+      expect(db, same(dbs.first));
+    }
+  });
+
+  test('close() setzt Future zurück und erlaubt saubere Neuöffnung', () async {
+    final svc = DatabaseService.instance;
+    await svc.database; // öffnet DB
+    await svc.close(); // schließt + setzt _dbFuture = null
+    final db = await svc.database; // muss sauber neu öffnen
+    expect(db.isOpen, isTrue);
+  });
+
+  // ── Manuell angelegte Items (UUID, Bug #3) ───────────────────────────────
+
+  test('manuell angelegtes Item mit UUID-ID übersteht Export→Import-Roundtrip',
+      () async {
+    final svc = DatabaseService.instance;
+    const manualId = 'c9bf9e57-1685-4c89-bafb-ff5af830be8a';
+    await svc.upsert(MediaItem(
+      id: manualId,
+      title: 'Manueller Eintrag',
+      category: MediaCategory.movie,
+      source: 'manual',
+      providerId: '',
+    ));
+
+    final payload = await svc.buildExportPayload();
+    await svc.clearAll();
+
+    final result = await svc.importLibraryBundle(payload);
+    expect(result.imported, 1);
+    final item = await svc.getItem(manualId);
+    expect(item, isNotNull);
+    expect(item!.id, manualId);
+  });
+
   // ── Roundtrip ─────────────────────────────────────────────────────────────
 
   test('Export→Import Roundtrip erhält title und tags', () async {
     final svc = DatabaseService.instance;
-    await _insertTestItem(svc,
+    await insertTestItem(svc,
         id: 'a1000000-0000-4000-8000-000000000002',
         title: 'Roundtrip Film',
         tags: 'test|roundtrip');
