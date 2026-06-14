@@ -3,6 +3,7 @@ library;
 
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 import '../models/models.dart';
 
@@ -10,11 +11,14 @@ class DatabaseService {
   DatabaseService._();
   static final DatabaseService instance = DatabaseService._();
 
+  // Set in tests to redirect the DB to an in-memory path.
+  static String? overrideDbPath;
+
   Database? _db;
 
   Future<Database> get database async {
     if (_db != null) return _db!;
-    final dbPath = p.join(await getDatabasesPath(), 'mediabrain.db');
+    final dbPath = overrideDbPath ?? p.join(await getDatabasesPath(), 'mediabrain.db');
     _db = await openDatabase(
       dbPath,
       version: 1,
@@ -207,5 +211,190 @@ CREATE TABLE IF NOT EXISTS settings (
       await txn.delete('media_items');
       await txn.delete('settings');
     });
+  }
+
+  /// Closes the database and resets the cached instance (used in tests).
+  Future<void> close() async {
+    await _db?.close();
+    _db = null;
+  }
+
+  static bool _asBool(dynamic v) => v == true || v == 1;
+
+  static bool _isUuid(String s) =>
+      RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+              caseSensitive: false)
+          .hasMatch(s);
+
+  /// Builds the JSON exchange payload for cross-platform export.
+  ///
+  /// Envelope mirrors MediaBrain Desktop's `build_export_payload()`.
+  /// `local_path` is intentionally omitted — device-local, no raw paths in export.
+  /// `foreground_minutes` is included (Flutter-specific, desktop drops it silently).
+  Future<Map<String, dynamic>> buildExportPayload() async {
+    final db = await database;
+    final rows = await db.query('media_items', orderBy: 'title ASC');
+    final items = rows.map((r) {
+      final tagStr = (r['tags'] as String?) ?? '';
+      final tagList = tagStr.split('|').where((s) => s.isNotEmpty).toList();
+      return {
+        'id': r['id'],
+        'title': r['title'],
+        'category': r['category'],
+        'type': r['category'], // required by desktop importer
+        'source': r['source'],
+        'provider_id': r['provider_id'],
+        'artist': r['artist'],
+        'album': r['album'],
+        'channel': r['channel'],
+        'season': r['season'],
+        'episode': r['episode'],
+        'length_seconds': r['length_seconds'],
+        'last_opened_at': r['last_opened_at'],
+        'foreground_minutes': r['foreground_minutes'],
+        'is_favorite': (r['is_favorite'] as int?) == 1,
+        'description': r['description'],
+        'thumbnail_url': r['thumbnail_url'],
+        'tags': tagList,
+      };
+    }).toList();
+    return {
+      'schema': librarySchemaName,
+      'schema_version': 1,
+      'version': '1.0', // legacy compatibility field
+      'app_name': 'MediaBrain Mobile',
+      'source': {
+        'app_name': 'MediaBrain Mobile',
+        'platform': 'android',
+      },
+      'exported_at': DateTime.now().toIso8601String(),
+      'item_count': items.length,
+      'items': items,
+    };
+  }
+
+  /// Imports a library bundle from a [json] map.
+  ///
+  /// Accepts both Flutter exports (category field) and Desktop exports (type field).
+  /// Merge strategy (v1): replace entire row if source+provider_id or title+category
+  /// matches an existing item, preserving the existing UUID.
+  ///
+  /// Known v1 limitation: foreground_minutes and last_opened_at are overwritten
+  /// with values from the imported payload (desktop exports don't include
+  /// foreground_minutes, so it resets to 0 on desktop→Flutter import).
+  Future<({int imported, int skipped})> importLibraryBundle(
+      Map<String, dynamic> json) async {
+    final schema = json['schema'];
+    if (schema != null && schema != '' && schema != librarySchemaName) {
+      throw ImportException(
+          "Schema '$schema' nicht unterstützt (erwartet: $librarySchemaName).");
+    }
+    final schemaVersion = json['schema_version'];
+    if (schemaVersion != null && schemaVersion != '' &&
+        (int.tryParse(schemaVersion.toString()) ?? 1) != 1) {
+      throw ImportException(
+          "schema_version $schemaVersion nicht unterstützt (erwartet: 1).");
+    }
+    final rawItems = json['items'];
+    if (rawItems == null || rawItems is! List) {
+      throw ImportException('Kein items-Array im Payload gefunden.');
+    }
+
+    int imported = 0;
+    int skipped = 0;
+    final db = await database;
+
+    await db.transaction((txn) async {
+      for (final raw in rawItems) {
+        if (raw is! Map) {
+          skipped++;
+          continue;
+        }
+        final item = raw.cast<String, dynamic>();
+
+        final title = (item['title'] as String?)?.trim() ?? '';
+        if (title.isEmpty) {
+          skipped++;
+          continue;
+        }
+
+        // Desktop uses "type"; Flutter uses "category". Accept both.
+        final catStr = ((item['category'] as String?) ??
+                (item['type'] as String?) ??
+                'movie')
+            .trim();
+
+        final tagRaw = item['tags'];
+        final tagList = tagRaw is List
+            ? tagRaw
+                .map((t) => t.toString())
+                .where((s) => s.isNotEmpty)
+                .toList()
+            : <String>[];
+
+        final src = (item['source'] as String?) ?? '';
+        final pid = (item['provider_id'] as String?) ?? '';
+
+        // Merge pass 1: source + provider_id
+        String? existingId;
+        if (src.isNotEmpty && pid.isNotEmpty) {
+          final found = await txn.query(
+            'media_items',
+            columns: ['id'],
+            where: 'source = ? AND provider_id = ?',
+            whereArgs: [src, pid],
+            limit: 1,
+          );
+          if (found.isNotEmpty) existingId = found.first['id'] as String?;
+        }
+
+        // Merge pass 2: title + category (heuristic fallback)
+        if (existingId == null) {
+          final found = await txn.query(
+            'media_items',
+            columns: ['id'],
+            where: 'title = ? AND category = ?',
+            whereArgs: [title, catStr],
+            limit: 1,
+          );
+          if (found.isNotEmpty) existingId = found.first['id'] as String?;
+        }
+
+        final providedId = (item['id'] ?? '').toString();
+        final finalId =
+            existingId ?? (_isUuid(providedId) ? providedId : const Uuid().v4());
+
+        final row = <String, dynamic>{
+          'id': finalId,
+          'title': title,
+          'category': catStr,
+          'source': src,
+          'provider_id': pid,
+          'artist': item['artist'],
+          'album': item['album'],
+          'channel': item['channel'],
+          'season': (item['season'] as num?)?.toInt(),
+          'episode': (item['episode'] as num?)?.toInt(),
+          'length_seconds': (item['length_seconds'] as num?)?.toInt(),
+          'last_opened_at': item['last_opened_at'],
+          'foreground_minutes': (item['foreground_minutes'] as num?)?.toInt() ?? 0,
+          'is_favorite': _asBool(item['is_favorite']) ? 1 : 0,
+          'description': item['description'],
+          'thumbnail_url': item['thumbnail_url'],
+          // local_path accepted from desktop even though Flutter doesn't export it
+          'local_path': item['local_path'],
+          'tags': tagList.join('|'),
+        };
+
+        await txn.insert(
+          'media_items',
+          row,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        imported++;
+      }
+    });
+
+    return (imported: imported, skipped: skipped);
   }
 }

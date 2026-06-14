@@ -6,6 +6,15 @@ library;
 
 import 'package:flutter/material.dart';
 
+const librarySchemaName = 'mediabrain-library-v1';
+
+class ImportException implements Exception {
+  final String message;
+  const ImportException(this.message);
+  @override
+  String toString() => 'ImportException: $message';
+}
+
 enum MediaCategory { movie, series, music, clip, podcast, audiobook, document, app }
 
 MediaCategory categoryFromString(String? s) {

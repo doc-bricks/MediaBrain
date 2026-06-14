@@ -11,10 +11,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from PySide6.QtWidgets import QApplication
+
 from core import Database
-from search_advanced import SearchEngine, SearchCriteria
+from search_advanced import AdvancedSearchBar, SearchEngine, SearchCriteria
+
+
+_app = QApplication.instance() or QApplication(sys.argv)
+
+
+def _dispose_widget(widget):
+    widget.close()
+    widget.deleteLater()
+    _app.processEvents()
 
 
 class TestSearchEngineLikeEscaping(unittest.TestCase):
@@ -193,6 +206,35 @@ class TestSearchEnginelocalOnly(unittest.TestCase):
 
         c2 = SearchCriteria.from_dict({})
         self.assertFalse(c2.local_only)
+
+
+class TestAdvancedSearchBarAccessibility(unittest.TestCase):
+    """Die kompakte Suchleiste braucht sprechende Accessible Names statt Vollbeschriftung."""
+
+    def test_compact_quick_filters_expose_accessible_context(self):
+        widget = AdvancedSearchBar()
+        try:
+            self.assertEqual(widget.search_input.accessibleName(), "Mediensuche")
+            self.assertIn("Titel", widget.search_input.accessibleDescription())
+            self.assertEqual(widget.btn_favorites.accessibleName(), "Favoritenfilter")
+            self.assertIn("Favoriten", widget.btn_favorites.accessibleDescription())
+            self.assertEqual(widget.combo_type.accessibleName(), "Medientyp-Filter")
+            self.assertEqual(widget.combo_provider.accessibleName(), "Anbieter-Filter")
+        finally:
+            _dispose_widget(widget)
+
+    def test_expanded_filters_expose_accessible_context(self):
+        widget = AdvancedSearchBar()
+        try:
+            widget._toggle_expand()
+
+            self.assertEqual(widget.combo_time.accessibleName(), "Zeitraum-Filter")
+            self.assertEqual(widget.combo_sort.accessibleName(), "Sortierung")
+            self.assertEqual(widget.chk_blacklist.accessibleName(), "Blacklist ausblenden")
+            self.assertEqual(widget.chk_local_only.accessibleName(), "Nur lokale Dateien")
+            self.assertEqual(widget.tag_input.accessibleName(), "Tag-Filter hinzufügen")
+        finally:
+            _dispose_widget(widget)
 
 
 if __name__ == "__main__":

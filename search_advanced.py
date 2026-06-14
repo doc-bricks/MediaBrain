@@ -137,6 +137,14 @@ class AdvancedSearchBar(QWidget):
         self.criteria = SearchCriteria()
         self.is_expanded = False
         self._setup_ui()
+
+    def _set_a11y(self, widget, *, name, description=None, tooltip=None):
+        """Versorgt kompakte Controls mit stabilem Screenreader-Kontext."""
+        widget.setAccessibleName(name)
+        if description:
+            widget.setAccessibleDescription(description)
+        if tooltip:
+            widget.setToolTip(tooltip)
         
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
@@ -147,6 +155,12 @@ class AdvancedSearchBar(QWidget):
         
         # Suchfeld
         self.search_input = QLineEdit()
+        self._set_a11y(
+            self.search_input,
+            name="Mediensuche",
+            description="Durchsucht Titel, Beschreibung und Tags der Bibliothek.",
+            tooltip="Titel, Beschreibung oder Tags durchsuchen",
+        )
         self.search_input.setPlaceholderText("🔍 Suchen... (Titel, Beschreibung, Tags)")
         self.search_input.textChanged.connect(self._on_text_changed)
         self.search_input.returnPressed.connect(self._trigger_search)
@@ -155,6 +169,12 @@ class AdvancedSearchBar(QWidget):
         # Quick-Filter Buttons
         self.btn_favorites = QPushButton("⭐")
         self.btn_favorites.setCheckable(True)
+        self._set_a11y(
+            self.btn_favorites,
+            name="Favoritenfilter",
+            description="Zeigt nur Favoriten in den Suchergebnissen an.",
+            tooltip="Nur Favoriten anzeigen",
+        )
         self.btn_favorites.setToolTip("Nur Favoriten")
         self.btn_favorites.setFixedWidth(40)
         self.btn_favorites.toggled.connect(self._on_favorites_toggle)
@@ -162,6 +182,12 @@ class AdvancedSearchBar(QWidget):
         
         # Typ-Filter Dropdown
         self.combo_type = QComboBox()
+        self._set_a11y(
+            self.combo_type,
+            name="Medientyp-Filter",
+            description="Begrenzt die Suche auf einen ausgewählten Medientyp.",
+            tooltip="Nach Medientyp filtern",
+        )
         self.combo_type.setFixedWidth(100)
         for label, value in MEDIA_TYPES:
             self.combo_type.addItem(label, value)
@@ -170,6 +196,12 @@ class AdvancedSearchBar(QWidget):
         
         # Provider-Filter Dropdown
         self.combo_provider = QComboBox()
+        self._set_a11y(
+            self.combo_provider,
+            name="Anbieter-Filter",
+            description="Begrenzt die Suche auf einen ausgewählten Anbieter.",
+            tooltip="Nach Anbieter filtern",
+        )
         self.combo_provider.setFixedWidth(120)
         for label, value in PROVIDERS:
             self.combo_provider.addItem(label, value)
@@ -178,12 +210,24 @@ class AdvancedSearchBar(QWidget):
         
         # Erweitert-Button
         self.btn_expand = QPushButton("Filter \u25BC")
+        self._set_a11y(
+            self.btn_expand,
+            name="Erweiterte Filter umschalten",
+            description="Blendet zusätzliche Suchfilter ein oder aus.",
+            tooltip="Erweiterte Filter ein- oder ausblenden",
+        )
         self.btn_expand.setToolTip("Erweiterte Filter ein-/ausblenden")
         self.btn_expand.clicked.connect(self._toggle_expand)
         search_row.addWidget(self.btn_expand)
 
         # Reset-Button
         self.btn_reset = QPushButton("Zurücksetzen")
+        self._set_a11y(
+            self.btn_reset,
+            name="Suchfilter zurücksetzen",
+            description="Setzt alle aktiven Suchfilter auf den Standardzustand zurück.",
+            tooltip="Alle Suchfilter zurücksetzen",
+        )
         self.btn_reset.setToolTip("Alle Filter zurücksetzen")
         self.btn_reset.clicked.connect(self.reset_filters)
         search_row.addWidget(self.btn_reset)
@@ -201,6 +245,12 @@ class AdvancedSearchBar(QWidget):
         time_group = QGroupBox("Zeitraum")
         time_layout = QVBoxLayout(time_group)
         self.combo_time = QComboBox()
+        self._set_a11y(
+            self.combo_time,
+            name="Zeitraum-Filter",
+            description="Begrenzt die Suche auf einen ausgewählten Zeitraum.",
+            tooltip="Nach Zeitraum filtern",
+        )
         for label, value in TIME_FILTERS:
             self.combo_time.addItem(label, value)
         self.combo_time.currentIndexChanged.connect(self._on_time_changed)
@@ -211,6 +261,12 @@ class AdvancedSearchBar(QWidget):
         sort_group = QGroupBox("Sortierung")
         sort_layout = QVBoxLayout(sort_group)
         self.combo_sort = QComboBox()
+        self._set_a11y(
+            self.combo_sort,
+            name="Sortierung",
+            description="Legt fest, in welcher Reihenfolge Suchergebnisse angezeigt werden.",
+            tooltip="Sortierung der Suchergebnisse wählen",
+        )
         for label, field, desc in SORT_OPTIONS:
             self.combo_sort.addItem(label, (field, desc))
         self.combo_sort.currentIndexChanged.connect(self._on_sort_changed)
@@ -222,11 +278,23 @@ class AdvancedSearchBar(QWidget):
         options_layout = QVBoxLayout(options_group)
         
         self.chk_blacklist = QCheckBox("Blacklist ausblenden")
+        self._set_a11y(
+            self.chk_blacklist,
+            name="Blacklist ausblenden",
+            description="Blendet Medien aus, die auf der Blacklist stehen.",
+            tooltip="Blacklisteinträge aus den Suchergebnissen ausblenden",
+        )
         self.chk_blacklist.setChecked(True)
         self.chk_blacklist.toggled.connect(self._on_blacklist_toggle)
         options_layout.addWidget(self.chk_blacklist)
         
         self.chk_local_only = QCheckBox("Nur lokale Dateien")
+        self._set_a11y(
+            self.chk_local_only,
+            name="Nur lokale Dateien",
+            description="Zeigt nur Medien mit lokalem Dateipfad an.",
+            tooltip="Nur lokale Dateien anzeigen",
+        )
         self.chk_local_only.toggled.connect(self._on_local_only_toggle)
         options_layout.addWidget(self.chk_local_only)
         
@@ -236,6 +304,12 @@ class AdvancedSearchBar(QWidget):
         tags_group = QGroupBox("Tags")
         tags_layout = QVBoxLayout(tags_group)
         self.tag_input = QLineEdit()
+        self._set_a11y(
+            self.tag_input,
+            name="Tag-Filter hinzufügen",
+            description="Fügt der Suche einen zusätzlichen Tag-Filter hinzu.",
+            tooltip="Tag eingeben und mit Enter hinzufügen",
+        )
         self.tag_input.setPlaceholderText("Tag hinzufügen...")
         self.tag_input.returnPressed.connect(self._add_tag)
         tags_layout.addWidget(self.tag_input)
