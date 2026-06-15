@@ -827,6 +827,11 @@ import webbrowser
 import os
 import subprocess
 import platform
+import re as _re
+from urllib.parse import quote_plus as _quote_plus
+
+# Gültige YouTube Video-IDs sind genau 11 Zeichen [A-Za-z0-9_-]
+_YT_REAL_ID = _re.compile(r'^[A-Za-z0-9_-]{11}$')
 
 # config bereits oben importiert (optional)
 
@@ -933,7 +938,15 @@ class OpenHandler:
         if item.source == "netflix":
             return f"https://www.netflix.com/watch/{item.provider_id}"
         if item.source == "youtube":
-            return f"https://www.youtube.com/watch?v={item.provider_id}"
+            pid = item.provider_id or ""
+            if _YT_REAL_ID.match(pid):
+                # Echte 11-Zeichen Video-ID → direkte Watch-URL
+                return f"https://www.youtube.com/watch?v={pid}"
+            else:
+                # Kein gültiger ID (z.B. Fenstertitel als Fallback gespeichert)
+                # → YouTube-Suche mit Titel, damit das Video zumindest auffindbar ist
+                search_term = item.title or pid
+                return f"https://www.youtube.com/results?search_query={_quote_plus(search_term)}"
         if item.source == "spotify":
             spotify_kind = item.provider_subtype or "track"
             return f"https://open.spotify.com/{spotify_kind}/{item.provider_id}"
