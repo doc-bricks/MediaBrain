@@ -1,8 +1,15 @@
+<img src="assets/banner.svg" width="100%" alt="MediaBrain Banner">
+
 # MediaBrain
 
-**MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
+[![Offline-first](https://img.shields.io/badge/offline--first-yes-brightgreen.svg)]()
 
-[Deutsch](README_de.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+> **MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**
+
+**[English](README.md)** | [Deutsch](README_de.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
 ![MediaBrain main window](README/screenshots/main.png)
 

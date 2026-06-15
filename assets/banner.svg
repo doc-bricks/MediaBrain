@@ -1,0 +1,278 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#070a13" />
+    </linearGradient>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="border-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#818cf8" />
+      <stop offset="100%" stop-color="#f472b6" />
+    </linearGradient>
+
+    <!-- Text Gradient -->
+    <linearGradient id="text-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff7b90" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+
+    <!-- Brain Body Gradient -->
+    <linearGradient id="brain-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff9ebb" />
+      <stop offset="100%" stop-color="#ff5e7e" />
+    </linearGradient>
+
+    <!-- Lens Glass Gradient -->
+    <linearGradient id="lens-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0b1329" />
+    </linearGradient>
+
+    <!-- Radial Glows -->
+    <radialGradient id="glow-brain" cx="230" cy="180" r="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+    </radialGradient>
+    
+    <radialGradient id="glow-text" cx="750" cy="170" r="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Dot Grid Pattern -->
+    <pattern id="dot-grid" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#f8fafc" opacity="0.06" />
+    </pattern>
+  </defs>
+
+  <style>
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+      100% { transform: translateY(0px); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    .float-brain {
+      animation: float 4s ease-in-out infinite;
+    }
+    .float-slow {
+      animation: float 6s ease-in-out infinite;
+    }
+    .float-mid {
+      animation: float 5s ease-in-out infinite;
+    }
+    .twinkle-1 {
+      animation: twinkle 3s ease-in-out infinite;
+      transform-origin: 1070px 240px;
+    }
+    .twinkle-2 {
+      animation: twinkle 2.5s ease-in-out infinite;
+      transform-origin: 380px 100px;
+    }
+    .twinkle-3 {
+      animation: twinkle 3.5s ease-in-out infinite;
+      transform-origin: 420px 190px;
+    }
+    .pulse-glow {
+      animation: pulse 4s ease-in-out infinite;
+    }
+  </style>
+
+  <!-- Background Rounded Card -->
+  <rect width="1200" height="340" rx="24" fill="url(#bg-gradient)" />
+  <rect width="1200" height="340" rx="24" fill="url(#dot-grid)" />
+  
+  <!-- Outer Border Glow -->
+  <rect x="2" y="2" width="1196" height="336" rx="22" fill="none" stroke="url(#border-gradient)" stroke-width="2.5" opacity="0.4" />
+
+  <!-- Ambient Glows -->
+  <circle cx="230" cy="180" r="180" fill="url(#glow-brain)" />
+  <circle cx="750" cy="170" r="250" fill="url(#glow-text)" />
+
+  <!-- Neural Network Background (Sleek Tech Accent) -->
+  <g opacity="0.5">
+    <line x1="750" y1="100" x2="900" y2="80" stroke="#38bdf8" stroke-width="1" opacity="0.15" />
+    <line x1="900" y1="80" x2="1050" y2="240" stroke="#38bdf8" stroke-width="1" opacity="0.15" stroke-dasharray="4,4" />
+    <line x1="750" y1="100" x2="850" y2="260" stroke="#818cf8" stroke-width="1" opacity="0.15" />
+    <line x1="850" y1="260" x2="1050" y2="240" stroke="#f472b6" stroke-width="1" opacity="0.15" />
+    <line x1="850" y1="260" x2="900" y2="80" stroke="#818cf8" stroke-width="1" opacity="0.15" />
+    
+    <circle cx="750" cy="100" r="4" fill="#38bdf8" class="pulse-glow" />
+    <circle cx="900" cy="80" r="5" fill="#38bdf8" opacity="0.6" />
+    <circle cx="850" cy="260" r="6" fill="#818cf8" opacity="0.6" />
+    <circle cx="1050" cy="240" r="5" fill="#f472b6" class="pulse-glow" />
+  </g>
+
+  <!-- Sparkles -->
+  <path d="M 1070 232 Q 1070 240 1078 240 Q 1070 240 1070 248 Q 1070 240 1070 232 Z" fill="#ffffff" class="twinkle-1" />
+  <path d="M 380 94 Q 380 100 386 100 Q 380 100 380 106 Q 380 100 380 94 Z" fill="#fcd34d" class="twinkle-2" />
+  <path d="M 420 185 Q 420 190 425 190 Q 420 190 420 195 Q 420 190 420 185 Z" fill="#38bdf8" class="twinkle-3" />
+
+  <!-- Floating Media Icons -->
+  <!-- Floating Play Icon (Top Right) -->
+  <g class="float-slow">
+    <circle cx="1030" cy="120" r="22" fill="#38bdf8" fill-opacity="0.1" stroke="#38bdf8" stroke-width="1.5" />
+    <polygon points="1025,111 1041,120 1025,129" fill="#38bdf8" />
+  </g>
+
+  <!-- Floating Music Note (Left) -->
+  <g class="float-mid">
+    <circle cx="395" cy="235" r="18" fill="#ff7b90" fill-opacity="0.1" stroke="#ff7b90" stroke-width="1.5" />
+    <circle cx="390" cy="241" r="4" fill="#ff7b90" />
+    <circle cx="402" cy="237" r="4" fill="#ff7b90" />
+    <path d="M 394 241 L 394 227 L 406 223 L 406 237" fill="none" stroke="#ff7b90" stroke-width="2" stroke-linecap="round" />
+    <path d="M 394 232 L 406 228" fill="none" stroke="#ff7b90" stroke-width="2" />
+  </g>
+
+  <!-- ==================== CHARACTER (BRAIN) ==================== -->
+  <g class="float-brain">
+    <!-- Headphone Band -->
+    <path d="M 138 165 C 138 90, 322 90, 322 165" fill="none" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" />
+    <path d="M 175 112 C 190 102, 270 102, 285 112" fill="none" stroke="#1e293b" stroke-width="18" stroke-linecap="round" />
+    <path d="M 148 150 C 148 100, 312 100, 312 150" fill="none" stroke="#e0f2fe" stroke-width="3" opacity="0.5" />
+
+    <!-- Brain Body Outline & Fill -->
+    <path d="M 230 110 C 200 110, 170 120, 160 145 C 150 170, 155 190, 145 205 C 135 220, 145 250, 175 260 C 195 267, 215 260, 230 255 C 245 260, 265 267, 285 260 C 315 250, 325 220, 315 205 C 305 190, 310 170, 300 145 C 290 120, 260 110, 230 110 Z" 
+          fill="url(#brain-grad)" stroke="#1e293b" stroke-width="4.5" stroke-linejoin="round" />
+
+    <!-- Brain Highlights (3D Effect) -->
+    <path d="M 175 118 C 160 130, 150 155, 150 175" fill="none" stroke="#fff0f3" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+    <path d="M 285 118 C 300 130, 310 155, 310 175" fill="none" stroke="#fff0f3" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+
+    <!-- Brain Creases (Gyri) -->
+    <path d="M 175 140 C 185 150, 200 150, 205 165" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+    <path d="M 160 185 C 175 190, 185 180, 200 195" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+    <path d="M 175 225 C 190 220, 195 235, 215 230" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+    <path d="M 285 140 C 275 150, 260 150, 255 165" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+    <path d="M 300 185 C 285 190, 275 180, 260 195" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+    <path d="M 285 225 C 270 220, 265 235, 245 230" fill="none" stroke="#e0536c" stroke-width="5" stroke-linecap="round" />
+
+    <!-- Cheeks (Blush) -->
+    <circle cx="170" cy="175" r="10" fill="#ff4d6d" opacity="0.35" />
+    <circle cx="290" cy="175" r="10" fill="#ff4d6d" opacity="0.35" />
+
+    <!-- Eyes (Peeking Above Binoculars) -->
+    <ellipse cx="205" cy="150" rx="14" ry="18" fill="#ffffff" stroke="#1e293b" stroke-width="3" />
+    <ellipse cx="255" cy="150" rx="14" ry="18" fill="#ffffff" stroke="#1e293b" stroke-width="3" />
+    <!-- Pupils -->
+    <ellipse cx="208" cy="152" rx="8" ry="10" fill="#1e293b" />
+    <ellipse cx="252" cy="152" rx="8" ry="10" fill="#1e293b" />
+    <!-- Eye Highlights -->
+    <circle cx="205" cy="148" r="3" fill="#ffffff" />
+    <circle cx="211" cy="155" r="1.5" fill="#ffffff" />
+    <circle cx="249" cy="148" r="3" fill="#ffffff" />
+    <circle cx="255" cy="155" r="1.5" fill="#ffffff" />
+    <!-- Eyebrows -->
+    <path d="M 188 128 Q 205 116 222 130" fill="none" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M 238 130 Q 255 116 272 128" fill="none" stroke="#1e293b" stroke-width="4.5" stroke-linecap="round" />
+
+    <!-- Happy Mouth (Crooked Smile under binoculars) -->
+    <path d="M 215 240 Q 230 255 245 240" fill="none" stroke="#1e293b" stroke-width="4" stroke-linecap="round" />
+    <path d="M 223 246.5 C 225 251.5, 235 251.5, 237 246.5 Z" fill="#ff4d6d" stroke="#1e293b" stroke-width="1.5" />
+
+    <!-- Left Ear Cup (Headphones) -->
+    <g transform="translate(138, 175) rotate(-15)">
+      <rect x="-15" y="-30" width="30" height="60" rx="15" fill="#1e293b" stroke="#38bdf8" stroke-width="4" />
+      <rect x="0" y="-22" width="10" height="44" rx="5" fill="#475569" />
+      <rect x="-10" y="-12" width="6" height="24" rx="3" fill="#38bdf8" />
+    </g>
+
+    <!-- Right Ear Cup (Headphones) -->
+    <g transform="translate(322, 175) rotate(15)">
+      <rect x="-15" y="-30" width="30" height="60" rx="15" fill="#1e293b" stroke="#38bdf8" stroke-width="4" />
+      <rect x="-10" y="-22" width="10" height="44" rx="5" fill="#475569" />
+      <rect x="4" y="-12" width="6" height="24" rx="3" fill="#38bdf8" />
+    </g>
+
+    <!-- Binoculars Body & Lenses -->
+    <!-- Barrels -->
+    <path d="M 175 195 L 188 165 L 212 165 L 219 195 Z" fill="#1e293b" stroke="#334155" stroke-width="3" />
+    <path d="M 246 195 L 253 165 L 277 165 L 285 195 Z" fill="#1e293b" stroke="#334155" stroke-width="3" />
+    <!-- Center Axis & Focus Knob -->
+    <rect x="228" y="165" width="9" height="30" fill="#475569" stroke="#1e293b" stroke-width="2" />
+    <rect x="225" y="160" width="15" height="8" rx="2" fill="#0f172a" stroke="#475569" stroke-width="1.5" />
+    <!-- Main Bridge -->
+    <rect x="219" y="188" width="27" height="12" rx="4" fill="#334155" stroke="#1e293b" stroke-width="3" />
+    <!-- Left Lens Outer Ring -->
+    <circle cx="195" cy="195" r="24" fill="#1e293b" stroke="#475569" stroke-width="3.5" />
+    <!-- Left Lens Glass -->
+    <circle cx="195" cy="195" r="19" fill="url(#lens-grad)" />
+    <ellipse cx="189" cy="189" rx="6" ry="3" transform="rotate(-30, 189, 189)" fill="#ffffff" opacity="0.5" />
+    <!-- Right Lens Outer Ring -->
+    <circle cx="265" cy="195" r="24" fill="#1e293b" stroke="#475569" stroke-width="3.5" />
+    <!-- Right Lens Glass -->
+    <circle cx="265" cy="195" r="19" fill="url(#lens-grad)" />
+    <ellipse cx="259" cy="189" rx="6" ry="3" transform="rotate(-30, 259, 189)" fill="#ffffff" opacity="0.5" />
+
+    <!-- Left Arm & Glove -->
+    <path d="M 152 225 C 145 245, 160 250, 170 216" fill="none" stroke="#ff7b90" stroke-width="10.5" stroke-linecap="round" />
+    <path d="M 152 225 C 145 245, 160 250, 170 216" fill="none" stroke="#e0536c" stroke-width="3" stroke-linecap="round" />
+    <circle cx="170" cy="214" r="9" fill="#ffffff" stroke="#1e293b" stroke-width="3" />
+    <path d="M 167 210 L 167 218" stroke="#1e293b" stroke-width="1.5" />
+    <path d="M 171 210 L 171 218" stroke="#1e293b" stroke-width="1.5" />
+
+    <!-- Right Arm & Glove -->
+    <path d="M 308 225 C 315 245, 300 250, 290 216" fill="none" stroke="#ff7b90" stroke-width="10.5" stroke-linecap="round" />
+    <path d="M 308 225 C 315 245, 300 250, 290 216" fill="none" stroke="#e0536c" stroke-width="3" stroke-linecap="round" />
+    <circle cx="290" cy="214" r="9" fill="#ffffff" stroke="#1e293b" stroke-width="3" />
+    <path d="M 287 210 L 287 218" stroke="#1e293b" stroke-width="1.5" />
+    <path d="M 291 210 L 291 218" stroke="#1e293b" stroke-width="1.5" />
+  </g>
+
+  <!-- ==================== TYPOGRAPHY & WORDMARK ==================== -->
+  <!-- Pill Version Tag -->
+  <g>
+    <rect x="445" y="75" width="85" height="26" rx="13" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-width="1.5" />
+    <text x="487.5" y="92" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="800" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">v1.0.0</text>
+  </g>
+
+  <!-- Wordmark "MediaBrain" -->
+  <text x="440" y="165" font-family="system-ui, -apple-system, sans-serif" font-size="76" font-weight="800" letter-spacing="-1.5">
+    <tspan fill="#ffffff">Media</tspan><tspan fill="url(#text-gradient)">Brain</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="445" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" fill="#94a3b8" letter-spacing="0.5">Your Local Media Library</text>
+
+  <!-- Glowing accent line -->
+  <line x1="445" y1="245" x2="650" y2="245" stroke="url(#text-gradient)" stroke-width="3.5" stroke-linecap="round" />
+
+  <!-- Feature Tags / UI Badges -->
+  <g transform="translate(0, 5)">
+    <!-- Audio -->
+    <g>
+      <circle cx="455" cy="282" r="7" fill="#38bdf8" fill-opacity="0.15" stroke="#38bdf8" stroke-width="1.5" />
+      <path d="M 453.5 284.5 L 453.5 279.5 A 1.5 1.5 0 0 1 455 278 L 456.5 278" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+      <circle cx="452.5" cy="284.5" r="1.5" fill="#38bdf8" />
+      <circle cx="457.5" cy="284.5" r="1.5" fill="#38bdf8" />
+      <text x="468" y="286.5" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#cbd5e1" letter-spacing="0.5">Audio</text>
+    </g>
+
+    <!-- Video -->
+    <g>
+      <circle cx="540" cy="282" r="7" fill="#ff7b90" fill-opacity="0.15" stroke="#ff7b90" stroke-width="1.5" />
+      <polygon points="538,279 544,282 538,285" fill="#ff7b90" />
+      <text x="553" y="286.5" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#cbd5e1" letter-spacing="0.5">Video</text>
+    </g>
+
+    <!-- Books -->
+    <g>
+      <circle cx="625" cy="282" r="7" fill="#fcd34d" fill-opacity="0.15" stroke="#fcd34d" stroke-width="1.5" />
+      <path d="M 622 280 L 625 280 Q 626 280 626 281 L 626 284.5 C 626 284 625.5 284 625 284 C 623.5 284 622 284.5 622 284.5 Z" fill="none" stroke="#fcd34d" stroke-width="1.2" />
+      <path d="M 628 280 L 625 280 Q 624 280 624 281 L 624 284.5 C 624 284 624.5 284 625 284 C 626.5 284 628 284.5 628 284.5 Z" fill="none" stroke="#fcd34d" stroke-width="1.2" />
+      <text x="638" y="286.5" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#cbd5e1" letter-spacing="0.5">Books</text>
+    </g>
+  </g>
+</svg>
