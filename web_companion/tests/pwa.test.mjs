@@ -62,3 +62,26 @@ describe('PWA safe-area layout', () => {
   it('bottom nav uses app-bottom-nav class', () =>
     expect(app).toContain('app-bottom-nav'))
 })
+
+describe('iOS PWA-Härtung', () => {
+  const html = readFileSync(join(root, 'index.html'), 'utf-8')
+  const css = readFileSync(join(root, 'src', 'index.css'), 'utf-8')
+  const pub = join(root, 'public')
+
+  it('viewport enthält viewport-fit=cover (Notch/Dynamic Island)', () =>
+    expect(html).toContain('viewport-fit=cover'))
+  it('apple-touch-icon zeigt auf apple-touch-icon.png', () =>
+    expect(html).toMatch(/apple-touch-icon.*apple-touch-icon\.png/s))
+  it('apple-mobile-web-app-title ist vorhanden', () =>
+    expect(html).toContain('apple-mobile-web-app-title'))
+  it('apple-mobile-web-app-status-bar-style ist vorhanden', () =>
+    expect(html).toContain('apple-mobile-web-app-status-bar-style'))
+  it('KEIN apple-mobile-web-app-capable (deprecated seit iOS 11.3)', () =>
+    expect(html).not.toContain('apple-mobile-web-app-capable'))
+  it('apple-touch-icon.png existiert physisch in public/', () =>
+    expect(existsSync(join(pub, 'apple-touch-icon.png'))).toBe(true))
+  it('index.css enthält safe-area-inset-top', () =>
+    expect(css).toContain('safe-area-inset-top'))
+  it('index.css enthält safe-area-inset-bottom', () =>
+    expect(css).toContain('safe-area-inset-bottom'))
+})
