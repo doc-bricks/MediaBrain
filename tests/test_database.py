@@ -353,5 +353,116 @@ class TestBlacklistManager(unittest.TestCase):
         self.assertIsNone(updated_item.blacklisted_at)
 
 
+class TestBuildBrowserUrl(unittest.TestCase):
+    """Regressionstests für OpenHandler._build_browser_url (B-012).
+
+    Stellt sicher, dass Netflix- und Spotify-Items mit Fenstertitel als
+    provider_id (Fallback-Erkennung) eine Suche-URL statt einer ungültigen
+    Direkt-URL erhalten — analog zum bereits bestehenden YouTube-Fix.
+    """
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        self.manager = MediaManager(self.db)
+        self.handler = OpenHandler(self.manager)
+
+    def tearDown(self):
+        self.db.conn.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _insert_and_get(self, data):
+        self.manager.add_or_update(data)
+        return self.manager.get_by_provider(data["provider_id"], data["source"])
+
+    # --- Netflix ---
+
+    def test_netflix_real_id_returns_watch_url(self):
+        """Echte numerische Netflix-ID → direkte /watch/-URL."""
+        item = self._insert_and_get({
+            "title": "Stranger Things",
+            "type": "movie",
+            "source": "netflix",
+            "provider_id": "80057281",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_browser_url(item),
+            "https://www.netflix.com/watch/80057281"
+        )
+
+    def test_netflix_title_as_id_returns_search_url(self):
+        """Fenstertitel als provider_id (Fallback) → Netflix-Suche-URL."""
+        item = self._insert_and_get({
+            "title": "Stranger Things",
+            "type": "movie",
+            "source": "netflix",
+            "provider_id": "Stranger Things",
+            "has_real_id": False,
+        })
+        url = self.handler._build_browser_url(item)
+        self.assertIn("netflix.com/search", url)
+        self.assertIn("Stranger", url)
+        self.assertNotIn("/watch/", url)
+
+    def test_netflix_empty_id_returns_search_url_with_title(self):
+        """Leere provider_id → Netflix-Suche-URL mit Titel."""
+        item = self._insert_and_get({
+            "title": "Dark",
+            "type": "movie",
+            "source": "netflix",
+            "provider_id": "Dark",
+            "has_real_id": False,
+        })
+        url = self.handler._build_browser_url(item)
+        self.assertIn("netflix.com/search", url)
+        self.assertNotIn("/watch/", url)
+
+    # --- Spotify ---
+
+    def test_spotify_real_id_returns_direct_url(self):
+        """Echte Spotify-ID → direkte open.spotify.com-URL."""
+        item = self._insert_and_get({
+            "title": "Blinding Lights",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "0VjIjW4GlUZAMYd2vXMi3b",
+            "provider_subtype": "track",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_browser_url(item),
+            "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b"
+        )
+
+    def test_spotify_title_as_id_returns_search_url(self):
+        """Fenstertitel als provider_id (Fallback) → Spotify-Suche-URL."""
+        item = self._insert_and_get({
+            "title": "Blinding Lights",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "Blinding Lights - The Weeknd",
+            "has_real_id": False,
+        })
+        url = self.handler._build_browser_url(item)
+        self.assertIn("open.spotify.com/search", url)
+        self.assertNotIn("/track/", url)
+        self.assertNotIn("/album/", url)
+
+    def test_spotify_empty_id_returns_search_url_with_title(self):
+        """Leere provider_id → Spotify-Suche-URL mit Titel."""
+        item = self._insert_and_get({
+            "title": "After Hours",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "After Hours",
+            "has_real_id": False,
+        })
+        url = self.handler._build_browser_url(item)
+        self.assertIn("open.spotify.com/search", url)
+        self.assertNotIn("/track/", url)
+
+
 if __name__ == "__main__":
     unittest.main()

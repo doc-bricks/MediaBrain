@@ -7,6 +7,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Behoben / Fixed
 
+- `core.py` (B-012): `_build_browser_url()` baute bei Netflix und Spotify ungültige
+  Direkt-URLs, wenn `provider_id` per Fenstertitel-Fallback gesetzt war (kein echter
+  numerischer/Base62-Bezeichner). Analog zum bestehenden YouTube-Fix: neue Regex-Konstanten
+  `_NF_REAL_ID` (`^\d+$`) und `_SP_REAL_ID` (`^[A-Za-z0-9]{10,}$`) validieren die ID;
+  ohne Treffer → Such-URL (`/search?q=…` bzw. `open.spotify.com/search/…`).
+  6 Regressionstests in `tests/test_database.py` (`TestBuildBrowserUrl`).
 - MB-001: `SearchCriteria.local_only` hatte keinen Effekt — Feld fehlte in `SearchCriteria`, `_on_local_only_toggle`-Handler war nicht angeschlossen. Regressionstests in `tests/test_search_advanced.py` hinzugefügt.
 - Die kompakte `AdvancedSearchBar` behält ihre Symbol-/Kompakt-UI, exponiert aber jetzt sprechende Accessible Names, Descriptions und Tooltips für Suchfeld, Favoritenfilter und unbeschriftete Filter-Combos. Offscreen-Regressionstests in `tests/test_search_advanced.py` decken den A11y-Kontext ab.
 

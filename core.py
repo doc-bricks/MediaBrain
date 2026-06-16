@@ -832,6 +832,10 @@ from urllib.parse import quote_plus as _quote_plus
 
 # Gültige YouTube Video-IDs sind genau 11 Zeichen [A-Za-z0-9_-]
 _YT_REAL_ID = _re.compile(r'^[A-Za-z0-9_-]{11}$')
+# Netflix-IDs sind rein numerisch (z. B. 81263574)
+_NF_REAL_ID = _re.compile(r'^\d+$')
+# Spotify-IDs sind Base62-alphanumerisch, mindestens 10 Zeichen
+_SP_REAL_ID = _re.compile(r'^[A-Za-z0-9]{10,}$')
 
 # config bereits oben importiert (optional)
 
@@ -936,7 +940,11 @@ class OpenHandler:
     # --------------------------------------------------------
     def _build_browser_url(self, item: MediaItem):
         if item.source == "netflix":
-            return f"https://www.netflix.com/watch/{item.provider_id}"
+            pid = item.provider_id or ""
+            if _NF_REAL_ID.match(pid):
+                return f"https://www.netflix.com/watch/{pid}"
+            search_term = item.title or pid
+            return f"https://www.netflix.com/search?q={_quote_plus(search_term)}"
         if item.source == "youtube":
             pid = item.provider_id or ""
             if _YT_REAL_ID.match(pid):
@@ -948,8 +956,12 @@ class OpenHandler:
                 search_term = item.title or pid
                 return f"https://www.youtube.com/results?search_query={_quote_plus(search_term)}"
         if item.source == "spotify":
+            pid = item.provider_id or ""
             spotify_kind = item.provider_subtype or "track"
-            return f"https://open.spotify.com/{spotify_kind}/{item.provider_id}"
+            if _SP_REAL_ID.match(pid):
+                return f"https://open.spotify.com/{spotify_kind}/{pid}"
+            search_term = item.title or pid
+            return f"https://open.spotify.com/search/{_quote_plus(search_term)}"
         return None
 
     def _build_deep_link(self, item: MediaItem):
