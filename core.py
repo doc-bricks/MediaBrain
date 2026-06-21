@@ -307,7 +307,12 @@ class BlacklistManager:
         expired_ids = []
         now = datetime.now()
         for row in rows:
-            start = datetime.fromisoformat(row["blacklisted_at"])
+            try:
+                start = datetime.fromisoformat(row["blacklisted_at"])
+            except (ValueError, TypeError):
+                # Korrupter/legacy Timestamp darf nicht den ganzen Startup-Check abbrechen.
+                logger.warning(f"[DB] Ungültiges blacklisted_at übersprungen: {row['blacklisted_at']!r}")
+                continue
             expiry = self._expiry_date(start, row["procedure_code"])
 
             if expiry and now > expiry:
@@ -550,8 +555,14 @@ class MediaManager:
                 data.get("channel"),
             ))
             # print(f"[DB] Erfolgreich gespeichert: {data['title']}") # Debug Print
+        except sqlite3.IntegrityError as e:
+            # Erwarteter Fall (UNIQUE/Constraint): ignorieren, nicht eskalieren.
+            logger.warning(f"[DB] Constraint/Duplikat ignoriert: {e}")
         except Exception as e:
+            # Echte DB-Fehler (gesperrt, Disk, Schema) NICHT verschlucken — sonst
+            # hält der Aufrufer (EventProcessor) das Item für gespeichert -> stiller Verlust.
             logger.error(f"[DB] INSERT ERROR: {e}")
+            raise
     def list_by_type(self, media_type, limit=500):
         """
         Gibt eine Liste von MediaItems für einen bestimmten Typ (movie, music, etc.) zurück.

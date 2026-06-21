@@ -159,7 +159,7 @@ class TranslationSystem:
         return german_strings
 
     def _is_german(self, text: str) -> bool:
-        if any(ch in text for ch in "aeoeueAeOeUess"):
+        if any(ch in text for ch in "äöüÄÖÜß"):
             return True
         text_lower = text.lower()
         return any(hint in text_lower for hint in self.german_hints)

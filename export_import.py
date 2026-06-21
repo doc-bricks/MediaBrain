@@ -203,7 +203,7 @@ class MediaImporter:
         }
 
         try:
-            data = json.loads(Path(input_path).read_text(encoding="utf-8"))
+            data = json.loads(Path(input_path).read_text(encoding="utf-8-sig"))
         except (json.JSONDecodeError, OSError) as e:
             logger.error("Import-Fehler: %s", e)
             stats["errors"] = 1
@@ -303,7 +303,7 @@ class MediaImporter:
         stats = {"imported": 0, "skipped": 0, "errors": 0}
 
         try:
-            with open(input_path, "r", encoding="utf-8") as f:
+            with open(input_path, "r", newline="", encoding="utf-8-sig") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     try:

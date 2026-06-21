@@ -818,7 +818,10 @@ class MetadataCache:
             self.delete(key)
             return None
 
-        return json.loads(row[0])
+        try:
+            return json.loads(row[0])
+        except json.JSONDecodeError:
+            return None
 
     def put(self, source, query, result, media_type=None, year=None, artist=None, ttl_days=None):
         if result is None:

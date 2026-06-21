@@ -139,7 +139,7 @@ def clean_window_title(title, remove_phrases):
             title = title.split(phrase)[0]
 
     # Generische Browser-Endungen kappen
-    for browser in [" - Persönlich", " - Microsoft​ Edge", " - Google Chrome", " - Mozilla Firefox"]:
+    for browser in [" - Persönlich", " - Microsoft Edge", " - Google Chrome", " - Mozilla Firefox"]:
         title = title.split(browser)[0]
 
     return title.strip()

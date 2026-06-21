@@ -122,7 +122,10 @@ class Config:
     def _read_json(self, path):
         """Liest eine JSON-Datei und gibt den Inhalt zurueck."""
         with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            try:
+                return json.load(f)
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Ungültige Konfigurationsdatei '{path}': {e}") from e
 
     def save(self, create_backup=True):
         """

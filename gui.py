@@ -235,13 +235,18 @@ class MediaItemWidget(QFrame):
         layout.addWidget(title_label, 1)
 
         # Buttons kompakt
-        fav_btn = QPushButton("\u2605" if item.is_favorite else "\u2606")
-        fav_btn.setFixedSize(QSize(40, 40))
-        fav_btn.setToolTip("Favorit entfernen" if item.is_favorite else "Als Favorit markieren")
+        self.fav_btn = QPushButton("\u2605" if item.is_favorite else "\u2606")
+        self.fav_btn.setFixedSize(QSize(40, 40))
+        self.fav_btn.setToolTip("Favorit entfernen" if item.is_favorite else "Als Favorit markieren")
+        action_name = self._favorite_action_name()
+        self.fav_btn.setAccessibleName(action_name)
+        self.fav_btn.setAccessibleDescription(
+            f"Ändert den Favoritenstatus für {self.item.title}."
+        )
         fav_color = "#FFC107" if item.is_favorite else "#888888"
-        fav_btn.setStyleSheet(f"font-size: 24px; color: {fav_color}; border: none; background: transparent; padding: 0px;")
-        fav_btn.clicked.connect(self.toggle_favorite)
-        layout.addWidget(fav_btn)
+        self.fav_btn.setStyleSheet(f"font-size: 24px; color: {fav_color}; border: none; background: transparent; padding: 0px;")
+        self.fav_btn.clicked.connect(self.toggle_favorite)
+        layout.addWidget(self.fav_btn)
 
         open_btn = QPushButton("\u25B6 öffnen")
         open_btn.setFixedHeight(30)
@@ -256,6 +261,11 @@ class MediaItemWidget(QFrame):
         # Kontextmenü
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.open_context_menu)
+
+    def _favorite_action_name(self) -> str:
+        if self.item.is_favorite:
+            return f"{self.item.title} aus Favoriten entfernen"
+        return f"{self.item.title} als Favorit markieren"
 
     def open_item(self):
         try:
@@ -2127,7 +2137,7 @@ class MainWindow(QMainWindow):
         self.tray_icon.setToolTip("MediaBrain")
 
         # Kontextmenu
-        tray_menu = QMenu()
+        tray_menu = QMenu(self)
         act_show = QAction("MediaBrain öffnen", self)
         act_show.triggered.connect(self._restore_from_tray)
         tray_menu.addAction(act_show)

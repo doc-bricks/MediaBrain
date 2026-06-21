@@ -206,5 +206,62 @@ class TestFetchOnlineMetadata(unittest.TestCase):
             _app.processEvents()
 
 
+class TestMediaItemWidgetAccessibility(unittest.TestCase):
+    def _make_item(self, **kwargs):
+        defaults = dict(
+            id=7,
+            title="Inception",
+            type="movie",
+            source="netflix",
+            provider_id="nf-123",
+            artist=None,
+            year=2010,
+            description=None,
+            provider_subtype=None,
+            is_favorite=False,
+            thumbnail_url=None,
+            local_path=None,
+        )
+        defaults.update(kwargs)
+        return SimpleNamespace(**defaults)
+
+    def test_compact_favorite_button_exposes_accessible_context(self):
+        item = self._make_item()
+        widget = MediaItemWidget(
+            item,
+            SimpleNamespace(db=MagicMock()),
+            SimpleNamespace(set_blacklist=lambda *args: None),
+        )
+        try:
+            self.assertEqual(widget.fav_btn.toolTip(), "Als Favorit markieren")
+            self.assertEqual(
+                widget.fav_btn.accessibleName(),
+                "Inception als Favorit markieren",
+            )
+            self.assertIn("Inception", widget.fav_btn.accessibleDescription())
+        finally:
+            widget.close()
+            widget.deleteLater()
+            _app.processEvents()
+
+    def test_compact_favorite_button_updates_accessible_name_for_favorites(self):
+        item = self._make_item(is_favorite=True)
+        widget = MediaItemWidget(
+            item,
+            SimpleNamespace(db=MagicMock()),
+            SimpleNamespace(set_blacklist=lambda *args: None),
+        )
+        try:
+            self.assertEqual(widget.fav_btn.toolTip(), "Favorit entfernen")
+            self.assertEqual(
+                widget.fav_btn.accessibleName(),
+                "Inception aus Favoriten entfernen",
+            )
+        finally:
+            widget.close()
+            widget.deleteLater()
+            _app.processEvents()
+
+
 if __name__ == "__main__":
     unittest.main()
