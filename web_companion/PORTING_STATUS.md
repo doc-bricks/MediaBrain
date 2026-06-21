@@ -3,7 +3,7 @@
 **Quelle:** `../` (Python/PySide6, core.py + export_import.py)
 **Ziel:** Web/PWA + Capacitor (Android jetzt, iOS später)
 **Bundle-ID:** `com.lukas.mediabrain`
-**Aktualisiert:** 2026-06-11 (PWA-Installierbarkeit für Android/iOS gehärtet)
+**Aktualisiert:** 2026-06-22 (Favoriten-Rück-Sync: Change-Tracking + Export-Payload)
 
 ## Status
 
@@ -11,7 +11,7 @@
 |---------|--------|---------|
 | 1. Projektgerüst | FERTIG | Vite + React + TS + Tailwind + Capacitor |
 | 2. Datentypen | FERTIG | `src/types/media.ts` (MediaItem, Playlist, LibraryExport) |
-| 3. IndexedDB | FERTIG | `src/services/db.ts` (Dexie, items + playlists + meta) |
+| 3. IndexedDB | FERTIG | `src/services/db.ts` (Dexie v2, items + playlists + meta + favoriteChanges) |
 | 4. Import MediaExporter JSON | FERTIG | tolerantes Parsen via `parseLibrary()` mit Schema-Prüfung |
 | 5. Bibliotheks-Liste | FERTIG | Filter nach Typ, Favoriten, Suche, Thumbnails |
 | 6. Item-Detail | FERTIG | Beschreibung, Tags, Provider-URL-Schätzung |
@@ -28,7 +28,7 @@
 | **Detail** | Cover (falls thumbnail_url), Beschreibung, Details, "Im Browser öffnen" für Online-Quellen |
 | **Playlists** | Read-only Vorschau aller Playlists |
 | **Import** | Datei-Picker + Paste, ersetzt lokalen Stand |
-| **Einstellungen** | Stand, Alles löschen |
+| **Einstellungen** | Stand, Favoriten-Änderungen exportieren, Alles löschen |
 
 ## Was wird *nicht* portiert
 
@@ -69,7 +69,7 @@ cd android && ./gradlew assembleDebug
 
 ## Offen (P3)
 
-- Rück-Sync der Favoriten-Änderungen
+- ~~Rück-Sync der Favoriten-Änderungen~~ FERTIG (2026-06-22, Change-Tracking + `mediabrain-companion-favorites-v1` Export)
 - Smart-Playlist-Regel-Engine (Companion-Seite)
 - iOS-Build nach Xcode-Installation
 - Android-/iOS-PWA-Installationssmokes mit echter Exportdatei und großem Bibliotheksstand

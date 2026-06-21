@@ -5,6 +5,8 @@ import Dexie, { Table } from 'dexie'
 import {
   coerceItem,
   coercePlaylist,
+  FavoriteChange,
+  FavoriteChangesExport,
   LibraryExport,
   MediaItem,
   Playlist,
@@ -20,6 +22,7 @@ export class MediaBrainDB extends Dexie {
   items!: Table<MediaItem, number>
   playlists!: Table<Playlist, number>
   meta!: Table<MetaRow, string>
+  favoriteChanges!: Table<FavoriteChange, number>
 
   constructor() {
     super('mediabrain-companion')
@@ -28,15 +31,22 @@ export class MediaBrainDB extends Dexie {
       playlists: 'id, name',
       meta: 'key',
     })
+    this.version(2).stores({
+      items: 'id, title, type, source, provider_id, is_favorite, is_local_file, last_opened_at, *tags',
+      playlists: 'id, name',
+      meta: 'key',
+      favoriteChanges: 'id',
+    })
   }
 
   async replaceWithExport(payload: LibraryExport): Promise<{ items: number; playlists: number }> {
     const items = payload.items.map(coerceItem)
     const playlists = (payload.playlists ?? []).map(coercePlaylist)
 
-    await this.transaction('rw', [this.items, this.playlists, this.meta], async () => {
+    await this.transaction('rw', [this.items, this.playlists, this.meta, this.favoriteChanges], async () => {
       await this.items.clear()
       await this.playlists.clear()
+      await this.favoriteChanges.clear()
       if (items.length > 0) await this.items.bulkPut(items)
       if (playlists.length > 0) await this.playlists.bulkPut(playlists)
       await this.meta.put({
@@ -103,7 +113,18 @@ export class MediaBrainDB extends Dexie {
   async toggleFavorite(id: number): Promise<void> {
     const item = await this.items.get(id)
     if (!item) return
-    await this.items.update(id, { is_favorite: !item.is_favorite })
+    const newState = !item.is_favorite
+    await this.transaction('rw', [this.items, this.favoriteChanges], async () => {
+      await this.items.update(id, { is_favorite: newState })
+      await this.favoriteChanges.put({
+        id: item.id,
+        source: item.source,
+        provider_id: item.provider_id,
+        title: item.title,
+        is_favorite: newState,
+        changed_at: new Date().toISOString(),
+      })
+    })
   }
 
   async listPlaylists(): Promise<Playlist[]> {
@@ -139,11 +160,43 @@ export class MediaBrainDB extends Dexie {
     })
   }
 
+  async pendingFavoriteChangesCount(): Promise<number> {
+    return this.favoriteChanges.count()
+  }
+
+  async buildFavoriteChangesPayload(): Promise<FavoriteChangesExport> {
+    const changes = await this.favoriteChanges.toArray()
+    const lastImportRaw = await this.getMeta('last_import')
+    let fingerprint: string | null = null
+    if (lastImportRaw) {
+      try {
+        const li = JSON.parse(lastImportRaw)
+        fingerprint = `${li.exported_at ?? ''}|${li.item_count ?? 0}`
+      } catch { /* ignore */ }
+    }
+    return {
+      schema: 'mediabrain-companion-favorites-v1',
+      schema_version: 1,
+      created_at: new Date().toISOString(),
+      source: {
+        app_name: 'MediaBrain Companion',
+        platform: navigator?.userAgent ? 'web' : 'unknown',
+      },
+      base_import_fingerprint: fingerprint,
+      changes,
+    }
+  }
+
+  async clearFavoriteChanges(): Promise<void> {
+    await this.favoriteChanges.clear()
+  }
+
   async clearAll(): Promise<void> {
-    await this.transaction('rw', [this.items, this.playlists, this.meta], async () => {
+    await this.transaction('rw', [this.items, this.playlists, this.meta, this.favoriteChanges], async () => {
       await this.items.clear()
       await this.playlists.clear()
       await this.meta.clear()
+      await this.favoriteChanges.clear()
     })
   }
 }

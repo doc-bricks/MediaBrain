@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { coercePlaylist, ImportError, parseLibrary } from './media'
+import {
+  coercePlaylist,
+  FavoriteChange,
+  FavoriteChangesExport,
+  ImportError,
+  parseLibrary,
+} from './media'
 
 describe('parseLibrary', () => {
   it('accepts the stable mediabrain-library-v1 schema', () => {
@@ -75,5 +81,59 @@ describe('coercePlaylist', () => {
       },
     ])
     expect(playlist.rules).toBe('{"favorite":true}')
+  })
+})
+
+describe('FavoriteChangesExport type contract', () => {
+  it('matches the mediabrain-companion-favorites-v1 schema shape', () => {
+    const payload: FavoriteChangesExport = {
+      schema: 'mediabrain-companion-favorites-v1',
+      schema_version: 1,
+      created_at: '2026-06-22T10:00:00+02:00',
+      source: { app_name: 'MediaBrain Companion', platform: 'web' },
+      base_import_fingerprint: '2026-05-26T21:30:00+02:00|123',
+      changes: [
+        {
+          id: 1,
+          source: 'youtube',
+          provider_id: 'yt-42',
+          title: 'Test Video',
+          is_favorite: true,
+          changed_at: '2026-06-22T10:05:00+02:00',
+        },
+      ],
+    }
+    expect(payload.schema).toBe('mediabrain-companion-favorites-v1')
+    expect(payload.schema_version).toBe(1)
+    expect(payload.changes).toHaveLength(1)
+    expect(payload.changes[0].source).toBe('youtube')
+    expect(payload.changes[0].provider_id).toBe('yt-42')
+    expect(payload.changes[0].is_favorite).toBe(true)
+  })
+
+  it('allows null base_import_fingerprint for fresh companions', () => {
+    const payload: FavoriteChangesExport = {
+      schema: 'mediabrain-companion-favorites-v1',
+      schema_version: 1,
+      created_at: '2026-06-22T10:00:00+02:00',
+      source: { app_name: 'MediaBrain Companion', platform: 'web' },
+      base_import_fingerprint: null,
+      changes: [],
+    }
+    expect(payload.base_import_fingerprint).toBeNull()
+    expect(payload.changes).toHaveLength(0)
+  })
+
+  it('carries absolute state (is_favorite), not a toggle flag', () => {
+    const change: FavoriteChange = {
+      id: 99,
+      source: 'spotify',
+      provider_id: 'sp-99',
+      title: 'Song',
+      is_favorite: false,
+      changed_at: '2026-06-22T10:10:00+02:00',
+    }
+    expect(typeof change.is_favorite).toBe('boolean')
+    expect(change.is_favorite).toBe(false)
   })
 })

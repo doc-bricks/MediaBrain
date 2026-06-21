@@ -200,6 +200,29 @@ export function coercePlaylist(raw: Record<string, unknown>): Playlist {
   }
 }
 
+// ─── Favoriten-Rück-Sync ────────────────────────────────────────
+
+export interface FavoriteChange {
+  id: number
+  source: string
+  provider_id: string
+  title: string
+  is_favorite: boolean
+  changed_at: string
+}
+
+export interface FavoriteChangesExport {
+  schema: 'mediabrain-companion-favorites-v1'
+  schema_version: 1
+  created_at: string
+  source: {
+    app_name: string
+    platform: string
+  }
+  base_import_fingerprint: string | null
+  changes: FavoriteChange[]
+}
+
 /** Anzeige-Labels pro Medientyp. */
 export const MEDIA_TYPE_LABEL: Record<string, string> = {
   movie: 'Film',

@@ -161,3 +161,63 @@ Der Desktop-Importer normalisiert weiterhin ältere Feldnamen:
 - `is_favourite` → `is_favorite`
 
 Damit bleiben ältere Exporte weiterhin importierbar.
+
+---
+
+## Companion-Rücksync: `mediabrain-companion-favorites-v1`
+
+Stand: 2026-06-22
+
+Dieses Format transportiert Favoriten-Änderungen vom Web/PWA-Companion zurück zum Desktop. Es ist ein eigenständiges Schema, kein Unterobjekt von `mediabrain-library-v1`.
+
+### Dateiname
+
+Empfohlen: `mediabrain-companion-favorites-v1.json`
+
+### Top-Level-Schema
+
+```json
+{
+  "schema": "mediabrain-companion-favorites-v1",
+  "schema_version": 1,
+  "created_at": "2026-06-22T10:00:00+02:00",
+  "source": {
+    "app_name": "MediaBrain Companion",
+    "platform": "web"
+  },
+  "base_import_fingerprint": "2026-05-26T21:30:00+02:00|123",
+  "changes": []
+}
+```
+
+### Felder
+
+| Feld | Typ | Pflicht | Bedeutung |
+|---|---|---|---|
+| `schema` | String | ja | `mediabrain-companion-favorites-v1` |
+| `schema_version` | Integer | ja | Aktuell `1` |
+| `created_at` | String | ja | ISO-8601-Zeitstempel der Export-Erstellung |
+| `source` | Objekt | ja | Herkunft: `app_name`, `platform` |
+| `base_import_fingerprint` | String\|null | nein | `exported_at\|item_count` des letzten Imports. Erlaubt dem Desktop, veraltete Änderungen zu erkennen |
+| `changes` | Array | ja | Favoriten-Änderungen (siehe unten) |
+
+### Änderungseinträge in `changes`
+
+Jeder Eintrag repräsentiert den **absoluten Zielzustand** eines Favoriten-Flags:
+
+| Feld | Typ | Bedeutung |
+|---|---|---|
+| `id` | Integer | Companion-interne Item-ID (Fallback-Match bei leerem `provider_id`) |
+| `source` | String | Quelle des Mediums (z.B. `youtube`, `spotify`) |
+| `provider_id` | String | Stabile Referenz innerhalb der Quelle |
+| `title` | String | Anzeigename (informativ, nicht für Matching) |
+| `is_favorite` | Boolean | Zielzustand: `true` = Favorit, `false` = kein Favorit |
+| `changed_at` | String | ISO-8601-Zeitstempel der Änderung |
+
+### Desktop-Apply-Vertrag
+
+1. **Match-Key:** `source + provider_id` (identisch mit Regel 5 aus `mediabrain-library-v1`). **Fallback bei leerem `provider_id`:** Wenn `provider_id` leer ist (typisch für lokale Dateien, `source = "local"`), kann der Desktop alternativ über `id` + `title` matchen. Die `id` ist innerhalb eines Import-Standes eindeutig. Dieser Fallback gilt nur, wenn der Favoriten-Export auf dieselbe Desktop-DB angewandt wird, die den Library-Export erzeugte — `id` ist nicht installationsübergreifend stabil.
+2. **Idempotentes Setzen:** `is_favorite` wird als absoluter Zielzustand auf den gematchten Datensatz angewandt. Mehrfaches Importieren derselben Datei ist sicher.
+3. **Unbekannte Referenzen:** Kann weder `source + provider_id` noch der Fallback-Key auf einen Desktop-Datensatz gemappt werden, wird die Änderung übersprungen (kein Fehler).
+4. **Last-Write-Wins:** Pro Item (`id`) existiert im Export maximal ein Eintrag (der jüngste). Bei Doppel-Toggle (fav→unfav→fav) bleibt nur der letzte Zustand.
+5. **Baseline-Reset:** Ein neuer Bibliothek-Import (`mediabrain-library-v1`) im Companion löscht alle ausstehenden Changes. Der `base_import_fingerprint` erlaubt dem Desktop zu prüfen, ob die Änderungen auf einem aktuellen Stand basieren.

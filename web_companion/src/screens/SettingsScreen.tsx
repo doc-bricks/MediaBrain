@@ -5,6 +5,7 @@ import { db } from '../services/db'
 export function SettingsScreen() {
   const [lastImport, setLastImport] = useState<string | null>(null)
   const [counts, setCounts] = useState<{ items: number; playlists: number } | null>(null)
+  const [pendingChanges, setPendingChanges] = useState(0)
 
   useEffect(() => {
     refresh()
@@ -17,11 +18,33 @@ export function SettingsScreen() {
       items: await db.items.count(),
       playlists: await db.playlists.count(),
     })
+    setPendingChanges(await db.pendingFavoriteChangesCount())
   }
 
   async function clearAll() {
     if (!confirm('Alle Companion-Daten löschen? Dies betrifft nur das Handy.')) return
     await db.clearAll()
+    await refresh()
+  }
+
+  async function exportFavoriteChanges() {
+    const payload = await db.buildFavoriteChangesPayload()
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `mediabrain-companion-favorites-v1.json`
+    document.body.appendChild(a)
+    a.click()
+    setTimeout(() => {
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }, 100)
+  }
+
+  async function discardFavoriteChanges() {
+    if (!confirm('Alle ausstehenden Favoriten-Änderungen verwerfen?')) return
+    await db.clearFavoriteChanges()
     await refresh()
   }
 
@@ -73,6 +96,33 @@ export function SettingsScreen() {
           )}
         </div>
       </section>
+
+      {pendingChanges > 0 && (
+        <section className="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+          <div className="px-4 pt-3 pb-1 text-xs font-bold text-gray-500 uppercase tracking-wide">
+            Favoriten-Änderungen
+          </div>
+          <div className="px-4 py-2 border-t border-gray-100">
+            <p className="text-sm text-gray-700 mb-2">
+              {pendingChanges} {pendingChanges === 1 ? 'Änderung' : 'Änderungen'} seit dem letzten Import.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={exportFavoriteChanges}
+                className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-semibold active:bg-blue-700"
+              >
+                Exportieren
+              </button>
+              <button
+                onClick={discardFavoriteChanges}
+                className="px-4 py-2 rounded-lg text-sm text-gray-600 border border-gray-300 active:bg-gray-50"
+              >
+                Verwerfen
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
         <button

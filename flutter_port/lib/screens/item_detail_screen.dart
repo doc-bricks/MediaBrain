@@ -43,12 +43,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
     if (url == null) return;
     final uri = Uri.tryParse(url);
     if (uri == null) return;
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!ok && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context).linkError)),
-      );
-    }
+    try {
+      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context).linkError)),
+        );
+      }
+    } catch (_) {}
   }
 
   String? _guessUrl(MediaItem i) {
