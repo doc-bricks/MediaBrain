@@ -87,7 +87,12 @@ class SyncService {
 
   Future<SyncSummary> importFromPath(String path) async {
     final text = await File(path).readAsString();
-    final json = jsonDecode(text) as Map<String, dynamic>;
+    final Map<String, dynamic> json;
+    try {
+      json = jsonDecode(text) as Map<String, dynamic>;
+    } catch (_) {
+      throw const _SyncException('Datei ist kein gueltiges JSON-Objekt.');
+    }
     return _applyPayload(json);
   }
 
@@ -105,7 +110,11 @@ class SyncService {
       await txn.delete('media_items');
       for (final raw in list) {
         if (raw is! Map) continue;
-        final m = MediaItem.fromMap(raw.cast<String, dynamic>());
+        final mm = raw.cast<String, dynamic>();
+        // Fehlerhafte Eintraege (fehlende/null id oder title) ueberspringen, statt
+        // den gesamten Import an einem einzigen Datensatz abbrechen zu lassen.
+        if (mm['id'] is! String || mm['title'] is! String) continue;
+        final m = MediaItem.fromMap(mm);
         await txn.insert(
           'media_items',
           m.toMap(),
@@ -181,7 +190,12 @@ class SyncService {
         'Server: ${response.statusCode} ${response.body}',
       );
     }
-    final json = jsonDecode(response.body) as Map<String, dynamic>;
+    final Map<String, dynamic> json;
+    try {
+      json = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (_) {
+      throw const _SyncException('Server-Antwort ist kein gueltiges JSON-Objekt.');
+    }
     final summary = await _applyPayload(json);
     await _setSetting(settingLastPull, DateTime.now().toIso8601String());
     return summary;

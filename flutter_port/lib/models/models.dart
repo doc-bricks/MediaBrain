@@ -161,7 +161,7 @@ class MediaItem {
         lastOpenedAt: m['last_opened_at'] == null
             ? null
             : DateTime.tryParse(m['last_opened_at'] as String),
-        foregroundMinutes: (m['foreground_minutes'] as int?) ?? 0,
+        foregroundMinutes: (m['foreground_minutes'] as num?)?.toInt() ?? 0,
         isFavorite: m['is_favorite'] == 1 || m['is_favorite'] == true,
         description: m['description'] as String?,
         thumbnailUrl: m['thumbnail_url'] as String?,

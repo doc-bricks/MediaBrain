@@ -16,7 +16,17 @@ class DatabaseService {
 
   Future<Database>? _dbFuture;
 
-  Future<Database> get database => _dbFuture ??= _openDatabase();
+  Future<Database> get database async {
+    final f = _dbFuture ??= _openDatabase();
+    try {
+      return await f;
+    } catch (_) {
+      // Rejected-Future nicht dauerhaft cachen: bei (transientem) Oeffnen-Fehler
+      // Cache zuruecksetzen, damit der naechste Zugriff erneut versuchen kann.
+      _dbFuture = null;
+      rethrow;
+    }
+  }
 
   Future<Database> _openDatabase() async {
     final dbPath = overrideDbPath ?? p.join(await getDatabasesPath(), 'mediabrain.db');
@@ -97,7 +107,9 @@ CREATE TABLE IF NOT EXISTS settings (
       'media_items',
       where: wheres.isEmpty ? null : wheres.join(' AND '),
       whereArgs: args.isEmpty ? null : args,
-      orderBy: 'last_opened_at DESC NULLS LAST, title ASC',
+      // NULLS LAST braucht SQLite >= 3.30 (nicht auf allen Android-System-SQLite
+      // garantiert). Portabel ueber (col IS NULL) emuliert: non-null zuerst, nulls ans Ende.
+      orderBy: '(last_opened_at IS NULL), last_opened_at DESC, title ASC',
       limit: limit,
     );
     final items = rows.map(MediaItem.fromMap).toList();

@@ -163,6 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         url: url.text,
         token: token.text,
       );
+      if (!mounted) return;
       _reload();
     } finally {
       url.dispose();
