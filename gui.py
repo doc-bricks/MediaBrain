@@ -205,6 +205,10 @@ class CollapsiblePanel(QWidget):
 # ============================================================
 
 class MediaItemWidget(QFrame):
+    ITEM_MIN_HEIGHT = 56
+    ICON_SIZE = QSize(36, 36)
+    ACTION_BUTTON_MIN_SIZE = QSize(88, 36)
+
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager):
         super().__init__()
         self.item = item
@@ -212,10 +216,11 @@ class MediaItemWidget(QFrame):
         self.blacklist_manager = blacklist_manager
 
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Plain)
+        self.setMinimumHeight(self.ITEM_MIN_HEIGHT)
         # Styling handled by central QSS theme
 
         layout = QHBoxLayout()
-        layout.setContentsMargins(6, 4, 6, 4)
+        layout.setContentsMargins(8, 6, 8, 6)
         layout.setSpacing(8)
         self.setLayout(layout)
 
@@ -223,16 +228,20 @@ class MediaItemWidget(QFrame):
         type_icons = {"movie": "🎬", "music": "🎵", "series": "📺", "clip": "🎞"}
         icon_text = type_icons.get(item.type, "📄")
         icon = QLabel(icon_text)
-        icon.setFixedSize(QSize(28, 28))
+        icon.setObjectName("mediaItemIcon")
+        icon.setFixedSize(self.ICON_SIZE)
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon.setStyleSheet("font-size: 16px;")
+        icon.setStyleSheet("font-size: 20px;")
         layout.addWidget(icon)
+        self.type_icon_label = icon
 
         # Titel + Source
         title_label = QLabel(f"<b>{item.title}</b>  <span style='color: gray; font-size: 11px;'>({item.source})</span>")
         title_label.setTextFormat(Qt.TextFormat.RichText)
         title_label.setWordWrap(True)
+        title_label.setMinimumHeight(36)
         layout.addWidget(title_label, 1)
+        self.title_label = title_label
 
         # Buttons kompakt
         self.fav_btn = QPushButton("\u2605" if item.is_favorite else "\u2606")
@@ -248,15 +257,15 @@ class MediaItemWidget(QFrame):
         self.fav_btn.clicked.connect(self.toggle_favorite)
         layout.addWidget(self.fav_btn)
 
-        open_btn = QPushButton("\u25B6 öffnen")
-        open_btn.setFixedHeight(30)
-        open_btn.clicked.connect(self.open_item)
-        layout.addWidget(open_btn)
+        self.open_btn = QPushButton("\u25B6 öffnen")
+        self.open_btn.setMinimumSize(self.ACTION_BUTTON_MIN_SIZE)
+        self.open_btn.clicked.connect(self.open_item)
+        layout.addWidget(self.open_btn)
 
-        details_btn = QPushButton("\u2139 Details")
-        details_btn.setFixedHeight(30)
-        details_btn.clicked.connect(self.open_detail_page)
-        layout.addWidget(details_btn)
+        self.details_btn = QPushButton("\u2139 Details")
+        self.details_btn.setMinimumSize(self.ACTION_BUTTON_MIN_SIZE)
+        self.details_btn.clicked.connect(self.open_detail_page)
+        layout.addWidget(self.details_btn)
 
         # Kontextmenü
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)

@@ -262,6 +262,26 @@ class TestMediaItemWidgetAccessibility(unittest.TestCase):
             widget.deleteLater()
             _app.processEvents()
 
+    def test_media_item_inlay_keeps_icons_and_actions_visible(self):
+        item = self._make_item(title="Ein sehr langer Medientitel mit Zusatztext")
+        widget = MediaItemWidget(
+            item,
+            SimpleNamespace(db=MagicMock()),
+            SimpleNamespace(set_blacklist=lambda *args: None),
+        )
+        try:
+            self.assertGreaterEqual(widget.minimumHeight(), 56)
+            self.assertGreaterEqual(widget.type_icon_label.minimumWidth(), 36)
+            self.assertGreaterEqual(widget.type_icon_label.minimumHeight(), 36)
+            self.assertGreaterEqual(widget.fav_btn.minimumWidth(), 40)
+            self.assertGreaterEqual(widget.fav_btn.minimumHeight(), 40)
+            self.assertGreaterEqual(widget.open_btn.minimumHeight(), 36)
+            self.assertGreaterEqual(widget.details_btn.minimumHeight(), 36)
+        finally:
+            widget.close()
+            widget.deleteLater()
+            _app.processEvents()
+
 
 if __name__ == "__main__":
     unittest.main()
