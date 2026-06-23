@@ -248,7 +248,7 @@ class _AppLocalizationsDe extends AppLocalizations {
   @override String pushPullStatus(String push, String pull) =>
       'Push: $push · Pull: $pull';
   @override String seasonEpisode(int s, int e) => 'S$s E$e';
-  @override String usageMinutes(int n) => '$n Minuten';
+  @override String usageMinutes(int n) => '$n ${n == 1 ? 'Minute' : 'Minuten'}';
 }
 
 class _AppLocalizationsEn extends AppLocalizations {
@@ -363,5 +363,5 @@ class _AppLocalizationsEn extends AppLocalizations {
   @override String pushPullStatus(String push, String pull) =>
       'Push: $push · Pull: $pull';
   @override String seasonEpisode(int s, int e) => 'S$s E$e';
-  @override String usageMinutes(int n) => '$n minutes';
+  @override String usageMinutes(int n) => '$n ${n == 1 ? 'minute' : 'minutes'}';
 }
