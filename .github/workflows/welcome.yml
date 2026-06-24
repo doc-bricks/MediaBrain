@@ -18,7 +18,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           issue_message: |
-            Welcome! Thanks for opening your first issue in this repository.
+            Welcome! 👋 Thanks for opening your first issue in this repository.
 
             We'll review it as soon as possible. In the meantime:
             - Check if there's a similar issue already open
@@ -26,7 +26,7 @@ jobs:
 
             If you'd like to contribute a fix, PRs are always welcome!
           pr_message: |
-            Welcome! Thanks for your first pull request in this repository.
+            Welcome! 👋 Thanks for your first pull request in this repository.
 
             A maintainer will review it soon. Please make sure:
             - [ ] Your changes are tested
