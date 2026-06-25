@@ -6,8 +6,31 @@ Version: 2.0 - Erweitert mit Disney+, Amazon Prime, Apple TV+
 import logging
 import re
 from pathlib import Path
+from urllib.parse import urlparse
 
 logger = logging.getLogger(__name__)
+
+
+def _host_matches(host: str | None, allowed_domains: set[str]) -> bool:
+    if not host:
+        return False
+    normalized = host.lower().rstrip(".")
+    return any(normalized == domain or normalized.endswith(f".{domain}") for domain in allowed_domains)
+
+
+def _url_candidates(source_string: str):
+    pattern = re.compile(r"(?:https?://)?[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?:/[^\s\"'<>]*)?", re.IGNORECASE)
+    for candidate in pattern.findall(source_string or ""):
+        yield candidate if "://" in candidate else f"https://{candidate}"
+
+
+def _first_url_with_host(source_string: str, allowed_domains: set[str]):
+    for candidate in _url_candidates(source_string):
+        parsed = urlparse(candidate)
+        if _host_matches(parsed.hostname, allowed_domains):
+            return parsed
+    return None
+
 
 # ============================================================
 # Basis-Klasse
@@ -373,17 +396,21 @@ class AppleTVProvider(BaseProvider):
     """
     name = "Apple TV+"
     source = "appletv"
-    regex = re.compile(r"tv\.apple\.com/[a-z]+/(?:movie|show|episode)/[^/]+/([a-z0-9]+)")
+    regex = re.compile(r"^/[a-z]+/(?:movie|show|episode)/[^/]+/([a-z0-9]+)", re.IGNORECASE)
 
     def matches(self, source_string: str) -> bool:
         return (
-            bool(self.regex.search(source_string)) or
+            _first_url_with_host(source_string, {"tv.apple.com"}) is not None or
             "Apple TV" in source_string or
-            "tv.apple.com" in source_string.lower()
+            "Apple TV+" in source_string
         )
 
     def extract_info(self, source_string: str) -> dict:
-        match = self.regex.search(source_string)
+        parsed_url = _first_url_with_host(source_string, {"tv.apple.com"})
+        if parsed_url:
+            match = self.regex.search(parsed_url.path)
+        else:
+            match = None
         if match:
             content_id = match.group(1)
             return {

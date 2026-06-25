@@ -7,6 +7,8 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Behoben / Fixed
 
+- YouTube-, Spotify- und Apple-TV-URL-Erkennung prüft jetzt exakte Hostnamen
+  oder vertrauenswürdige Subdomains statt freier Substring-Treffer.
 - `core.py` (B-012): `_build_browser_url()` baute bei Netflix und Spotify ungültige
   Direkt-URLs, wenn `provider_id` per Fenstertitel-Fallback gesetzt war (kein echter
   numerischer/Base62-Bezeichner). Analog zum bestehenden YouTube-Fix: neue Regex-Konstanten

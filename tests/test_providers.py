@@ -198,6 +198,20 @@ class TestAppleTVProvider(unittest.TestCase):
         """URL wird erkannt"""
         self.assertTrue(self.provider.matches("https://tv.apple.com/us/movie/test/umc12345"))
 
+    def test_rejects_untrusted_apple_hostname(self):
+        """Fremde Hosts mit tv.apple.com im Namen werden nicht als Apple-TV-URL erkannt"""
+        self.assertFalse(self.provider.matches("https://tv.apple.com.evil.test/us/movie/test/umc12345"))
+
+    def test_extracts_id_only_from_trusted_apple_hostname(self):
+        """Apple-TV-IDs werden nur aus vertrauenswürdigen Hostnamen extrahiert"""
+        result = self.provider.extract_info("https://tv.apple.com/us/movie/test/umc12345")
+        self.assertIsNotNone(result)
+        self.assertEqual(result["provider_id"], "umc12345")
+
+        evil_result = self.provider.extract_info("https://tv.apple.com.evil.test/us/movie/test/umc12345")
+        self.assertIsNotNone(evil_result)
+        self.assertNotEqual(evil_result["provider_id"], "umc12345")
+
 
 class TestTwitchProvider(unittest.TestCase):
     """Tests für TwitchProvider"""

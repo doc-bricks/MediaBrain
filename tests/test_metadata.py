@@ -16,7 +16,17 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from metadata_v2 import MetadataCache, MetadataFetcher, TMDbFetcher, OMDbFetcher, fetch_metadata, fetch_local_metadata
+from metadata_v2 import (
+    MetadataCache,
+    MetadataFetcher,
+    OMDbFetcher,
+    TMDbFetcher,
+    _extract_youtube_video_id,
+    _is_spotify_url,
+    _is_youtube_url,
+    fetch_local_metadata,
+    fetch_metadata,
+)
 
 
 # ============================================================
@@ -38,6 +48,24 @@ def sample_result():
 # ============================================================
 # MetadataCache Tests
 # ============================================================
+
+
+class TestProviderUrlGuards:
+    def test_youtube_host_must_match_domain_boundary(self):
+        assert _is_youtube_url("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+        assert _is_youtube_url("https://youtu.be/dQw4w9WgXcQ")
+        assert not _is_youtube_url("https://evil-youtube.com/watch?v=dQw4w9WgXcQ")
+        assert not _is_youtube_url("https://youtube.com.evil.test/watch?v=dQw4w9WgXcQ")
+
+    def test_youtube_video_id_requires_trusted_host(self):
+        assert _extract_youtube_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+        assert _extract_youtube_video_id("https://youtube.com.evil.test/watch?v=dQw4w9WgXcQ") is None
+
+    def test_spotify_host_must_match_domain_boundary(self):
+        assert _is_spotify_url("https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC")
+        assert _is_spotify_url("https://spotify.link/example")
+        assert not _is_spotify_url("https://spotify.com.evil.test/track/4uLU6hMCjMI75M1A2tKUQC")
+
 
 class TestMetadataCacheGet:
     def test_cache_miss_returns_none(self, tmp_cache):

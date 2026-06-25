@@ -51,15 +51,22 @@ YOUTUBE_OEMBED_URL = "https://www.youtube.com/oembed"
 SPOTIFY_OEMBED_URL = "https://open.spotify.com/oembed"
 
 
+def _host_matches(host: str | None, allowed_domains: set[str]) -> bool:
+    if not host:
+        return False
+    normalized = host.lower().rstrip(".")
+    return any(normalized == domain or normalized.endswith(f".{domain}") for domain in allowed_domains)
+
+
 def _extract_youtube_video_id(url):
     """Extrahiert eine YouTube-Video-ID aus verschiedenen URL-Formen."""
     parsed = urlparse(url)
-    host = parsed.netloc.lower()
+    host = parsed.hostname
 
-    if "youtu.be" in host:
+    if _host_matches(host, {"youtu.be"}):
         return parsed.path.strip("/").split("/")[0] or None
 
-    if "youtube.com" in host:
+    if _host_matches(host, {"youtube.com"}):
         query_id = parse_qs(parsed.query).get("v", [None])[0]
         if query_id:
             return query_id
@@ -72,16 +79,15 @@ def _extract_youtube_video_id(url):
 
 
 def _is_youtube_url(url):
-    """Prueft, ob eine URL auf YouTube zeigt."""
+    """Prüft, ob eine URL auf YouTube zeigt."""
     if not url:
         return False
     parsed = urlparse(url)
-    host = parsed.netloc.lower()
-    return "youtube.com" in host or "youtu.be" in host
+    return _host_matches(parsed.hostname, {"youtube.com", "youtu.be"})
 
 
 def _normalize_youtube_url(url):
-    """Gibt eine kanonische YouTube-Watch-URL zurueck, wenn moeglich."""
+    """Gibt eine kanonische YouTube-Watch-URL zurück, wenn möglich."""
     video_id = _extract_youtube_video_id(url)
     if not video_id:
         return None
@@ -89,16 +95,15 @@ def _normalize_youtube_url(url):
 
 
 def _is_spotify_url(url):
-    """Prueft, ob eine URL auf Spotify zeigt."""
+    """Prüft, ob eine URL auf Spotify zeigt."""
     if not url:
         return False
     parsed = urlparse(url)
-    host = parsed.netloc.lower()
-    return "spotify.com" in host or "spotify.link" in host
+    return _host_matches(parsed.hostname, {"spotify.com", "spotify.link"})
 
 
 def _normalize_spotify_url(url=None, provider_subtype=None, provider_id=None):
-    """Gibt eine kanonische Spotify-URL fuer oEmbed zurueck, wenn moeglich."""
+    """Gibt eine kanonische Spotify-URL für oEmbed zurück, wenn möglich."""
     if url and _is_spotify_url(url):
         return url
 
