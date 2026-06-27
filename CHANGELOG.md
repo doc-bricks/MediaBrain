@@ -9,6 +9,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 - YouTube-, Spotify- und Apple-TV-URL-Erkennung prüft jetzt exakte Hostnamen
   oder vertrauenswürdige Subdomains statt freier Substring-Treffer.
+- `gui.py` (Qt-Layout-Fix): `MediaItemWidget`-Inlay-Panels (Favoriten, Verlauf,
+  Suchergebnisse im Dashboard) zeigten abgeschnittene Emoji-Icons und zu enge Buttons.
+  Konstanten erhöht: `ICON_SIZE` 36→44 px, `ITEM_MIN_HEIGHT` 56→64 px,
+  `fav_btn` 40→44 px, `ACTION_BUTTON_MIN_SIZE`-Höhe 36→40 px; Icon-Schriftgröße
+  auf 22 px angepasst. 6 neue Regressionstests in `tests/test_gui_inlay_layout.py`.
+  (User-Wunsch 2026-06-15, behoben 2026-06-28)
 - `core.py` (B-012): `_build_browser_url()` baute bei Netflix und Spotify ungültige
   Direkt-URLs, wenn `provider_id` per Fenstertitel-Fallback gesetzt war (kein echter
   numerischer/Base62-Bezeichner). Analog zum bestehenden YouTube-Fix: neue Regex-Konstanten

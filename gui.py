@@ -205,9 +205,11 @@ class CollapsiblePanel(QWidget):
 # ============================================================
 
 class MediaItemWidget(QFrame):
-    ITEM_MIN_HEIGHT = 56
-    ICON_SIZE = QSize(36, 36)
-    ACTION_BUTTON_MIN_SIZE = QSize(88, 36)
+    # Qt-Layout-Fix 2026-06-28: Mindestgrößen erhöht, damit Emoji-Icons und Buttons
+    # auf allen DPI-Stufen vollständig sichtbar bleiben (Bug AUFGABEN 2026-06-15).
+    ITEM_MIN_HEIGHT = 64           # war 56 — zu wenig Spielraum für fav_btn + Margins
+    ICON_SIZE = QSize(44, 44)      # war 36×36 — Emoji-Glyphen können 36px überschreiten
+    ACTION_BUTTON_MIN_SIZE = QSize(96, 40)  # war QSize(88, 36) — Höhe für komfortables Touch-Target
 
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager):
         super().__init__()
@@ -231,7 +233,7 @@ class MediaItemWidget(QFrame):
         icon.setObjectName("mediaItemIcon")
         icon.setFixedSize(self.ICON_SIZE)
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        icon.setStyleSheet("font-size: 20px;")
+        icon.setStyleSheet("font-size: 22px;")  # war 20px — passt besser zu 44px-Container
         layout.addWidget(icon)
         self.type_icon_label = icon
 
@@ -245,7 +247,7 @@ class MediaItemWidget(QFrame):
 
         # Buttons kompakt
         self.fav_btn = QPushButton("\u2605" if item.is_favorite else "\u2606")
-        self.fav_btn.setFixedSize(QSize(40, 40))
+        self.fav_btn.setFixedSize(QSize(44, 44))  # war 40×40 — 24px-Schrift braucht mehr Spielraum
         self.fav_btn.setToolTip("Favorit entfernen" if item.is_favorite else "Als Favorit markieren")
         action_name = self._favorite_action_name()
         self.fav_btn.setAccessibleName(action_name)
