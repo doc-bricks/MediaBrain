@@ -21,6 +21,17 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   `_NF_REAL_ID` (`^\d+$`) und `_SP_REAL_ID` (`^[A-Za-z0-9]{10,}$`) validieren die ID;
   ohne Treffer → Such-URL (`/search?q=…` bzw. `open.spotify.com/search/…`).
   6 Regressionstests in `tests/test_database.py` (`TestBuildBrowserUrl`).
+- `core.py` (B-012/B-013/B-014, 2026-06-28): `OpenHandler` konnte Medien von 4 von 8
+  Providern nicht öffnen — `_build_browser_url()` gab für `disney`, `prime`, `appletv`,
+  `twitch` immer `None` zurück (stiller Fehlschlag). Außerdem baute `_build_deep_link()`
+  ungültige `spotify:`-URIs bei Fallback-Titeln als `provider_id`, und `_open_local()`
+  warf `OSError` bei gelöschten Dateien ohne Rückmeldung an den User.
+  Fixes: (1) `_build_browser_url()` um alle 4 Provider erweitert (Disney+/Prime mit
+  Direkt-URL bei gültiger ID, sonst Homepage; Apple TV+ immer Homepage da ID allein nicht
+  rekonstruierbar; Twitch mit Channel-URL); (2) `_build_deep_link()` prüft Spotify-ID
+  via `_SP_REAL_ID` und gibt `None` zurück statt ungültigem Link; (3) `_open_local()`
+  prüft `Path(path).exists()` vor `os.startfile()`. +23 Regressionstests
+  (`TestBuildBrowserUrl`, `TestBuildDeepLink`, `TestOpenLocal` in `tests/test_database.py`).
 - MB-001: `SearchCriteria.local_only` hatte keinen Effekt — Feld fehlte in `SearchCriteria`, `_on_local_only_toggle`-Handler war nicht angeschlossen. Regressionstests in `tests/test_search_advanced.py` hinzugefügt.
 - Die kompakte `AdvancedSearchBar` behält ihre Symbol-/Kompakt-UI, exponiert aber jetzt sprechende Accessible Names, Descriptions und Tooltips für Suchfeld, Favoritenfilter und unbeschriftete Filter-Combos. Offscreen-Regressionstests in `tests/test_search_advanced.py` decken den A11y-Kontext ab.
 
@@ -33,6 +44,18 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 - Community-Workflows auf aktuelle Major-Versionen gehoben.
 
 ### Hinzugefügt / Added
+
+- `web_companion/src/lib/smartPlaylist.ts`: TypeScript-Port des Desktop-QueryBuilders als
+  In-Memory-Regel-Engine. Unterstützt alle Operatoren (`=`, `!=`, `>`, `>=`, `<`, `<=`,
+  `contains`, `starts_with`, `not_contains`, `is_empty`, `is_not_empty`), Feld-Aliase
+  aus `query_builder.py`, Tags als Array-Sonderfall, Bool-/Zahlen-Koercion (`is_favorite`)
+  sowie korrekte AND/OR-Präzedenz (Sum-of-Products wie SQL: AND bindet stärker als OR).
+- `web_companion/src/lib/smartPlaylist.test.ts`: 41 Vitest-Tests für parseSmartQuery
+  (JSON-String-Input vom Desktop, Objekt, Fehlerfälle), alle Operatoren, Feld-Aliase,
+  Bool-Koercion, AND/OR-Präzedenz und Sortierung/Limit.
+- `web_companion/src/screens/PlaylistsScreen.tsx` aktualisiert: Smart-Playlists
+  (`type = "smart"`) werden jetzt client-seitig mit der Regel-Engine ausgewertet;
+  Trefferzahl, Vorschau der ersten 5 Items und „Smart"-Badge werden angezeigt.
 
 - Playlist-GUI in `gui_playlists.py`: `PlaylistsView` als Sidebar-Eintrag,
   `SmartPlaylistDialog` mit dynamischen Bedingungs-Reihen (Operator pro Feldtyp,

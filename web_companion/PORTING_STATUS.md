@@ -3,7 +3,7 @@
 **Quelle:** `../` (Python/PySide6, core.py + export_import.py)
 **Ziel:** Web/PWA + Capacitor (Android jetzt, iOS später)
 **Bundle-ID:** `com.lukas.mediabrain`
-**Aktualisiert:** 2026-06-22 (Favoriten-Rück-Sync: Change-Tracking + Export-Payload)
+**Aktualisiert:** 2026-06-28 (Smart-Playlist-Regel-Engine: TypeScript-Port + Vitest-Tests)
 
 ## Status
 
@@ -15,7 +15,7 @@
 | 4. Import MediaExporter JSON | FERTIG | tolerantes Parsen via `parseLibrary()` mit Schema-Prüfung |
 | 5. Bibliotheks-Liste | FERTIG | Filter nach Typ, Favoriten, Suche, Thumbnails |
 | 6. Item-Detail | FERTIG | Beschreibung, Tags, Provider-URL-Schätzung |
-| 7. Playlists | FERTIG | Read-only Vorschau mit `item_refs` aus aktuellem Desktop-Export |
+| 7. Playlists | FERTIG | Read-only Vorschau; Smart-Playlists via `smartPlaylist.ts`-Engine dynamisch ausgewertet |
 | 8. Einstellungen | FERTIG | Stand letzter Import, Schema-/Export-Metadaten, Alles löschen |
 | 9. Regressionen | FERTIG | `npm test` via Vitest für Schema und Playlist-Mapping |
 | 10. Mobile PWA-Härtung | FERTIG | `viewport-fit=cover`, Apple-Web-App-Metadaten, Safe-Area-Layout, 44px-Touch-Ziele und Android-/iOS-Install-Hinweise |
@@ -26,7 +26,7 @@
 |---|---|
 | **Bibliothek** | Liste mit Thumbnails, Filter-Chips (Typ + Favoriten), Suche, Tags |
 | **Detail** | Cover (falls thumbnail_url), Beschreibung, Details, "Im Browser öffnen" für Online-Quellen |
-| **Playlists** | Read-only Vorschau aller Playlists |
+| **Playlists** | Read-only Vorschau; Smart-Playlists dynamisch ausgewertet (Badge, Trefferzahl, Vorschau) |
 | **Import** | Datei-Picker + Paste, ersetzt lokalen Stand |
 | **Einstellungen** | Stand, Favoriten-Änderungen exportieren, Alles löschen |
 
@@ -36,7 +36,6 @@ Die Companion ist **bewusst Read+Filter**, nicht Schreiben:
 - Window-Tracking ist lokal-Desktop-Funktion (nicht auf Mobile)
 - Blacklist-Verwaltung: nur Lesen
 - File-Indexierung: keine lokalen Pfade auf dem Handy
-- Smart-Playlist-Regeln: nicht ausgewertet, nur Anzeige falls vorhanden
 
 ## Workflow
 
@@ -70,7 +69,7 @@ cd android && ./gradlew assembleDebug
 ## Offen (P3)
 
 - ~~Rück-Sync der Favoriten-Änderungen~~ FERTIG (2026-06-22, Change-Tracking + `mediabrain-companion-favorites-v1` Export)
-- Smart-Playlist-Regel-Engine (Companion-Seite)
-- iOS-Build nach Xcode-Installation
-- Android-/iOS-PWA-Installationssmokes mit echter Exportdatei und großem Bibliotheksstand
-- Dependency-Audit der JS-Toolchain (`npm audit`) ohne unnötige Breaking Changes
+- ~~Smart-Playlist-Regel-Engine (Companion-Seite)~~ FERTIG (2026-06-28, `src/lib/smartPlaylist.ts` + 41 Vitest-Tests, PlaylistsScreen dynamisch)
+- ~~Dependency-Audit der JS-Toolchain (`npm audit`)~~ FERTIG (0 Schwachstellen)
+- iOS-Build nach Xcode-Installation (manuell, Gerät erforderlich)
+- Android-/iOS-PWA-Installationssmokes mit echter Exportdatei und großem Bibliotheksstand (manuell)
