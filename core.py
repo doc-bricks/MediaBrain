@@ -847,6 +847,12 @@ _YT_REAL_ID = _re.compile(r'^[A-Za-z0-9_-]{11}$')
 _NF_REAL_ID = _re.compile(r'^\d+$')
 # Spotify-IDs sind Base62-alphanumerisch, mindestens 10 Zeichen
 _SP_REAL_ID = _re.compile(r'^[A-Za-z0-9]{10,}$')
+# Disney+-IDs: alphanumerisch mit Bindestrichen, mind. 5 Zeichen (z. B. UUID-Format)
+_DI_REAL_ID = _re.compile(r'^[a-zA-Z0-9-]{5,}$')
+# Prime Video IDs (ASIN-Format): rein alphanumerisch, mind. 10 Zeichen
+_PR_REAL_ID = _re.compile(r'^[a-zA-Z0-9]{10,}$')
+# Twitch Channel-Namen: alphanumerisch + Unterstrich, 4–25 Zeichen (Twitch-Richtlinien)
+_TW_CHANNEL = _re.compile(r'^[a-zA-Z0-9_]{4,25}$')
 
 # config bereits oben importiert (optional)
 
@@ -932,6 +938,10 @@ class OpenHandler:
         if not path:
             return
 
+        if not Path(path).exists():
+            logger.warning("Lokale Datei nicht mehr vorhanden: %s", path)
+            return
+
         system = platform.system()
 
         try:
@@ -973,14 +983,40 @@ class OpenHandler:
                 return f"https://open.spotify.com/{spotify_kind}/{pid}"
             search_term = item.title or pid
             return f"https://open.spotify.com/search/{_quote_plus(search_term)}"
+        if item.source == "disney":
+            pid = item.provider_id or ""
+            if _DI_REAL_ID.match(pid):
+                return f"https://www.disneyplus.com/video/{pid}"
+            # Kein gültiger ID (z.B. Titel als Fallback) → Homepage
+            return "https://www.disneyplus.com/"
+        if item.source == "prime":
+            pid = item.provider_id or ""
+            if _PR_REAL_ID.match(pid):
+                return f"https://www.primevideo.com/detail/{pid}"
+            # Kein gültiger ASIN → Homepage
+            return "https://www.primevideo.com/"
+        if item.source == "appletv":
+            # Die gespeicherte ID enthält nicht lang/type/slug → kanonische URL
+            # nicht rekonstruierbar; direkt zur Startseite
+            return "https://tv.apple.com/"
+        if item.source == "twitch":
+            pid = item.provider_id or ""
+            if _TW_CHANNEL.match(pid):
+                return f"https://www.twitch.tv/{pid}"
+            return "https://www.twitch.tv/"
         return None
 
     def _build_deep_link(self, item: MediaItem):
         if item.source == "netflix":
             return f"netflix://title/{item.provider_id}"
         if item.source == "spotify":
+            pid = item.provider_id or ""
+            if not _SP_REAL_ID.match(pid):
+                # Fallback-Titel als ID gespeichert → kein gültiger Deep-Link möglich,
+                # Aufrufer (_open_in_app) fällt auf Browser zurück
+                return None
             spotify_kind = item.provider_subtype or "track"
-            return f"spotify:{spotify_kind}:{item.provider_id}"
+            return f"spotify:{spotify_kind}:{pid}"
         if item.source == "youtube":
             return f"vnd.youtube:{item.provider_id}"
         return None

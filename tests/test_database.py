@@ -463,6 +463,228 @@ class TestBuildBrowserUrl(unittest.TestCase):
         self.assertIn("open.spotify.com/search", url)
         self.assertNotIn("/track/", url)
 
+    # --- Disney+ ---
+
+    def test_disney_real_id_returns_video_url(self):
+        """Echte Disney+-ID (UUID-Format) → direkte /video/-URL."""
+        item = self._insert_and_get({
+            "title": "The Mandalorian",
+            "type": "movie",
+            "source": "disney",
+            "provider_id": "e3fe3b29-aafc-497c-9f29-4b46e5b89b93",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_browser_url(item),
+            "https://www.disneyplus.com/video/e3fe3b29-aafc-497c-9f29-4b46e5b89b93"
+        )
+
+    def test_disney_title_as_id_returns_homepage(self):
+        """Fenstertitel als provider_id (Fallback) → Disney+-Homepage."""
+        item = self._insert_and_get({
+            "title": "The Mandalorian",
+            "type": "movie",
+            "source": "disney",
+            "provider_id": "The Mandalorian",
+            "has_real_id": False,
+        })
+        self.assertEqual(self.handler._build_browser_url(item), "https://www.disneyplus.com/")
+
+    # --- Amazon Prime ---
+
+    def test_prime_real_id_returns_detail_url(self):
+        """Echte Prime-ID (ASIN-Format) → direkte /detail/-URL."""
+        item = self._insert_and_get({
+            "title": "The Boys",
+            "type": "movie",
+            "source": "prime",
+            "provider_id": "B07QQQS5HX1",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_browser_url(item),
+            "https://www.primevideo.com/detail/B07QQQS5HX1"
+        )
+
+    def test_prime_title_as_id_returns_homepage(self):
+        """Fenstertitel als provider_id (Fallback) → Prime-Homepage."""
+        item = self._insert_and_get({
+            "title": "The Boys",
+            "type": "movie",
+            "source": "prime",
+            "provider_id": "The Boys",
+            "has_real_id": False,
+        })
+        self.assertEqual(self.handler._build_browser_url(item), "https://www.primevideo.com/")
+
+    # --- Apple TV+ ---
+
+    def test_appletv_always_returns_homepage(self):
+        """Apple TV+ ID allein nicht rekonstruierbar (fehlt lang/type/slug) → immer Homepage."""
+        item = self._insert_and_get({
+            "title": "The Morning Show",
+            "type": "movie",
+            "source": "appletv",
+            "provider_id": "umc",
+            "has_real_id": True,
+        })
+        self.assertEqual(self.handler._build_browser_url(item), "https://tv.apple.com/")
+
+    def test_appletv_fallback_also_returns_homepage(self):
+        """Apple TV+ Fallback (Titel als ID) → ebenfalls Homepage."""
+        item = self._insert_and_get({
+            "title": "The Morning Show",
+            "type": "movie",
+            "source": "appletv",
+            "provider_id": "The Morning Show",
+            "has_real_id": False,
+        })
+        self.assertEqual(self.handler._build_browser_url(item), "https://tv.apple.com/")
+
+    # --- Twitch ---
+
+    def test_twitch_channel_returns_channel_url(self):
+        """Twitch Channel-Name → direkte twitch.tv/{channel}-URL."""
+        item = self._insert_and_get({
+            "title": "Twitch: shroud",
+            "type": "clip",
+            "source": "twitch",
+            "provider_id": "shroud",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_browser_url(item),
+            "https://www.twitch.tv/shroud"
+        )
+
+    def test_twitch_fallback_returns_homepage(self):
+        """Ungültiger/zu kurzer Channel-Name als Fallback → Twitch-Homepage."""
+        item = self._insert_and_get({
+            "title": "Twitch Übersicht",
+            "type": "clip",
+            "source": "twitch",
+            "provider_id": "Twitch Übersicht",
+            "has_real_id": False,
+        })
+        self.assertEqual(self.handler._build_browser_url(item), "https://www.twitch.tv/")
+
+
+class TestBuildDeepLink(unittest.TestCase):
+    """Regressionstests für OpenHandler._build_deep_link (B-013).
+
+    Stellt sicher, dass Spotify-Items mit Fenstertitel als provider_id
+    (Fallback-Erkennung) keinen ungültigen Deep-Link erhalten — der Aufrufer
+    _open_in_app fällt dann korrekt auf den Browser zurück.
+    """
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        self.manager = MediaManager(self.db)
+        self.handler = OpenHandler(self.manager)
+
+    def tearDown(self):
+        self.db.conn.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _insert_and_get(self, data):
+        self.manager.add_or_update(data)
+        return self.manager.get_by_provider(data["provider_id"], data["source"])
+
+    def test_spotify_real_id_returns_deep_link(self):
+        """Echte Spotify-ID → gültiger spotify:-Deep-Link."""
+        item = self._insert_and_get({
+            "title": "Blinding Lights",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "0VjIjW4GlUZAMYd2vXMi3b",
+            "provider_subtype": "track",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_deep_link(item),
+            "spotify:track:0VjIjW4GlUZAMYd2vXMi3b"
+        )
+
+    def test_spotify_title_as_id_returns_none(self):
+        """Fenstertitel als provider_id (Fallback) → None statt ungültigem Deep-Link."""
+        item = self._insert_and_get({
+            "title": "Never Gonna Give You Up",
+            "type": "music",
+            "source": "spotify",
+            "provider_id": "Never Gonna Give You Up",
+            "has_real_id": False,
+        })
+        self.assertIsNone(self.handler._build_deep_link(item))
+
+    def test_netflix_always_returns_deep_link(self):
+        """Netflix: Deep-Link ohne ID-Prüfung (netflix://-Schema toleriert beliebige IDs)."""
+        item = self._insert_and_get({
+            "title": "Stranger Things",
+            "type": "movie",
+            "source": "netflix",
+            "provider_id": "80057281",
+            "has_real_id": True,
+        })
+        self.assertEqual(
+            self.handler._build_deep_link(item),
+            "netflix://title/80057281"
+        )
+
+
+class TestOpenLocal(unittest.TestCase):
+    """Regressionstests für OpenHandler._open_local (B-014).
+
+    Stellt sicher, dass nicht mehr vorhandene Dateien keine OSError
+    werfen, sondern nur geloggt und übersprungen werden.
+    """
+
+    def setUp(self):
+        self.db_fd, self.db_path = tempfile.mkstemp(suffix=".db")
+        self.db = Database(self.db_path)
+        self.manager = MediaManager(self.db)
+        self.handler = OpenHandler(self.manager)
+
+    def tearDown(self):
+        self.db.conn.close()
+        os.close(self.db_fd)
+        os.unlink(self.db_path)
+
+    def _make_item(self, local_path):
+        """Fügt ein lokales Item ein und gibt das MediaItem zurück."""
+        self.manager.add_or_update({
+            "title": "Test File",
+            "type": "music",
+            "source": "local",
+            "provider_id": local_path,
+            "is_local_file": True,
+            "local_path": local_path,
+            "has_real_id": True,
+        })
+        return self.manager.get_by_provider(local_path, "local")
+
+    def test_nonexistent_file_does_not_raise(self):
+        """Nicht mehr vorhandene Datei → kein OSError, nur Log-Warnung."""
+        item = self._make_item("/nichtvorhanden/datei.mp3")
+        try:
+            self.handler._open_local(item)
+        except Exception as exc:
+            self.fail(f"_open_local hat unerwartet eine Exception ausgelöst: {exc}")
+
+    @patch("core.os.startfile")
+    @patch("core.platform.system", return_value="Windows")
+    def test_existing_file_calls_startfile(self, _mock_sys, mock_startfile):
+        """Vorhandene Datei → os.startfile wird aufgerufen."""
+        tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+        tmp.close()
+        try:
+            item = self._make_item(tmp.name)
+            self.handler._open_local(item)
+            mock_startfile.assert_called_once_with(tmp.name)
+        finally:
+            os.unlink(tmp.name)
+
 
 if __name__ == "__main__":
     unittest.main()
