@@ -24,8 +24,8 @@ export class MediaBrainDB extends Dexie {
   meta!: Table<MetaRow, string>
   favoriteChanges!: Table<FavoriteChange, number>
 
-  constructor() {
-    super('mediabrain-companion')
+  constructor(dbName = 'mediabrain-companion') {
+    super(dbName)
     this.version(1).stores({
       items: 'id, title, type, source, provider_id, is_favorite, is_local_file, last_opened_at, *tags',
       playlists: 'id, name',
