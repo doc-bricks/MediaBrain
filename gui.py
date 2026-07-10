@@ -1104,6 +1104,25 @@ class SettingsWindow(QWidget):
         tray_checkbox.stateChanged.connect(on_tray_change)
         g_layout.addWidget(tray_checkbox)
 
+        media_types_label = QLabel("Sichtbare Medientypen:")
+        g_layout.addWidget(media_types_label)
+
+        enabled_media_types = config.config.get_enabled_media_types()
+        self.media_type_checkboxes = {}
+        for entry in config.MEDIA_TYPE_DEFINITIONS:
+            media_type = entry["key"]
+            checkbox = QCheckBox(entry["label"])
+            checkbox.setObjectName(f"mediaType_{media_type}")
+            checkbox.setChecked(enabled_media_types.get(media_type, True))
+            checkbox.setToolTip(
+                f"{entry['label']} in der MediaBrain-Bibliotheks-Navigation anzeigen"
+            )
+            checkbox.stateChanged.connect(
+                lambda state, media_type=media_type: self._on_media_type_change(media_type, state)
+            )
+            self.media_type_checkboxes[media_type] = checkbox
+            g_layout.addWidget(checkbox)
+
         g_layout.addStretch()
 
         tabs.addTab(general, "Allgemein")
@@ -1142,6 +1161,13 @@ class SettingsWindow(QWidget):
         s_layout.addStretch()
 
         tabs.addTab(security, "Sicherheit")
+
+    def _on_media_type_change(self, media_type, state):
+        checked = state == Qt.CheckState.Checked or state == Qt.CheckState.Checked.value
+        config.config.set_media_type_enabled(media_type, checked)
+        for widget in QApplication.topLevelWidgets():
+            if hasattr(widget, "apply_media_type_visibility"):
+                widget.apply_media_type_visibility()
 
 
 
@@ -1874,6 +1900,8 @@ class MainWindow(QMainWindow):
         self.blacklist_manager = blacklist_manager
         self.tag_manager = tag_manager
         self.playlist_manager = playlist_manager
+        self.library_views = {}
+        self.library_buttons = {}
 
         # Set global tag_manager reference for all views
         global _tag_manager
@@ -1899,21 +1927,14 @@ class MainWindow(QMainWindow):
         btn_dash.clicked.connect(lambda: self._switch_view(self.dashboard))
         sidebar_layout.addWidget(btn_dash)
 
-        btn_movies = QPushButton("Filme")
-        btn_movies.clicked.connect(lambda: self._switch_view(self.library_movies))
-        sidebar_layout.addWidget(btn_movies)
-
-        btn_series = QPushButton("Serien")
-        btn_series.clicked.connect(lambda: self._switch_view(self.library_series))
-        sidebar_layout.addWidget(btn_series)
-
-        btn_music = QPushButton("Musik")
-        btn_music.clicked.connect(lambda: self._switch_view(self.library_music))
-        sidebar_layout.addWidget(btn_music)
-
-        btn_clips = QPushButton("Clips")
-        btn_clips.clicked.connect(lambda: self._switch_view(self.library_clips))
-        sidebar_layout.addWidget(btn_clips)
+        for entry in config.MEDIA_TYPE_DEFINITIONS:
+            media_type = entry["key"]
+            button = QPushButton(entry["label"])
+            button.clicked.connect(
+                lambda checked=False, media_type=media_type: self._switch_library_type(media_type)
+            )
+            self.library_buttons[media_type] = button
+            sidebar_layout.addWidget(button)
 
         btn_favs = QPushButton("Favoriten")
         btn_favs.clicked.connect(lambda: self._switch_view(self.favorites))
@@ -1964,17 +1985,16 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.dashboard)
 
         # 2. Libraries
-        self.library_movies = LibraryView("movie", media_manager, blacklist_manager)
-        self.stack.addWidget(self.library_movies)
+        for entry in config.MEDIA_TYPE_DEFINITIONS:
+            media_type = entry["key"]
+            view = LibraryView(media_type, media_manager, blacklist_manager)
+            self.library_views[media_type] = view
+            self.stack.addWidget(view)
 
-        self.library_series = LibraryView("series", media_manager, blacklist_manager)
-        self.stack.addWidget(self.library_series)
-
-        self.library_music = LibraryView("music", media_manager, blacklist_manager)
-        self.stack.addWidget(self.library_music)
-
-        self.library_clips = LibraryView("clip", media_manager, blacklist_manager)
-        self.stack.addWidget(self.library_clips)
+        self.library_movies = self.library_views["movie"]
+        self.library_series = self.library_views["series"]
+        self.library_music = self.library_views["music"]
+        self.library_clips = self.library_views["clip"]
 
         # 3. Favoriten
         self.favorites = FavoritesView(media_manager, blacklist_manager)
@@ -2000,6 +2020,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.global_search)
         
         # Theme anwenden
+        self.apply_media_type_visibility()
         self.apply_theme()
 
         # Detail View Platzhalter
@@ -2037,8 +2058,7 @@ class MainWindow(QMainWindow):
 
             # Alle Views als 'dirty' markieren
             all_views = [
-                self.dashboard, self.library_movies, self.library_series,
-                self.library_music, self.library_clips, self.favorites,
+                self.dashboard, *self.library_views.values(), self.favorites,
                 self.blacklist_view, self.stats_view
             ]
             if self.playlists_view is not None:
@@ -2060,6 +2080,21 @@ class MainWindow(QMainWindow):
         if getattr(view, '_needs_refresh', False) and hasattr(view, 'refresh'):
             view.refresh()
             view._needs_refresh = False
+
+    def _switch_library_type(self, media_type):
+        view = self.library_views.get(media_type)
+        if view is not None:
+            self._switch_view(view)
+
+    def apply_media_type_visibility(self):
+        """Blendet Library-Buttons anhand der gespeicherten Medientyp-Einstellungen ein oder aus."""
+        enabled_media_types = config.config.get_enabled_media_types()
+        current = self.stack.currentWidget()
+        for media_type, button in self.library_buttons.items():
+            enabled = enabled_media_types.get(media_type, True)
+            button.setVisible(enabled)
+            if not enabled and current is self.library_views.get(media_type):
+                self._switch_view(self.dashboard)
 
     def _export_library_json(self):
         path, _ = QFileDialog.getSaveFileName(

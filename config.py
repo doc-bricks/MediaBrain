@@ -33,6 +33,20 @@ SETTINGS_PATH = BASE_DIR / "settings.json"
 # 2. Default-Einstellungen
 # ============================================================
 
+MEDIA_TYPE_DEFINITIONS = [
+    {"key": "movie", "label": "Filme"},
+    {"key": "series", "label": "Serien"},
+    {"key": "music", "label": "Musik"},
+    {"key": "clip", "label": "Clips"},
+    {"key": "podcast", "label": "Podcasts"},
+    {"key": "audiobook", "label": "Hörbücher"},
+    {"key": "document", "label": "Dokumente"},
+]
+
+DEFAULT_ENABLED_MEDIA_TYPES = {
+    entry["key"]: True for entry in MEDIA_TYPE_DEFINITIONS
+}
+
 DEFAULT_SETTINGS = {
     "ui": {
         "theme": "light",
@@ -52,7 +66,11 @@ DEFAULT_SETTINGS = {
         "music": "last_opened",
         "clip": "last_opened",
         "podcast": "last_opened",
-        "audiobook": "last_opened"
+        "audiobook": "last_opened",
+        "document": "last_opened"
+    },
+    "media_types": {
+        "enabled": DEFAULT_ENABLED_MEDIA_TYPES.copy()
     },
     "file_indexer": {
         "enabled": True,
@@ -65,6 +83,15 @@ DEFAULT_SETTINGS = {
     "auto_fetch_metadata": True,
     "allow_file_deletion": False
 }
+
+
+def normalize_enabled_media_types(value=None):
+    """Gibt eine vollständige, bekannte Medientyp-Map zurück."""
+    raw = value if isinstance(value, dict) else {}
+    return {
+        media_type: bool(raw.get(media_type, default_enabled))
+        for media_type, default_enabled in DEFAULT_ENABLED_MEDIA_TYPES.items()
+    }
 
 
 # ============================================================
@@ -198,6 +225,18 @@ class Config:
             obj = obj[key]
         obj[keys[-1]] = value
         self.save()
+
+    def get_enabled_media_types(self):
+        """Liest die sichtbaren Medientypen mit Defaults für ältere settings.json."""
+        return normalize_enabled_media_types(self.get("media_types.enabled", {}))
+
+    def set_media_type_enabled(self, media_type, enabled):
+        """Speichert, ob ein bekannter Medientyp in der Bibliotheks-Navigation sichtbar ist."""
+        if media_type not in DEFAULT_ENABLED_MEDIA_TYPES:
+            raise ValueError(f"Unknown media type: {media_type}")
+        enabled_types = self.get_enabled_media_types()
+        enabled_types[media_type] = bool(enabled)
+        self.set("media_types.enabled", enabled_types)
 
 
 # ============================================================
