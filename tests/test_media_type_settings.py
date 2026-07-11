@@ -77,6 +77,33 @@ class TestMediaTypeSettings(unittest.TestCase):
 
         self.assertFalse(config_module.config.get_enabled_media_types()["document"])
 
+    def test_document_library_includes_legacy_file_items(self):
+        self.media_manager.add_or_update(
+            {
+                "title": "Legacy Doc",
+                "type": "file",
+                "source": "local",
+                "provider_id": "legacy-doc-1",
+            }
+        )
+        self.media_manager.add_or_update(
+            {
+                "title": "Current Doc",
+                "type": "document",
+                "source": "local",
+                "provider_id": "document-1",
+            }
+        )
+
+        window = MainWindow(self.media_manager, self.blacklist_manager)
+        document_view = window.library_views["document"]
+        document_view.refresh()
+
+        self.assertEqual(document_view.model.rowCount(), 2)
+        titles = [item.title for item in document_view.model.media_items]
+        self.assertEqual(titles, ["Current Doc", "Legacy Doc"])
+        self.assertTrue(all(item.type == "document" for item in document_view.model.media_items))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,6 +29,16 @@ try:
 except ImportError:
     HAS_CONFIG = False
 
+
+def canonicalize_media_type(media_type):
+    """Normalisiert Legacy-Medientypen auf die aktuellen Bibliothekstypen."""
+    if media_type is None:
+        return media_type
+    normalized = str(media_type).strip().lower()
+    if normalized == "file":
+        return "document"
+    return normalized
+
 # ============================================================
 # 1. Datenbank
 # ============================================================
@@ -235,7 +245,7 @@ class MediaItem:
     def __init__(self, row):
         self.id = row["id"]
         self.title = row["title"]
-        self.type = row["type"]
+        self.type = canonicalize_media_type(row["type"])
         self.source = row["source"]
         self.provider_id = row["provider_id"]
         self.provider_subtype = row["provider_subtype"] if "provider_subtype" in row.keys() else None
@@ -356,6 +366,19 @@ class MediaManager:
     def __init__(self, db: Database):
         self.db = db
 
+    @staticmethod
+    def _canonical_media_type(media_type):
+        """Normalisiert Legacy-Typen auf die aktuelle Bibliothekslogik."""
+        return canonicalize_media_type(media_type)
+
+    @classmethod
+    def _type_filter_values(cls, media_type):
+        """Liefert den Query-Filter für sichtbare Bibliothekstypen."""
+        canonical = cls._canonical_media_type(media_type)
+        if canonical == "document":
+            return canonical, ("document", "file")
+        return canonical, (canonical,)
+
     def get_by_provider(self, provider_id: str, source: str) -> Optional['MediaItem']:
         """
         Sucht ein Medium anhand von provider_id und source.
@@ -384,6 +407,9 @@ class MediaManager:
         Raises:
             ValueError: Wenn required fields fehlen oder invalid sind
         """
+        data = dict(data)
+        data["type"] = self._canonical_media_type(data.get("type"))
+
         # === INPUT VALIDATION ===
         # Required fields prüfen
         required_fields = ["type", "source", "provider_id"]
@@ -394,7 +420,7 @@ class MediaManager:
                 raise ValueError(f"Required field cannot be empty: {field}")
 
         # Type muss aus erlaubten Werten sein
-        allowed_types = ["movie", "series", "music", "clip", "podcast", "audiobook", "document", "file"]
+        allowed_types = ["movie", "series", "music", "clip", "podcast", "audiobook", "document"]
         if data["type"] not in allowed_types:
             raise ValueError(f"Invalid type: {data['type']}. Allowed: {allowed_types}")
 
@@ -573,13 +599,23 @@ class MediaManager:
             media_type: Medientyp (movie, series, music, clip, etc.)
             limit: Maximale Anzahl Ergebnisse (Default: 500)
         """
-        rows = self.db.fetchall("""
-            SELECT *
-            FROM media_items
-            WHERE type = ? AND blacklist_flag = 0
-            ORDER BY is_favorite DESC, last_opened_at DESC
-            LIMIT ?
-        """, (media_type, limit))
+        canonical_type, filter_values = self._type_filter_values(media_type)
+        if canonical_type == "document":
+            rows = self.db.fetchall("""
+                SELECT *
+                FROM media_items
+                WHERE type IN (?, ?) AND blacklist_flag = 0
+                ORDER BY is_favorite DESC, last_opened_at DESC
+                LIMIT ?
+            """, (*filter_values, limit))
+        else:
+            rows = self.db.fetchall("""
+                SELECT *
+                FROM media_items
+                WHERE type = ? AND blacklist_flag = 0
+                ORDER BY is_favorite DESC, last_opened_at DESC
+                LIMIT ?
+            """, (canonical_type, limit))
 
         # Wandelt die Datenbank-Zeilen in MediaItem-Objekte um
         return [MediaItem(r) for r in rows]
@@ -654,18 +690,31 @@ class MediaManager:
         if not tag_ids:
             return self.list_by_type(media_type, limit)
 
+        canonical_type, filter_values = self._type_filter_values(media_type)
         # Items that have ALL specified tags
         placeholders = ",".join("?" * len(tag_ids))
-        rows = self.db.fetchall(f"""
-            SELECT m.* FROM media_items m
-            INNER JOIN media_tags mt ON m.id = mt.media_id
-            WHERE m.type = ? AND m.blacklist_flag = 0
-              AND mt.tag_id IN ({placeholders})
-            GROUP BY m.id
-            HAVING COUNT(DISTINCT mt.tag_id) = ?
-            ORDER BY m.is_favorite DESC, m.last_opened_at DESC
-            LIMIT ?
-        """, (media_type, *tag_ids, len(tag_ids), limit))
+        if canonical_type == "document":
+            rows = self.db.fetchall(f"""
+                SELECT m.* FROM media_items m
+                INNER JOIN media_tags mt ON m.id = mt.media_id
+                WHERE m.type IN (?, ?) AND m.blacklist_flag = 0
+                  AND mt.tag_id IN ({placeholders})
+                GROUP BY m.id
+                HAVING COUNT(DISTINCT mt.tag_id) = ?
+                ORDER BY m.is_favorite DESC, m.last_opened_at DESC
+                LIMIT ?
+            """, (*filter_values, *tag_ids, len(tag_ids), limit))
+        else:
+            rows = self.db.fetchall(f"""
+                SELECT m.* FROM media_items m
+                INNER JOIN media_tags mt ON m.id = mt.media_id
+                WHERE m.type = ? AND m.blacklist_flag = 0
+                  AND mt.tag_id IN ({placeholders})
+                GROUP BY m.id
+                HAVING COUNT(DISTINCT mt.tag_id) = ?
+                ORDER BY m.is_favorite DESC, m.last_opened_at DESC
+                LIMIT ?
+            """, (canonical_type, *tag_ids, len(tag_ids), limit))
         return [MediaItem(r) for r in rows]
 
 

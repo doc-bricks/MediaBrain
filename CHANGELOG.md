@@ -7,6 +7,14 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Behoben / Fixed
 
+- Legacy-Dokumente mit `type = "file"` verschwinden nicht mehr aus der
+  Dokumentbibliothek: `core.py` kanonisiert den Legacy-Typ jetzt auf
+  `document`, und die Dokumentliste liest für Bestandsdaten `document`
+  sowie `file` gemeinsam ein. Regression in
+  `tests/test_media_type_settings.py`.
+- `web_companion/src/lib/smartPlaylist.test.ts` baut jetzt wieder sauber mit `tsc -b`: die
+  Test-Fixture `makeItem()` entkoppelt `id` vom Rest-Override, statt dieselbe Property erst
+  explizit und dann nochmals via Spread zu setzen.
 - YouTube-, Spotify- und Apple-TV-URL-Erkennung prüft jetzt exakte Hostnamen
   oder vertrauenswürdige Subdomains statt freier Substring-Treffer.
 - `gui.py` (Qt-Layout-Fix): `MediaItemWidget`-Inlay-Panels (Favoriten, Verlauf,
@@ -39,12 +47,17 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 - README, README_de, `llms.txt` und Web-Companion-Paketmetadaten mit präziseren Discovery-, PWA-Companion- und Disambiguation-Ankern für `doc-bricks/MediaBrain`, private SQLite-Medienbibliotheken, PySide6-Smart-Playlists und lokale Medienverlauf-Verwaltung aktualisiert.
 - `web_companion/` für Android- und iOS-PWA-Nutzung gehärtet: `viewport-fit=cover`, Apple-Web-App-Metadaten, Safe-Area-Layout, 44px-Touch-Ziele in der Bottom-Navigation und kontextuelle Install-Hinweise vor dem ersten Add-to-Home-Screen.
+- `web_companion/package.json` ergänzt jetzt die reproduzierbaren Sicherheits-Scripts `npm run audit` und `npm run audit:prod`; Companion-README, `PORTING_STATUS.md` und `AUFGABEN.txt` sind auf den verifizierten Audit-Stand vom 2026-07-02 synchronisiert.
 - README auf English-first GitHub-Landing-Page umgestellt und separate deutsche README ergänzt.
 - `llms.txt` mit kanonischem Projektkontext, Suchphrasen und Privacy-Grenzen ergänzt.
 - Community-Workflows auf aktuelle Major-Versionen gehoben.
 
 ### Hinzugefügt / Added
 
+- Desktop-Einstellungen für sichtbare Medientypen ergänzt: Filme, Serien, Musik,
+  Clips, Podcasts, Hörbücher und Dokumente können einzeln in der Bibliotheks-
+  Navigation ein- oder ausgeblendet werden; Dokumente sind dabei ein regulärer
+  Medientyp und werden standardmäßig mitgeführt.
 - `web_companion/src/lib/smartPlaylist.ts`: TypeScript-Port des Desktop-QueryBuilders als
   In-Memory-Regel-Engine. Unterstützt alle Operatoren (`=`, `!=`, `>`, `>=`, `<`, `<=`,
   `contains`, `starts_with`, `not_contains`, `is_empty`, `is_not_empty`), Feld-Aliase
