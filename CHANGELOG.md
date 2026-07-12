@@ -7,6 +7,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Behoben / Fixed
 
+- `gui_playlists.py`: Der kompakte `✕`-Button zum Entfernen einer
+  Smart-Playlist-Bedingung exponiert jetzt einen sprechenden Tooltip sowie
+  Accessible Name und Description, damit die kompakte Symbol-UI im Dialog auch
+  per Screenreader klar bleibt. Regression in `tests/test_gui_playlists.py`.
 - Legacy-Dokumente mit `type = "file"` verschwinden nicht mehr aus der
   Dokumentbibliothek: `core.py` kanonisiert den Legacy-Typ jetzt auf
   `document`, und die Dokumentliste liest für Bestandsdaten `document`

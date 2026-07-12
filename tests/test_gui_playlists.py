@@ -64,6 +64,16 @@ class TestSmartPlaylistDialog(unittest.TestCase):
         finally:
             _dispose_widget(dialog)
 
+    def test_condition_remove_button_exposes_accessible_context(self):
+        dialog = SmartPlaylistDialog()
+        try:
+            row = dialog._row_widgets()[0]
+            self.assertEqual(row.remove_btn.accessibleName(), "Bedingung entfernen")
+            self.assertIn("Filterbedingung", row.remove_btn.accessibleDescription())
+            self.assertEqual(row.remove_btn.toolTip(), "Bedingung entfernen")
+        finally:
+            _dispose_widget(dialog)
+
     def test_round_trip_with_existing_query(self):
         # Build a smart query with multiple fields, then load + serialize.
         builder = QueryBuilder()

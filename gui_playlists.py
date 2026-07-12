@@ -117,11 +117,15 @@ class ConditionRow(QFrame):
         self.value_widget: QWidget = QLineEdit()
         layout.addWidget(self.value_widget, stretch=3)
 
-        remove_btn = QPushButton("✕")
-        remove_btn.setToolTip("Bedingung entfernen")
-        remove_btn.setFixedWidth(28)
-        remove_btn.clicked.connect(self._handle_remove)
-        layout.addWidget(remove_btn)
+        self.remove_btn = QPushButton("✕")
+        self.remove_btn.setToolTip("Bedingung entfernen")
+        self.remove_btn.setAccessibleName("Bedingung entfernen")
+        self.remove_btn.setAccessibleDescription(
+            "Entfernt diese Filterbedingung aus der Smart-Playlist."
+        )
+        self.remove_btn.setFixedWidth(28)
+        self.remove_btn.clicked.connect(self._handle_remove)
+        layout.addWidget(self.remove_btn)
 
         # Initial state matches first field.
         self._on_field_changed(0)
