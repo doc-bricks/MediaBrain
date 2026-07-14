@@ -49,6 +49,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Geändert / Changed
 
+- `THIRD_PARTY_LICENSES.txt` ergänzt eine direkte Inventur der Python-Desktop- und
+  Web/PWA-Companion-Abhängigkeiten; README/README_de verlinken die Lizenzinventur.
+- `.gitignore` schließt `LOCK*.txt` aus, damit temporäre Multi-Agenten-Sperren nicht
+  versehentlich in Git auftauchen.
 - README, README_de, `llms.txt` und Web-Companion-Paketmetadaten mit präziseren Discovery-, PWA-Companion- und Disambiguation-Ankern für `doc-bricks/MediaBrain`, private SQLite-Medienbibliotheken, PySide6-Smart-Playlists und lokale Medienverlauf-Verwaltung aktualisiert.
 - `web_companion/` für Android- und iOS-PWA-Nutzung gehärtet: `viewport-fit=cover`, Apple-Web-App-Metadaten, Safe-Area-Layout, 44px-Touch-Ziele in der Bottom-Navigation und kontextuelle Install-Hinweise vor dem ersten Add-to-Home-Screen.
 - `web_companion/package.json` ergänzt jetzt die reproduzierbaren Sicherheits-Scripts `npm run audit` und `npm run audit:prod`; Companion-README, `PORTING_STATUS.md` und `AUFGABEN.txt` sind auf den verifizierten Audit-Stand vom 2026-07-02 synchronisiert.

@@ -81,6 +81,7 @@ removed_sections/
 
 # BACH Interne Steuerungsdateien
 AUFGABEN.txt
+LOCK*.txt
 TEST.txt
 TESTS.txt
 TESTERGEBNISSE.txt

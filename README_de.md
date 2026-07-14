@@ -108,7 +108,7 @@ MediaBrain speichert Nutzungsdaten lokal in SQLite-Dateien und Konfigurationsdat
 
 ## Lizenz
 
-MIT, siehe [LICENSE](LICENSE). Die GUI nutzt PySide6 unter LGPL-Bedingungen.
+MIT, siehe [LICENSE](LICENSE). Direkte Drittanbieter-Abhängigkeiten für Runtime und Entwicklung sind in [THIRD_PARTY_LICENSES.txt](THIRD_PARTY_LICENSES.txt) inventarisiert. Die GUI nutzt PySide6 unter LGPL-Bedingungen.
 
 ## Haftung
 
