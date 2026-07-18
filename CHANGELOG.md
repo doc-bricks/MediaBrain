@@ -49,6 +49,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Geändert / Changed
 
+- `ROADMAP.md`, `PORTIERUNGSPLAN.md` und die lokale Aufgabensteuerung trennen
+  jetzt projektweiten Status, Plattformentscheidungen, Strangnachweise und offene
+  TASKPLAN-Arbeit eindeutig. Lokale Contract-/Build-Smokes werden ausdrücklich
+  nicht als Android-, iOS-, macOS-, Linux- oder Store-Live-Nachweis gewertet.
 - `THIRD_PARTY_LICENSES.txt` ergänzt eine direkte Inventur der Python-Desktop- und
   Web/PWA-Companion-Abhängigkeiten; README/README_de verlinken die Lizenzinventur.
 - `.gitignore` schließt `LOCK*.txt` aus, damit temporäre Multi-Agenten-Sperren nicht
