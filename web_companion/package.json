@@ -17,6 +17,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
+    "audit": "npm audit",
+    "audit:prod": "npm audit --omit=dev",
     "preview": "vite preview",
     "cap:sync": "npm run build && cap sync",
     "cap:android": "cap open android",

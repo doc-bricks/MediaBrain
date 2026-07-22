@@ -3,7 +3,7 @@
 **Quelle:** `../` (Python/PySide6, core.py + export_import.py)
 **Ziel:** Web/PWA + Capacitor (Android jetzt, iOS später)
 **Bundle-ID:** `com.lukas.mediabrain`
-**Aktualisiert:** 2026-06-28 (Smart-Playlist-Regel-Engine: TypeScript-Port + Vitest-Tests)
+**Aktualisiert:** 2026-07-02 (JS-Dependency-Audit reproduzierbar gemacht)
 
 ## Status
 
@@ -70,6 +70,6 @@ cd android && ./gradlew assembleDebug
 
 - ~~Rück-Sync der Favoriten-Änderungen~~ FERTIG (2026-06-22, Change-Tracking + `mediabrain-companion-favorites-v1` Export)
 - ~~Smart-Playlist-Regel-Engine (Companion-Seite)~~ FERTIG (2026-06-28, `src/lib/smartPlaylist.ts` + 41 Vitest-Tests, PlaylistsScreen dynamisch)
-- ~~Dependency-Audit der JS-Toolchain (`npm audit`)~~ FERTIG (0 Schwachstellen)
+- ~~Dependency-Audit der JS-Toolchain (`npm audit`)~~ FERTIG (2026-07-02: `npm run audit` und `npm run audit:prod` melden 0 Schwachstellen; keine prod/dev-Nacharbeit nötig)
 - iOS-Build nach Xcode-Installation (manuell, Gerät erforderlich)
 - Android-/iOS-PWA-Installationssmokes mit echter Exportdatei und großem Bibliotheksstand (manuell)

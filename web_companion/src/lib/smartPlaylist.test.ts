@@ -15,20 +15,22 @@ import {
 // ─── Test-Fixture ────────────────────────────────────────────────
 
 function makeItem(overrides: Partial<MediaItem> & { id: number }): MediaItem {
+  const { id, ...rest } = overrides
+
   return {
-    id: overrides.id,
-    title: overrides.title ?? `Item ${overrides.id}`,
-    type: overrides.type ?? 'movie',
-    source: overrides.source ?? 'local',
-    provider_id: overrides.provider_id ?? String(overrides.id),
-    is_favorite: overrides.is_favorite ?? false,
-    is_local_file: overrides.is_local_file ?? false,
-    tags: overrides.tags ?? [],
-    length_seconds: overrides.length_seconds ?? null,
-    blacklist_flag: overrides.blacklist_flag ?? 0,
-    last_opened_at: overrides.last_opened_at ?? null,
-    description: overrides.description ?? null,
-    ...overrides,
+    ...rest,
+    id,
+    title: rest.title ?? `Item ${id}`,
+    type: rest.type ?? 'movie',
+    source: rest.source ?? 'local',
+    provider_id: rest.provider_id ?? String(id),
+    is_favorite: rest.is_favorite ?? false,
+    is_local_file: rest.is_local_file ?? false,
+    tags: rest.tags ?? [],
+    length_seconds: rest.length_seconds ?? null,
+    blacklist_flag: rest.blacklist_flag ?? 0,
+    last_opened_at: rest.last_opened_at ?? null,
+    description: rest.description ?? null,
   }
 }
 

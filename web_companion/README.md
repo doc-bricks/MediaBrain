@@ -11,6 +11,8 @@ cd ~/dev/mediabrain-companion/
 
 npm install
 npm test             # Schema-/Playlist-Regressionen
+npm run audit        # kompletter JS-Dependency-Audit
+npm run audit:prod   # nur produktive Runtime-Dependencies
 npm run dev              # Browser-Dev-Server
 npm run build            # Production-Build nach dist/
 
