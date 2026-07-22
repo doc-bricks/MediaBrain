@@ -27,7 +27,7 @@ Abweichende Dateinamen sind erlaubt, solange das JSON den Schema-Marker trägt.
   "app_version": "dev",
   "source": {
     "app_name": "MediaBrain Desktop",
-    "app_version": "dev",
+    "app_version": "2.0.0",
     "platform": "windows"
   },
   "capabilities": {
@@ -51,7 +51,7 @@ Abweichende Dateinamen sind erlaubt, solange das JSON den Schema-Marker trägt.
 | `schema_version` | Integer | ja | Maschinenlesbare Version des Austauschformats. Aktuell `1`. |
 | `version` | String | nein | Legacy-Feld für ältere Verbraucher. Bleibt vorerst `1.0`. |
 | `app_name` | String | ja | Exportierende Anwendung. Aktuell `MediaBrain Desktop`. |
-| `app_version` | String | ja | Informative Build-/App-Version. Ohne zentrale Release-Quelle aktuell oft `dev`. |
+| `app_version` | String | ja | Informative Desktop-Version aus `version.py`; ein Packaging-Build darf sie über `MEDIABRAIN_VERSION` überschreiben. |
 | `source` | Objekt | nein | Zusätzliche Herkunftsdaten wie Plattform oder mobile/Desktop-Quelle. |
 | `capabilities` | Objekt | nein | Gibt an, welche optionalen Bereiche im Export enthalten sind. |
 | `exported_at` | String | ja | ISO-8601-Zeitstempel mit Zeitzone. |
@@ -81,7 +81,7 @@ Pflichtfelder:
 - `open_method`
 - `is_favorite`
 - `is_local_file`
-- `local_path`
+- `local_path` (aus Datenschutzgründen standardmäßig nicht exportiert; nur bei ausdrücklichem Opt-in)
 - `description`
 - `thumbnail_url`
 - `season`
@@ -109,6 +109,13 @@ Tags werden nicht als eigene Top-Level-Tabelle exportiert. Stattdessen trägt je
 ```
 
 Das vermeidet zusätzliche Join-Logik für Companion-Clients.
+
+## Datenschutzstandard für lokale Pfade
+
+JSON- und CSV-Exporte lassen `local_path` standardmäßig aus. So gelangen private
+absolute Dateipfade nicht versehentlich in Share-Sheets, PWA-Importe oder andere
+Geräte. Nur ein ausdrücklich aufgerufener Export mit `include_local_paths=True`
+nimmt das Feld auf; das Capability-Feld `local_paths` dokumentiert diesen Zustand.
 
 ## Playlists
 

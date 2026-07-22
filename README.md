@@ -67,7 +67,7 @@ Full diagram: [ARCH.md](ARCH.md)
 
 Requirements:
 
-- Python 3.8 or newer
+- Python 3.10 or newer
 - Windows, Linux, or macOS with Qt/PySide6 support
 
 ```bash
@@ -81,6 +81,17 @@ On first launch, MediaBrain creates `settings.json` locally. The public template
 ```bash
 python MediaBrain.py
 ```
+
+Read-only command line access (never writes to the database):
+
+```bash
+python cli.py list
+python cli.py search "title"
+python cli.py --db /path/to/media_brain.db types
+```
+
+The CLI suppresses blacklisted entries. Set `MEDIABRAIN_DB` or use `--db` to
+select a database explicitly.
 
 Windows double-click launcher:
 

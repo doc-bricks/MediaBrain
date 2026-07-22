@@ -67,7 +67,7 @@ Vollständiges Diagramm: [ARCH.md](ARCH.md)
 
 Voraussetzungen:
 
-- Python 3.8 oder neuer
+- Python 3.10 oder neuer
 - Windows, Linux oder macOS mit Qt-/PySide6-Unterstützung
 
 ```bash
@@ -81,6 +81,17 @@ Beim ersten Start wird `settings.json` lokal erzeugt. Die öffentliche Vorlage l
 ```bash
 python MediaBrain.py
 ```
+
+Rein lesender Kommandozeilenzugriff (schreibt nie in die Datenbank):
+
+```bash
+python cli.py list
+python cli.py search "Titel"
+python cli.py --db /pfad/zu/media_brain.db types
+```
+
+Die CLI blendet Einträge auf der Blacklist aus. Mit `MEDIABRAIN_DB` oder `--db`
+wird eine Datenbank ausdrücklich ausgewählt.
 
 Windows-Start per Doppelklick:
 

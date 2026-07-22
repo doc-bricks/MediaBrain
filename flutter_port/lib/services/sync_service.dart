@@ -207,8 +207,17 @@ class SyncService {
     if (raw == null || raw.trim().isEmpty) return null;
     var url = raw.trim();
     if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'http://$url';
+    if (!url.startsWith('https://')) {
+      if (url.startsWith('http://')) {
+        throw const _SyncException(
+          'Server-Sync erfordert HTTPS; HTTP würde Token und Bibliothek offen übertragen.',
+        );
+      }
+      url = 'https://$url';
+    }
+    final uri = Uri.tryParse(url);
+    if (uri == null || uri.host.isEmpty || uri.scheme != 'https') {
+      throw const _SyncException('Ungültige HTTPS-Server-URL.');
     }
     return url;
   }

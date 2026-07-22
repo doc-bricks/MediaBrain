@@ -36,7 +36,7 @@ Ein lokaler Contract-/Build-Smoke gilt ausdrücklich nicht als Live-Smoke.
 
 | Strang | Implementiert bzw. lokal belegt | Offene oder externe Prüfgrenze |
 |---|---|---|
-| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen und drei Themes sind vorhanden. | Store-Gate, vollständiges Desktop-Englisch, Versions-/Runtime-Vertrag und Entscheidung zur Read-only-CLI bleiben offen. |
+| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen, drei Themes sowie die getestete Read-only-CLI sind vorhanden. Der Desktop-Versions-/Python-Vertrag ist seit 2026-07-22 konsolidiert. | Store-Gate und vollständiges Desktop-Englisch bleiben offen. |
 | Web/PWA Companion | Import von `mediabrain-library-v1.json`, IndexedDB, Filter, Details, Playlists, Favoriten-Rückexport und PWA-Härtung sind im Strangstatus belegt. Der lokale Mobile-PWA-Contract-Smoke ist seit 2026-07-06 über `web_companion/MOBILE_PWA_SMOKE.md` dokumentiert. | DE/EN-I18N sowie echte Android-Chrome- und iOS-Safari-/Home-Screen-Smokes bleiben offen. Es gibt keinen Gerätefreigabe-Claim. |
 | Flutter / Android | App-Scan, UsageStats-Anbindung, SQLite, Bibliothek, Details, DE/EN-L10n und das v1-Dateiaustauschformat sind dokumentiert. Analyze, Tests und Debug-APK wurden am 2026-06-03 im lokalen Mirror belegt; Sync-Tests sind bis 2026-06-14 dokumentiert. | Permission-Fluss, Datei-Sync und großer Bestand auf einem echten Android-Ziel bleiben offen. Kotlin-Plugin-Warnungen sind kein aktueller Build-Fehler, aber vor Upgrades zu prüfen. |
 | Flutter / iOS | Das Flutter-Projekt enthält eine iOS-Zielstruktur. | Xcode-Build, Dateiimport und der bewusst reduzierte Trackingumfang sind mangels macOS/Xcode-/iOS-Beleg offen. |
@@ -56,8 +56,8 @@ offene Arbeit wird hier genau über ihre TASKPLAN-ID referenziert:
 | 939 | TW-MB-05 | echter iOS-PWA-Smoke | offen; iOS/Safari und Testhost erforderlich |
 | 940 | TW-MB-06 | Flutter-Android-Gerätetest | offen; Android-Ziel erforderlich |
 | 941 | TW-MB-07 | Flutter-iOS-Build und Trackinggrenze | offen; macOS/Xcode/iOS erforderlich |
-| 942 | TW-MB-08 | Export-/Release-Version und Python-Vertrag | offen |
-| 943 | TW-MB-09 | Status der headless Read-only-CLI | offen; Maintainer-Entscheidung erforderlich |
+| 942 | TW-MB-08 | Export-/Release-Version und Python-Vertrag | erledigt 2026-07-22; `version.py`, Python 3.10+, Exporttests |
+| 943 | TW-MB-09 | Status der headless Read-only-CLI | erledigt 2026-07-22; offiziell read-only, Blacklist-Vertrag und Tests |
 | 944 | TW-MB-10 | macOS-/Linux-Source-Smokes | offen; Zielsysteme erforderlich |
 | 945 | TW-MB-11 | Flutter-Kotlin-Plugin-Warnungen | offen; kontrolliertes Upgrade-Fenster |
 

@@ -6,7 +6,9 @@
 ///
 /// Was der Job tut:
 ///   1. App-Aggregat-Scan (`MediaUsageService.scanAndPersist`)
-///   2. Optional: wenn Server-Sync konfiguriert → Push
+///
+/// Der Job überträgt keine Bibliotheksdaten. Server-Push und -Pull werden nur
+/// nach einer ausdrücklichen Nutzeraktion in den Einstellungen ausgeführt.
 ///
 /// Aktivierung über `BackgroundScan.enable()` (z.B. in Settings-Toggle).
 /// Deaktivierung über `BackgroundScan.disable()`.
@@ -19,7 +21,6 @@ import 'package:workmanager/workmanager.dart';
 
 import 'database_service.dart';
 import 'media_usage_service.dart';
-import 'sync_service.dart';
 
 const String _taskName = 'mediabrain-scan';
 const String _settingEnabled = 'background_scan_enabled';
@@ -41,18 +42,6 @@ void mediabrainCallbackDispatcher() {
       );
       await DatabaseService.instance.setSetting(_settingLastResult, result);
 
-      // Optional: wenn Server konfiguriert → Push (silent)
-      final cfg = await SyncService.instance.getServerConfig();
-      if (cfg.url != null && cfg.url!.isNotEmpty) {
-        try {
-          await SyncService.instance.push();
-        } catch (e) {
-          // Server unerreichbar — keine Eskalation
-          if (kDebugMode) {
-            debugPrint('BackgroundScan: server-push fehlgeschlagen: $e');
-          }
-        }
-      }
       return true;
     } catch (e, st) {
       if (kDebugMode) {

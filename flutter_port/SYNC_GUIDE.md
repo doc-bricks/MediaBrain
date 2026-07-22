@@ -35,11 +35,13 @@ Schema: `mediabrain-library-v1`.
 **Einstellungen → Server-Sync (Mac Studio)**
 
 Konfiguration:
-- **Server-URL**: `macstudvonlukas.tail761bc7.ts.net:8443`
+- **Server-URL**: `https://macstudvonlukas.tail761bc7.ts.net:8443`
 - **Bearer-Token**: aus `~/services/syncbox/token`
 
 Buttons:
 - **Push** → Server
 - **Pull** ← Server
 
-last-write-wins. Server-Setup: siehe SyncBox-README.
+Der Server-Sync akzeptiert ausschließlich HTTPS. Push und Pull laufen nur nach
+bewusster Betätigung der jeweiligen Schaltfläche; der Hintergrund-Scan überträgt
+keine Bibliotheksdaten. Last-write-wins. Server-Setup: siehe SyncBox-README.

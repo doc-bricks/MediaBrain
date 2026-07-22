@@ -15,6 +15,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from version import __version__
+
 logger = logging.getLogger("MediaBrain.ExportImport")
 
 EXPORT_SCHEMA = "mediabrain-library-v1"
@@ -26,15 +28,14 @@ LEGACY_EXPORT_VERSION = "1.0"
 def _detect_app_version() -> str:
     """Returns a human-readable app version for exports.
 
-    MediaBrain currently has no single authoritative version module.
-    Exporters therefore prefer an injected environment variable and
-    otherwise mark the payload as a development export.
+    Environment overrides support reproducible packaging; otherwise the
+    canonical Desktop release metadata is used.
     """
     for env_name in ("MEDIABRAIN_VERSION", "APP_VERSION"):
         value = os.getenv(env_name, "").strip()
         if value:
             return value
-    return "dev"
+    return __version__
 
 
 class MediaExporter:
@@ -47,6 +48,7 @@ class MediaExporter:
         self,
         include_tags: bool = True,
         include_playlists: bool = True,
+        include_local_paths: bool = False,
     ) -> Dict[str, object]:
         """Builds the stable JSON exchange payload for MediaBrain exports."""
         self.conn.row_factory = sqlite3.Row
@@ -69,6 +71,7 @@ class MediaExporter:
                 "playlists": include_playlists,
                 "stable_media_refs": include_playlists,
                 "legacy_alias_import": True,
+                "local_paths": include_local_paths,
             },
             "exported_at": datetime.now().astimezone().isoformat(),
             "item_count": len(items),
@@ -77,6 +80,8 @@ class MediaExporter:
 
         for item in items:
             item_dict = dict(item)
+            if not include_local_paths:
+                item_dict.pop("local_path", None)
 
             if include_tags:
                 tags = self.conn.execute("""
@@ -123,7 +128,8 @@ class MediaExporter:
         return data
 
     def export_json(self, output_path: str, include_tags: bool = True,
-                   include_playlists: bool = True) -> int:
+                   include_playlists: bool = True,
+                   include_local_paths: bool = False) -> int:
         """Exports the entire library to a JSON file.
 
         Args:
@@ -137,6 +143,7 @@ class MediaExporter:
         data = self.build_export_payload(
             include_tags=include_tags,
             include_playlists=include_playlists,
+            include_local_paths=include_local_paths,
         )
 
         Path(output_path).write_text(
@@ -148,7 +155,7 @@ class MediaExporter:
         logger.info("Exportiert: %d Items nach %s", item_count, output_path)
         return item_count
 
-    def export_csv(self, output_path: str) -> int:
+    def export_csv(self, output_path: str, include_local_paths: bool = False) -> int:
         """Exports media items to a CSV file.
 
         Args:
@@ -163,13 +170,18 @@ class MediaExporter:
         if not items:
             return 0
 
-        fieldnames = items[0].keys()
+        fieldnames = list(items[0].keys())
+        if not include_local_paths and "local_path" in fieldnames:
+            fieldnames.remove("local_path")
 
         with open(output_path, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for item in items:
-                writer.writerow(dict(item))
+                item_dict = dict(item)
+                if not include_local_paths:
+                    item_dict.pop("local_path", None)
+                writer.writerow(item_dict)
 
         logger.info("CSV-Export: %d Items nach %s", len(items), output_path)
         return len(items)

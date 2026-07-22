@@ -26,6 +26,11 @@ MediaBrain kann optional externe Metadaten abrufen:
 
 Diese Abfragen werden nur für Metadatenfunktionen verwendet. MediaBrain sendet keine Telemetrie an den Projektbetreiber.
 
+Die optionale Mobile-Linie kann nach ausdrücklicher Betätigung von **Push** oder
+**Pull** eine Bibliothek mit einem selbst konfigurierten Server synchronisieren.
+Dabei werden Bibliotheksdaten und gegebenenfalls ein Bearer-Token ausschließlich
+über HTTPS übertragen. Der Hintergrund-Scan startet keinen Server-Sync.
+
 ## GitHub-Hinweise
 
 Bitte veröffentlichen Sie keine echten `settings.json`-Dateien, Datenbanken, Logs, API-Keys, privaten Medienpfade oder Screenshots mit persönlichen Inhalten in Issues oder Pull Requests.
@@ -57,6 +62,11 @@ MediaBrain can optionally fetch external metadata:
 - MusicBrainz without an API key
 
 These requests are only used for metadata features. MediaBrain does not send telemetry to the project maintainer.
+
+The optional mobile line can synchronize a library with a user-configured server
+after the user explicitly presses **Push** or **Pull**. Library data and any
+Bearer token are transmitted over HTTPS only. Background scans never start a
+server sync.
 
 ## GitHub Notes
 

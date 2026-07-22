@@ -21,6 +21,8 @@ The repository also contains a read-only Vite/React Web/PWA companion that impor
 - `PRIVACY_POLICY.md` - privacy boundaries and optional metadata calls
 - `ARCH.md` - architecture overview
 - `MediaBrain.py` - desktop application entry point
+- `version.py` - canonical MediaBrain Desktop release version
+- `cli.py` - official read-only command line interface
 - `core.py` - media, tags, playlists, blacklist, and database logic
 - `providers.py` - streaming and local-provider detection
 - `gui.py` and `gui_playlists.py` - PySide6 user interface

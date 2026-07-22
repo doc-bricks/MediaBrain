@@ -66,6 +66,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Hinzugefügt / Added
 
+- Kanonische Desktop-Version `2.0.0` in `version.py` und konsistenter Python-3.10+-Vertrag.
+- Offizielle rein lesende CLI mit dokumentierter Datenbankauswahl und Blacklist-Schutz.
+- Sichere Exportvorgabe: private lokale Dateipfade werden nur nach ausdrücklichem Opt-in ausgegeben.
+- Mobile Server-Synchronisation auf manuelle HTTPS-Aktionen begrenzt; Hintergrund-Scans übertragen keine Bibliotheksdaten.
+- PWA-Lockfile ohne bekannte npm-Schwachstellen; Backup-Testbäume sind aus dem kanonischen Vitest-Lauf ausgeschlossen.
+
+
 - Desktop-Einstellungen für sichtbare Medientypen ergänzt: Filme, Serien, Musik,
   Clips, Podcasts, Hörbücher und Dokumente können einzeln in der Bibliotheks-
   Navigation ein- oder ausgeblendet werden; Dokumente sind dabei ein regulärer
