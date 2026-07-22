@@ -36,7 +36,7 @@ Ein lokaler Contract-/Build-Smoke gilt ausdrücklich nicht als Live-Smoke.
 
 | Strang | Implementiert bzw. lokal belegt | Offene oder externe Prüfgrenze |
 |---|---|---|
-| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen, drei Themes sowie die getestete Read-only-CLI sind vorhanden. Der Desktop-Versions-/Python-Vertrag ist seit 2026-07-22 konsolidiert. | Store-Gate und vollständiges Desktop-Englisch bleiben offen. |
+| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen, drei Themes sowie die getestete Read-only-CLI sind vorhanden. Der Desktop-Versions-/Python-Vertrag und der bestehende Desktop-EN-Katalog sind seit 2026-07-22 konsolidiert. | Store-Gate bleibt offen. |
 | Web/PWA Companion | Import von `mediabrain-library-v1.json`, IndexedDB, Filter, Details, Playlists, Favoriten-Rückexport und PWA-Härtung sind im Strangstatus belegt. Der lokale Mobile-PWA-Contract-Smoke ist seit 2026-07-06 über `web_companion/MOBILE_PWA_SMOKE.md` dokumentiert. | DE/EN-I18N sowie echte Android-Chrome- und iOS-Safari-/Home-Screen-Smokes bleiben offen. Es gibt keinen Gerätefreigabe-Claim. |
 | Flutter / Android | App-Scan, UsageStats-Anbindung, SQLite, Bibliothek, Details, DE/EN-L10n und das v1-Dateiaustauschformat sind dokumentiert. Analyze, Tests und Debug-APK wurden am 2026-06-03 im lokalen Mirror belegt; Sync-Tests sind bis 2026-06-14 dokumentiert. | Permission-Fluss, Datei-Sync und großer Bestand auf einem echten Android-Ziel bleiben offen. Kotlin-Plugin-Warnungen sind kein aktueller Build-Fehler, aber vor Upgrades zu prüfen. |
 | Flutter / iOS | Das Flutter-Projekt enthält eine iOS-Zielstruktur. | Xcode-Build, Dateiimport und der bewusst reduzierte Trackingumfang sind mangels macOS/Xcode-/iOS-Beleg offen. |
@@ -50,7 +50,7 @@ offene Arbeit wird hier genau über ihre TASKPLAN-ID referenziert:
 | TASKPLAN | Stable-ID | Gegenstand | Status |
 |---:|---|---|---|
 | 935 | TW-MB-01 | Windows-Store-Release-Gate | offen; externe Store-/Toolchain-Anteile möglich |
-| 936 | TW-MB-02 | Desktop-Englisch bis zur Parität | offen |
+| 936 | TW-MB-02 | Desktop-Englisch bis zur Parität | erledigt 2026-07-22; alle 29 gescannten Desktop-Keys haben einen EN-Wert, Regression abgesichert |
 | 937 | TW-MB-03 | Web-Companion DE/EN-I18N | offen |
 | 938 | TW-MB-04 | echter Android-PWA-Smoke | offen; Gerät/Emulator und Testhost erforderlich |
 | 939 | TW-MB-05 | echter iOS-PWA-Smoke | offen; iOS/Safari und Testhost erforderlich |

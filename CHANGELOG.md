@@ -7,6 +7,9 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Behoben / Fixed
 
+- The committed desktop translation catalog now has a nonempty English value
+  for every existing key. `tests/test_translations.py` prevents incomplete
+  English entries from being reintroduced.
 - `gui_playlists.py`: Der kompakte `✕`-Button zum Entfernen einer
   Smart-Playlist-Bedingung exponiert jetzt einen sprechenden Tooltip sowie
   Accessible Name und Description, damit die kompakte Symbol-UI im Dialog auch

@@ -31,6 +31,14 @@
     "ja": "詳細はありません",
     "ru": "Нет доступных деталей"
   },
+  "Lokale Daten:": {
+    "de": "Lokale Daten:",
+    "en": "Local data:",
+    "es": "",
+    "zh": "",
+    "ja": "",
+    "ru": ""
+  },
   "Suche speichern": {
     "de": "Suche speichern",
     "en": "Save Search",
@@ -73,7 +81,7 @@
   },
   "+ Bedingung hinzufügen": {
     "de": "+ Bedingung hinzufügen",
-    "en": "",
+    "en": "+ Add condition",
     "es": "+ Añadir condición",
     "zh": "+ 添加条件",
     "ja": "+ 条件を追加",
@@ -81,7 +89,7 @@
   },
   "<b>Zuletzt hinzugefügt (Top 5):</b>": {
     "de": "<b>Zuletzt hinzugefügt (Top 5):</b>",
-    "en": "",
+    "en": "<b>Recently added (Top 5):</b>",
     "es": "<b>Añadido recientemente (Top 5):</b>",
     "zh": "<b>最近添加 (前 5 个):</b>",
     "ja": "<b>最近追加された項目 (トップ 5):</b>",
@@ -89,7 +97,7 @@
   },
   "Bearbeiten": {
     "de": "Bearbeiten",
-    "en": "",
+    "en": "Edit",
     "es": "Editar",
     "zh": "编辑",
     "ja": "編集",
@@ -97,7 +105,7 @@
   },
   "Export (JSON)": {
     "de": "Export (JSON)",
-    "en": "",
+    "en": "Export (JSON)",
     "es": "Exportar (JSON)",
     "zh": "导出 (JSON)",
     "ja": "エクスポート (JSON)",
@@ -105,7 +113,7 @@
   },
   "Filter \\u25BC": {
     "de": "Filter \\u25BC",
-    "en": "",
+    "en": "Filter \\u25BC",
     "es": "Filtrar \\u25BC",
     "zh": "筛选 \\u25BC",
     "ja": "フィルター \\u25BC",
@@ -113,7 +121,7 @@
   },
   "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst": {
     "de": "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst",
-    "en": "",
+    "en": "Estimated storage (local): No local files detected",
     "es": "Espacio estimado (local): No se detectaron archivos locales",
     "zh": "估计存储空间 (本地): 未检测到本地文件",
     "ja": "推定容量 (ローカル): ローカルファイルが検出されませんでした",
@@ -121,7 +129,7 @@
   },
   "Geschätzter Speicher (lokal): –": {
     "de": "Geschätzter Speicher (lokal): –",
-    "en": "",
+    "en": "Estimated storage (local): –",
     "es": "Espacio estimado (local): –",
     "zh": "估计存储空间 (本地): –",
     "ja": "推定容量 (ローカル): –",
@@ -129,7 +137,7 @@
   },
   "Import (JSON)": {
     "de": "Import (JSON)",
-    "en": "",
+    "en": "Import (JSON)",
     "es": "Importar (JSON)",
     "zh": "导入 (JSON)",
     "ja": "インポート (JSON)",
@@ -137,7 +145,7 @@
   },
   "Keine Playlist ausgewählt.": {
     "de": "Keine Playlist ausgewählt.",
-    "en": "",
+    "en": "No playlist selected.",
     "es": "No se ha seleccionado ninguna lista de reproducción.",
     "zh": "未选择播放列表。",
     "ja": "プレイリストが選択されていません。",
@@ -145,7 +153,7 @@
   },
   "Löschen": {
     "de": "Löschen",
-    "en": "",
+    "en": "Delete",
     "es": "Eliminar",
     "zh": "删除",
     "ja": "削除",
@@ -153,7 +161,7 @@
   },
   "Metadaten neu laden": {
     "de": "Metadaten neu laden",
-    "en": "",
+    "en": "Reload metadata",
     "es": "Recargar metadatos",
     "zh": "重新加载元数据",
     "ja": "メタデータを再読み込み",
@@ -161,7 +169,7 @@
   },
   "Noch keine Aktivitäten.": {
     "de": "Noch keine Aktivitäten.",
-    "en": "",
+    "en": "No activity yet.",
     "es": "Aún no hay actividad.",
     "zh": "尚无活动。",
     "ja": "アクティビティはまだありません。",
@@ -169,7 +177,7 @@
   },
   "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.": {
     "de": "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.",
-    "en": "",
+    "en": "Online metadata found, but there are no fields to display.",
     "es": "Se encontraron metadatos en línea, pero no hay campos para mostrar.",
     "zh": "找到在线元数据，但没有可显示的字段。",
     "ja": "オンラインメタデータが見つかりましたが、表示する項目がありません。",
@@ -177,7 +185,7 @@
   },
   "Tag-Filter:": {
     "de": "Tag-Filter:",
-    "en": "",
+    "en": "Tag filter:",
     "es": "Filtro de etiquetas:",
     "zh": "标签筛选:",
     "ja": "タグフィルター:",
@@ -185,7 +193,7 @@
   },
   "Zuletzt geöffnet": {
     "de": "Zuletzt geöffnet",
-    "en": "",
+    "en": "Recently opened",
     "es": "Abierto recientemente",
     "zh": "最近打开",
     "ja": "最近開いた項目",
@@ -193,7 +201,7 @@
   },
   "Zurücksetzen": {
     "de": "Zurücksetzen",
-    "en": "",
+    "en": "Reset",
     "es": "Restablecer",
     "zh": "重置",
     "ja": "リセット",
@@ -201,7 +209,7 @@
   },
   "\\u25B6 öffnen": {
     "de": "\\u25B6 öffnen",
-    "en": "",
+    "en": "\\u25B6 Open",
     "es": "\\u25B6 abrir",
     "zh": "\\u25B6 打开",
     "ja": "\\u25B6 開く",
@@ -209,7 +217,7 @@
   },
   "öffnen": {
     "de": "öffnen",
-    "en": "",
+    "en": "open",
     "es": "abrir",
     "zh": "打开",
     "ja": "開く",
@@ -217,7 +225,7 @@
   },
   "🔄 Aktualisieren": {
     "de": "🔄 Aktualisieren",
-    "en": "",
+    "en": "🔄 Refresh",
     "es": "🔄 Actualizar",
     "zh": "🔄 更新",
     "ja": "🔄 更新",
