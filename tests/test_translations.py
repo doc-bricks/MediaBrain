@@ -29,6 +29,13 @@ class TestEnglishDesktopCatalog(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertEqual(translator.t(key), values["en"])
 
+    def test_locale_switch_uses_the_catalog_without_losing_symbol_prefixes(self):
+        translator = TranslationSystem("de", app_dir=ROOT)
+
+        self.assertEqual(translator.t("🔄 Aktualisieren"), "🔄 Aktualisieren")
+        translator.set_language("en")
+        self.assertEqual(translator.t("🔄 Aktualisieren"), "🔄 Refresh")
+
     def test_desktop_string_scan_has_no_unregistered_german_keys(self):
         catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
         translator = TranslationSystem("en", app_dir=ROOT)
