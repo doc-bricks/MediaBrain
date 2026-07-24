@@ -113,9 +113,3 @@ DECISIONS.md
 PORTIERUNGSPLAN.md
 TODO.md
 DONE.md
-
-# PWA template scratch folders
-web_companion/_pwa_tpl_*/
-web_companion/tsconfig.tsbuildinfo
-web_companion/*_FINAL*/
-web_companion/*.bak

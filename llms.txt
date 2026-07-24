@@ -27,7 +27,6 @@ The repository also contains a read-only Vite/React Web/PWA companion that impor
 - `providers.py` - streaming and local-provider detection
 - `gui.py` and `gui_playlists.py` - PySide6 user interface
 - `tests/` - pytest regression and GUI smoke tests
-- `web_companion/` - Vite/React PWA companion for imported MediaBrain library exports
 
 ## Search Phrases
 

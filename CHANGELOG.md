@@ -5,6 +5,16 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Entfernt / Removed
+
+- **Web/PWA-Companion (`web_companion/`) entfernt** — kein dokumentierter
+  Nutzer-Usecase (reiner Lese-Companion ohne Aktionsnutzen), Entscheidung vom
+  2026-07-23 im Rahmen des `.SOFTWARE`-Companion-Usecase-Audits. Der Strang wird
+  bewusst nicht wieder aufgebaut; neue Companions/Ports nur mit dokumentiertem
+  Usecase im `PORTIERUNGSPLAN.md`. Lizenzinventar, ROADMAP und Portierungsdoku
+  wurden entsprechend bereinigt. Ältere Companion-Einträge unten bleiben als
+  Historie erhalten.
+
 ### Behoben / Fixed
 
 - The committed desktop translation catalog now has a nonempty English value

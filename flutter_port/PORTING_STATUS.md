@@ -1,6 +1,7 @@
 # MediaBrain Mobile (Flutter) — Status
 
-**Quelle:** `../core.py` (Python, MediaItem-Schema) + `../web_companion/` (PWA-Patterns)
+**Quelle:** `../core.py` (Python, MediaItem-Schema); PWA-Patterns stammen historisch aus dem
+am 2026-07-23 entfernten `web_companion/` (siehe Abschnitt unten)
 **Ziel:** Eigenständige Flutter-App (Android + iOS)
 **Bundle-ID:** `com.lukas.mediabrain`
 **Erstellt:** 2026-05-26 (Migration von PWA auf Flutter)
@@ -72,11 +73,14 @@ flutter analyze
 flutter build apk --debug
 ```
 
-## Bestehende `web_companion/` (PWA)
+## Entfernt: `web_companion/` (PWA)
 
-Die PWA-Variante (Vite+React+TS+Capacitor) bleibt im Repository als
-"Lese-Companion für Desktop-Export-JSON". Die Flutter-Variante ist Standalone.
-Beide Wege funktionieren parallel.
+Die PWA-Variante (Vite+React+TS+Capacitor) wurde am 2026-07-23 aus dem Repository
+**entfernt** — kein dokumentierter Nutzer-Usecase (reiner Lese-Companion ohne
+Aktionsnutzen). Entscheidungsgrundlage: `../PORTIERUNGSPLAN.md`.
+Die Flutter-Variante ist Standalone und davon nicht betroffen.
+
+**Nicht wieder aufbauen.** Neue Companions/Ports nur mit dokumentiertem Usecase.
 
 ## Offen
 
