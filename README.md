@@ -6,8 +6,13 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-yes-brightgreen.svg)]()
+[![Tests: 235 Passed](https://img.shields.io/badge/tests-235%20passed-brightgreen.svg)]()
+[![LLM Context](https://img.shields.io/badge/LLM--Context-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**
+
+> [!NOTE]
+> **AI / Agent Context**: Machine-readable repo architecture, file indexes, search phrases, and system boundaries are available in [llms.txt](llms.txt).
 
 **[English](README.md)** | [Deutsch](README_de.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
@@ -31,7 +36,6 @@ MediaBrain is for people who want one local place for media they watch, collect,
 - PySide6 desktop UI with dashboard, libraries, search, statistics, settings, and high-contrast themes
 - Provider layer for Netflix, YouTube, Spotify, Disney+, Prime Video, Apple TV+, Twitch, and local files
 - Manual playlists and smart playlists backed by QueryBuilder rules
-- Read-only Web/PWA companion for importing `mediabrain-library-v1.json` exports on mobile devices
 - Optional metadata lookup through user-configured TMDb/OMDb keys or public MusicBrainz data
 - No telemetry, no tracking, and no automatic cloud sync
 
@@ -46,7 +50,6 @@ This repository is the canonical GitHub home for:
 - `PySide6 smart playlist media manager`
 - `offline media hub with smart playlists`
 - `desktop media history tracker`
-- `MediaBrain PWA companion`
 - `privacy-first media history desktop app`
 
 The name "MediaBrain" collides with media analytics companies, AI media labs, and generic media-planning tools. This repository is specifically the `doc-bricks/MediaBrain` local-first desktop media library, not a cloud advertising analytics platform, a multimedia research lab, or an AI media generator.

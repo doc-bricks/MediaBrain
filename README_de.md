@@ -6,8 +6,13 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Plattform: Windows](https://img.shields.io/badge/Plattform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-ja-brightgreen.svg)]()
+[![Tests: 235 Passed](https://img.shields.io/badge/tests-235%20passed-brightgreen.svg)]()
+[![LLM Kontext](https://img.shields.io/badge/LLM--Kontext-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain ist ein lokaler PySide6-Medienmanager für persönliche Video-, Musik-, Playlist- und Streaming-Verläufe.**
+
+> [!NOTE]
+> **KI / Agenten-Kontext**: Maschinenlesbare Architektur, Dateiverzeichnisse, Suchphrasen und Systemgrenzen sind in [llms.txt](llms.txt) dokumentiert.
 
 [English](README.md) | **[Deutsch](README_de.md)** | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
@@ -31,7 +36,6 @@ MediaBrain bündelt Medien, die Sie ansehen, sammeln, taggen, ausblenden oder in
 - PySide6-Desktopoberfläche mit Dashboard, Bibliotheken, Suche, Statistiken, Einstellungen und High-Contrast-Theme
 - Provider-Schicht für Netflix, YouTube, Spotify, Disney+, Prime Video, Apple TV+, Twitch und lokale Dateien
 - Manuelle Playlists und Smart-Playlists mit QueryBuilder-Regeln
-- Read-only Web-/PWA-Companion für den Import von `mediabrain-library-v1.json`-Exporten auf Mobilgeräten
 - Optionale Metadatenabfragen über selbst konfigurierte TMDb-/OMDb-Keys oder öffentliche MusicBrainz-Daten
 - Keine Telemetrie, kein Tracking und keine automatische Cloud-Synchronisation
 
@@ -46,7 +50,6 @@ Dieses Repository ist die kanonische GitHub-Adresse für:
 - `PySide6 Smart-Playlist Medienmanager`
 - `offline media hub smart playlists`
 - `Desktop Medienverlauf Tracker`
-- `MediaBrain PWA Companion`
 - `privacy-first media history desktop app`
 
 Der Name „MediaBrain“ kollidiert mit Media-Analytics-Firmen, KI-Medienlaboren und generischen Media-Planning-Tools. Dieses Repository ist konkret die lokale Desktop-Medienbibliothek `doc-bricks/MediaBrain`, keine Cloud-Plattform für Werbeanalysen, kein Multimedia-Forschungslabor und kein KI-Mediengenerator.

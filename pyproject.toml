@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mediabrain"
+version = "2.1.0"
+description = "Local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "doc-bricks" }
+]
+keywords = [
+  "pyside6", "media-library", "sqlite", "local-first", "smart-playlists",
+  "media-manager", "streaming-history", "desktop-app"
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia",
+]
+dependencies = [
+  "PySide6>=6.5.0",
+  "requests>=2.28.0",
+  "beautifulsoup4>=4.12.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/doc-bricks/MediaBrain"
+Repository = "https://github.com/doc-bricks/MediaBrain.git"
+"Bug Tracker" = "https://github.com/doc-bricks/MediaBrain/issues"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"

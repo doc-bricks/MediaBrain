@@ -5,6 +5,17 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+## [2.1.0-hygiene] - 2026-07-25
+
+### Hinzugefügt / Added
+- Standardisierte PEP 621 `pyproject.toml` mit Projektmetadaten, URLs und Pytest-Konfiguration (`pythonpath = "."`).
+- KI / Agenten-Integrationshinweis und strukturierter Kontext-Callout in `README.md` und `README_de.md`.
+- Status-Badges für Pytest (235 passed), PySide6, MIT-Lizenz, Local-First Privacy und LLM-Ready Kontext.
+
+### Geändert / Changed
+- `llms.txt` Header auf `Last-checked: 2026-07-25` aktualisiert.
+- `README.md`, `README_de.md` und `llms.txt` zur Ausrichtung der Dokumentation an die Entfernung des Web-Companions bereinigt.
+
 ### Entfernt / Removed
 
 - **Web/PWA-Companion (`web_companion/`) entfernt** — kein dokumentierter

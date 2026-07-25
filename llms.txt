@@ -4,9 +4,7 @@ Canonical repository: https://github.com/doc-bricks/MediaBrain
 
 ## Summary
 
-MediaBrain is a local-first PySide6 desktop application for managing personal media history, local files, streaming-provider entries, favorites, blacklists, tags, and playlists. It stores data locally in SQLite and configuration files. It has no telemetry, no tracking, and no automatic cloud sync.
-
-The repository also contains a read-only Vite/React Web/PWA companion that imports `mediabrain-library-v1.json` exports into IndexedDB for mobile review. The companion is for browsing and filtering exported libraries, not for remote sync or cloud hosting.
+MediaBrain is a local-first PySide6 desktop application for managing personal media history, local files, streaming-provider entries, favorites, blacklists, tags, and smart playlists. It stores data locally in SQLite databases and configuration files. It has no telemetry, no tracking, and no automatic cloud sync.
 
 ## Primary Audience
 
@@ -39,11 +37,9 @@ The repository also contains a read-only Vite/React Web/PWA companion that impor
 - privacy-first media history desktop app
 - offline media hub smart playlists
 - desktop media history tracker
-- local media library PWA companion
-- MediaBrain PWA companion
 
 ## Boundaries
 
 MediaBrain is not a streaming service, not a cloud sync product, not an advertising/media-planning analytics platform, not the MediaBrain-SJTU research organization, and not an AI media generator. Optional metadata lookup depends on user-configured API keys or public metadata services.
 
-## Last-checked: 2026-06-12
+## Last-checked: 2026-07-25
