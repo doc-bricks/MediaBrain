@@ -40,6 +40,7 @@ flutter build apk --debug
 - `flutter test` grün
 - `flutter build apk --debug` grün
 - Artefakt: `build\app\outputs\flutter-apk\app-debug.apk`
+- 2026-07-26: Android-Launcher-Icons, adaptiver Foreground und kompletter iOS-AppIcon-Satz auf das kanonische `assets/icons/icon.png` nachgezogen
 
 ## Hinweise
 

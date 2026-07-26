@@ -23,6 +23,7 @@
 | Need | Go to |
 |---|---|
 | Run the desktop app | `python MediaBrain.py` |
+| Inspect the Flutter mobile line | `flutter_port/README.md` |
 | Check privacy boundaries | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) |
 | Understand the architecture | [ARCH.md](ARCH.md) |
 | Review planned work | [ROADMAP.md](ROADMAP.md) |

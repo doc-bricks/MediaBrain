@@ -5,6 +5,9 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Geändert / Changed
+- Die Flutter-Mobil-Linie verwendet wieder einen konsistenten, aus `flutter_port/assets/icons/icon.png` abgeleiteten App-Icon-Satz für Android-Launcher, adaptiven Foreground und iOS-AppIcons. `README.md`, `README_de.md`, `flutter_port/README.md` und `flutter_port/PORTING_STATUS.md` verweisen auf den aktuellen Mobile-Stand.
+
 ## [2.1.0-hygiene] - 2026-07-25
 
 ### Hinzugefügt / Added

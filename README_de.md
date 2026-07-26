@@ -23,6 +23,7 @@
 | Bedarf | Einstieg |
 |---|---|
 | Desktop-App starten | `python MediaBrain.py` |
+| Flutter-Mobile-Linie prüfen | `flutter_port/README.md` |
 | Datenschutzgrenzen prüfen | [PRIVACY_POLICY.md](PRIVACY_POLICY.md) |
 | Architektur verstehen | [ARCH.md](ARCH.md) |
 | Geplante Arbeit ansehen | [ROADMAP.md](ROADMAP.md) |
