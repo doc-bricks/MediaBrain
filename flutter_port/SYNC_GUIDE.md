@@ -26,7 +26,10 @@ aus einer App stammen.
 
 - **Export per Share** schreibt eine `mediabrain-library-YYYY-MM-DD.json`
   und öffnet das System-Share-Sheet.
-- **Import-Datei wählen** überschreibt den lokalen Stand.
+- **Import-Datei wählen** führt den importierten Stand mit der lokalen Bibliothek
+  zusammen. Mobile Nutzungszeit und letzter mobiler Öffnungszeitpunkt bleiben
+  erhalten, wenn ein Desktop-Export diese Felder nicht enthält. Enthält das
+  Importobjekt die Felder ausdrücklich, werden die gelieferten Werte übernommen.
 
 Schema: `mediabrain-library-v1`.
 

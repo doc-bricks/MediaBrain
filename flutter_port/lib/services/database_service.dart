@@ -290,11 +290,9 @@ CREATE TABLE IF NOT EXISTS settings (
   ///
   /// Accepts both Flutter exports (category field) and Desktop exports (type field).
   /// Merge strategy (v1): replace entire row if source+provider_id or title+category
-  /// matches an existing item, preserving the existing UUID.
-  ///
-  /// Known v1 limitation: foreground_minutes and last_opened_at are overwritten
-  /// with values from the imported payload (desktop exports don't include
-  /// foreground_minutes, so it resets to 0 on desktop→Flutter import).
+  /// matches an existing item, preserving the existing UUID. Mobile-only usage
+  /// fields are preserved when an imported item omits them; explicitly supplied
+  /// values still replace the local values.
   Future<({int imported, int skipped})> importLibraryBundle(
       Map<String, dynamic> json) async {
     final schema = json['schema'];
@@ -349,33 +347,40 @@ CREATE TABLE IF NOT EXISTS settings (
         final pid = (item['provider_id'] as String?) ?? '';
 
         // Merge pass 1: source + provider_id
-        String? existingId;
+        Map<String, Object?>? existingRow;
         if (src.isNotEmpty && pid.isNotEmpty) {
           final found = await txn.query(
             'media_items',
-            columns: ['id'],
+            columns: ['id', 'last_opened_at', 'foreground_minutes'],
             where: 'source = ? AND provider_id = ?',
             whereArgs: [src, pid],
             limit: 1,
           );
-          if (found.isNotEmpty) existingId = found.first['id'] as String?;
+          if (found.isNotEmpty) existingRow = found.first;
         }
 
         // Merge pass 2: title + category (heuristic fallback)
-        if (existingId == null) {
+        if (existingRow == null) {
           final found = await txn.query(
             'media_items',
-            columns: ['id'],
+            columns: ['id', 'last_opened_at', 'foreground_minutes'],
             where: 'title = ? AND category = ?',
             whereArgs: [title, catStr],
             limit: 1,
           );
-          if (found.isNotEmpty) existingId = found.first['id'] as String?;
+          if (found.isNotEmpty) existingRow = found.first;
         }
 
         final providedId = (item['id'] ?? '').toString();
-        final finalId =
-            existingId ?? (_isUuid(providedId) ? providedId : const Uuid().v4());
+        final existingId = existingRow?['id'] as String?;
+        final finalId = existingId ??
+            (_isUuid(providedId) ? providedId : const Uuid().v4());
+        final lastOpenedAt = item.containsKey('last_opened_at')
+            ? item['last_opened_at']
+            : existingRow?['last_opened_at'];
+        final foregroundMinutes = item.containsKey('foreground_minutes')
+            ? (item['foreground_minutes'] as num?)?.toInt() ?? 0
+            : (existingRow?['foreground_minutes'] as num?)?.toInt() ?? 0;
 
         final row = <String, dynamic>{
           'id': finalId,
@@ -389,8 +394,8 @@ CREATE TABLE IF NOT EXISTS settings (
           'season': (item['season'] as num?)?.toInt(),
           'episode': (item['episode'] as num?)?.toInt(),
           'length_seconds': (item['length_seconds'] as num?)?.toInt(),
-          'last_opened_at': item['last_opened_at'],
-          'foreground_minutes': (item['foreground_minutes'] as num?)?.toInt() ?? 0,
+          'last_opened_at': lastOpenedAt,
+          'foreground_minutes': foregroundMinutes,
           'is_favorite': _asBool(item['is_favorite']) ? 1 : 0,
           'description': item['description'],
           'thumbnail_url': item['thumbnail_url'],

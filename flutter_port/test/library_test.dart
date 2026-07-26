@@ -238,6 +238,83 @@ void main() {
     expect(allItems.first.id, firstId); // UUID erhalten
   });
 
+  test(
+      'Desktop-Import ohne mobile Felder erhält Nutzungszeit und letzten Öffnungszeitpunkt',
+      () async {
+    final svc = DatabaseService.instance;
+    const id = 'd1000000-0000-4000-8000-000000000001';
+    final lastOpenedAt = DateTime.parse('2026-07-25T18:30:00Z');
+    await svc.upsert(MediaItem(
+      id: id,
+      title: 'Mobile Bestand',
+      category: MediaCategory.movie,
+      source: 'tmdb',
+      providerId: 'mobile-001',
+      lastOpenedAt: lastOpenedAt,
+      foregroundMinutes: 87,
+    ));
+
+    final result = await svc.importLibraryBundle({
+      'schema': librarySchemaName,
+      'schema_version': 1,
+      'items': [
+        {
+          'id': 42,
+          'title': 'Desktop Titel',
+          'type': 'movie',
+          'source': 'tmdb',
+          'provider_id': 'mobile-001',
+          'is_favorite': true,
+          'tags': <String>[],
+        }
+      ],
+    });
+
+    expect(result.imported, 1);
+    final item = await svc.getItem(id);
+    expect(item, isNotNull);
+    expect(item!.title, 'Desktop Titel');
+    expect(item.foregroundMinutes, 87);
+    expect(item.lastOpenedAt, lastOpenedAt);
+  });
+
+  test('Import überschreibt mobile Felder, wenn sie ausdrücklich vorhanden sind',
+      () async {
+    final svc = DatabaseService.instance;
+    const id = 'd2000000-0000-4000-8000-000000000002';
+    await svc.upsert(MediaItem(
+      id: id,
+      title: 'Alter Titel',
+      category: MediaCategory.music,
+      source: 'spotify',
+      providerId: 'mobile-002',
+      lastOpenedAt: DateTime.parse('2026-07-24T08:00:00Z'),
+      foregroundMinutes: 120,
+    ));
+
+    final result = await svc.importLibraryBundle({
+      'schema': librarySchemaName,
+      'schema_version': 1,
+      'items': [
+        {
+          'title': 'Neuer Titel',
+          'category': 'music',
+          'source': 'spotify',
+          'provider_id': 'mobile-002',
+          'last_opened_at': '2026-07-26T09:15:00Z',
+          'foreground_minutes': 15,
+          'tags': <String>[],
+        }
+      ],
+    });
+
+    expect(result.imported, 1);
+    final item = await svc.getItem(id);
+    expect(item, isNotNull);
+    expect(item!.foregroundMinutes, 15);
+    expect(item.lastOpenedAt, DateTime.parse('2026-07-26T09:15:00Z'));
+  });
+
   test('importLibraryBundle überspringt Items ohne title', () async {
     final svc = DatabaseService.instance;
     final result = await svc.importLibraryBundle({

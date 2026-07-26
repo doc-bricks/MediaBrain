@@ -1,0 +1,33 @@
+name: Flutter mobile smoke
+
+on:
+  push:
+    paths:
+      - "flutter_port/**"
+      - ".github/workflows/flutter-mobile-smoke.yml"
+  pull_request:
+    paths:
+      - "flutter_port/**"
+      - ".github/workflows/flutter-mobile-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: flutter_port
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.0"
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test test/library_test.dart
+      - run: flutter analyze
+      - run: flutter test

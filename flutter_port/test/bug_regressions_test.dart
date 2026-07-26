@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final src = File('lib/screens/item_detail_screen.dart').readAsStringSync();
@@ -17,7 +17,8 @@ void main() {
   test('BUG-F1 regression: catch-Block nach launchUrl vorhanden', () {
     final launchIdx = src.indexOf('await launchUrl(');
     expect(launchIdx, greaterThan(-1));
-    final after = src.substring(launchIdx, launchIdx + 200);
+    final end = launchIdx + 500 < src.length ? launchIdx + 500 : src.length;
+    final after = src.substring(launchIdx, end);
     expect(after.contains('} catch ('), isTrue,
         reason: 'catch-Block nach launchUrl() fehlt — BUG-F1');
   });

@@ -22,7 +22,7 @@ am 2026-07-23 entfernten `web_companion/` (siehe Abschnitt unten)
 | 10. App-Icon + Name | FERTIG | flutter_launcher_icons + AndroidManifest; 2026-07-26 Icon-Satz aus `assets/icons/icon.png` für Android-Launcher, adaptiven Foreground und iOS-AppIcon readback-geprüft |
 | 11. Debug-APK | FERTIG | 2026-06-03 im lokalen Mirror mit Flutter 3.44.0 verifiziert (`flutter analyze`, `flutter test`, `flutter build apk --debug`) |
 | 12. Flutter L10n DE+EN | FERTIG | 2026-06-07 — handgeschriebene `AppLocalizations` (DE+EN), ARB-Referenzdateien, alle Screens/Dialoge lokalisiert. `flutter analyze` 0 Fehler, 8/8 L10n-Tests + widget_test grün. |
-| 13. Sync-Format (Export/Import) | FERTIG | 2026-06-14 — `buildExportPayload()` + `importLibraryBundle()` in `database_service.dart`. Schema `mediabrain-library-v1`, Desktop-kompatibel (`type`↔`category`-Mapping, Fixture-Test). Merge via source+provider_id (Fallback: title+category). UUID-Validierung via `_isUuid()` verhindert Desktop-Integer-IDs als Flutter-PK. `dart analyze lib/` 0 Fehler, 15/15 Tests grün. |
+| 13. Sync-Format (Export/Import) | FERTIG | 2026-07-26 — `buildExportPayload()` + `importLibraryBundle()` in `database_service.dart`. Schema `mediabrain-library-v1`, Desktop-kompatibel (`type`↔`category`-Mapping, Fixture-Test). Merge via source+provider_id (Fallback: title+category). UUID-Validierung via `_isUuid()` verhindert Desktop-Integer-IDs als Flutter-PK. Feldselektiver Merge erhält `foreground_minutes` und `last_opened_at`, wenn Desktop-Payloads diese Mobile-Felder auslassen; explizite Werte werden weiterhin übernommen. |
 
 ## Was die App macht
 
@@ -85,7 +85,6 @@ Die Flutter-Variante ist Standalone und davon nicht betroffen.
 ## Offen
 
 - iOS-Build (Xcode)
-- [v1-Limitierung Sync-Format] Import überschreibt foreground_minutes + last_opened_at mit Desktop-Werten (Desktop exportiert foreground_minutes nicht → reset auf 0); feldselektives Update für v2 geplant
 - Server-Sync (Mac Studio als zentraler Host)
 - Manuelles Erfassen einzelner Medien (z.B. ein gerade gesehener Film, der nicht aus einer Tracking-App stammt)
 - Smart-Playlists & Tag-System (P2)

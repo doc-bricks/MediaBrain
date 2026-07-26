@@ -5,6 +5,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Behoben / Fixed
+- Der Flutter-Import erhält `foreground_minutes` und `last_opened_at` bei
+  Desktop-Payloads, die diese Mobile-Felder nicht mitsenden. Explizit gelieferte
+  Werte werden weiterhin übernommen; Regressionstests und ein neuer
+  Flutter-3.44-CI-Smoke sichern den Vertrag.
+
 ### Geändert / Changed
 - Die Flutter-Mobil-Linie verwendet wieder einen konsistenten, aus `flutter_port/assets/icons/icon.png` abgeleiteten App-Icon-Satz für Android-Launcher, adaptiven Foreground und iOS-AppIcons. `README.md`, `README_de.md`, `flutter_port/README.md` und `flutter_port/PORTING_STATUS.md` verweisen auf den aktuellen Mobile-Stand.
 

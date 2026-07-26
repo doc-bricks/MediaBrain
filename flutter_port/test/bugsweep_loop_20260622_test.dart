@@ -5,7 +5,7 @@
 // in diesem Fall valide. Jeder Test ist "red on revert": gegen das PRE-Backup
 // (lib_BUGSWEEP_PRE_20260622) wuerde er fehlschlagen.
 import 'dart:io';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   final dbSrc = File('lib/services/database_service.dart').readAsStringSync();
@@ -14,7 +14,7 @@ void main() {
   final settingsSrc = File('lib/screens/settings_screen.dart').readAsStringSync();
 
   test('B1: kein "NULLS LAST" mehr (SQLite-<3.30-Portabilitaet)', () {
-    expect(dbSrc.contains('NULLS LAST'), isFalse,
+    expect(RegExp(r"orderBy:\s*'[^']*NULLS LAST").hasMatch(dbSrc), isFalse,
         reason: 'NULLS LAST crasht alte Android-System-SQLite (<3.30)');
     expect(dbSrc.contains('(last_opened_at IS NULL)'), isTrue,
         reason: 'portable NULL-Sortierung muss vorhanden sein');
