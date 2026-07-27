@@ -9,8 +9,8 @@ Strangdokumenten abweichende Featureplanung.
 
 | Bereich | Kanonische Quelle | Zweck |
 |---|---|---|
-| Projektweiter Status | `ROADMAP.md` | Zusammenführung der belegten Desktop-, Flutter- und Web-Stände sowie Verweise auf offene Arbeit. |
-| Plattformstrategie | `PORTIERUNGSPLAN.md` | Entscheidungen zu Windows, macOS/Linux, Flutter und Web/PWA; keine parallele Aufgabenliste. |
+| Projektweiter Status | `ROADMAP.md` | Zusammenführung der belegten Desktop- und Flutter-Stände sowie Verweise auf offene Arbeit. |
+| Plattformstrategie | `PORTIERUNGSPLAN.md` | Entscheidungen zu Windows, macOS/Linux und Flutter; keine parallele Aufgabenliste. |
 | Desktop und projektweite Arbeit | `AUFGABEN.txt` plus TASKPLAN-ID | Lokaler Ausführungsstand offener Aufgaben. Die TASKPLAN-ID ist der eindeutige Arbeitsanker. |
 | Flutter Mobile | `flutter_port/PORTING_STATUS.md` | Implementierungs- und Verifikationsstand der Flutter-Linie. |
 | Abgeschlossene Änderungen | `CHANGELOG.md` | Historie umgesetzter Änderungen; keine Quelle für offene Arbeit. |
