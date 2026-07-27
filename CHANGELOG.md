@@ -6,6 +6,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- `scripts/generate_store_screenshots.py` renders four reproducible Windows
+  Store screenshots from a temporary SQLite database containing only synthetic
+  media entries. The Store preflight and regression tests verify the complete
+  PNG set and its 1366×768 dimensions.
 - Windows Store readiness materials now provide a repository-owned
   `store_package.json`, bilingual `STORE_LISTING.md`, and `SUPPORT.md`.
   `scripts/check_store_readiness.py` validates their required metadata without

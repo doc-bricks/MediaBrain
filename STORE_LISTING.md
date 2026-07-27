@@ -54,6 +54,8 @@ documents, local, offline
 ## Submission prerequisites still open
 
 - Confirm the Partner Center identity after the product reservation exists.
-- Produce dedicated Store screenshots with redacted or synthetic media data.
+- Dedicated Store screenshots with synthetic media data are kept in
+  `screenshots/store/` and regenerated with
+  `python scripts/generate_store_screenshots.py`.
 - Build and sign a fresh MSIX from the current `MediaBrain.exe`.
 - Run WACK against that MSIX and retain the generated report.

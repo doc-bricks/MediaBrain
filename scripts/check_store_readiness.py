@@ -5,11 +5,15 @@ from __future__ import annotations
 import json
 import re
 import sys
+import struct
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = ROOT / "store_package.json"
+SCREENSHOT_DIR = ROOT / "screenshots" / "store"
+EXPECTED_SCREENSHOTS = ("overview.png", "library.png", "favorites.png", "statistics.png")
+EXPECTED_SCREENSHOT_SIZE = (1366, 768)
 REQUIRED_CONFIG_FIELDS = {
     "app_name",
     "publisher",
@@ -28,6 +32,16 @@ REQUIRED_CONFIG_FIELDS = {
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _png_size(path: Path) -> tuple[int, int] | None:
+    try:
+        header = path.read_bytes()[:24]
+    except OSError:
+        return None
+    if header[:8] != b"\x89PNG\r\n\x1a\n" or header[12:16] != b"IHDR":
+        return None
+    return struct.unpack(">II", header[16:24])
 
 
 def validate() -> list[str]:
@@ -71,6 +85,17 @@ def validate() -> list[str]:
     if "PRIVACY_POLICY.md" not in _read(ROOT / "README.md"):
         findings.append("README.md verweist nicht auf PRIVACY_POLICY.md.")
 
+    for filename in EXPECTED_SCREENSHOTS:
+        path = SCREENSHOT_DIR / filename
+        size = _png_size(path)
+        if size is None:
+            findings.append(f"Store-Screenshot fehlt oder ist kein PNG: {path.relative_to(ROOT)}.")
+        elif size != EXPECTED_SCREENSHOT_SIZE:
+            findings.append(
+                f"Store-Screenshot hat nicht die erwartete Größe {EXPECTED_SCREENSHOT_SIZE}: "
+                f"{path.relative_to(ROOT)} ({size})."
+            )
+
     return findings
 
 
@@ -81,7 +106,7 @@ def main() -> int:
         for finding in findings:
             print(f"- {finding}")
         return 1
-    print("STORE READINESS: METADATA READY")
+    print("STORE READINESS: MATERIALS READY")
     print("External gates remain: Partner Center reservation, signed MSIX, WACK.")
     return 0
 
