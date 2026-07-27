@@ -5,6 +5,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- Windows Store readiness materials now provide a repository-owned
+  `store_package.json`, bilingual `STORE_LISTING.md`, and `SUPPORT.md`.
+  `scripts/check_store_readiness.py` validates their required metadata without
+  treating Partner Center, MSIX signing, or WACK as complete.
+
 ### Behoben / Fixed
 - Der Flutter-Import erhält `foreground_minutes` und `last_opened_at` bei
   Desktop-Payloads, die diese Mobile-Felder nicht mitsenden. Explizit gelieferte
