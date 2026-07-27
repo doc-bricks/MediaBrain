@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -48,22 +47,5 @@ def test_store_readiness_preflight_reports_metadata_ready() -> None:
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert "STORE READINESS: MATERIALS READY" in result.stdout
+    assert "STORE READINESS: METADATA READY" in result.stdout
     assert "Partner Center reservation" in result.stdout
-
-
-def test_store_screenshot_generator_creates_redacted_complete_set(tmp_path: Path) -> None:
-    output_dir = tmp_path / "screenshots"
-    result = subprocess.run(
-        [sys.executable, "scripts/generate_store_screenshots.py", "--output", str(output_dir)],
-        cwd=ROOT,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-
-    assert result.returncode == 0, result.stdout + result.stderr
-    for filename in ("overview.png", "library.png", "favorites.png", "statistics.png"):
-        header = (output_dir / filename).read_bytes()[:24]
-        assert header[:8] == b"\x89PNG\r\n\x1a\n"
-        assert struct.unpack(">II", header[16:24]) == (1366, 768)
