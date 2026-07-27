@@ -1,0 +1,45 @@
+name: Source platform smoke
+
+on:
+  push:
+    paths:
+      - "*.py"
+      - "tests/source_platform_smoke.py"
+      - "requirements.txt"
+      - "pyproject.toml"
+      - ".github/workflows/source-platform-smoke.yml"
+  pull_request:
+    paths:
+      - "*.py"
+      - "tests/source_platform_smoke.py"
+      - "requirements.txt"
+      - "pyproject.toml"
+      - ".github/workflows/source-platform-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-smoke:
+    name: Smoke - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    env:
+      PYTHONUTF8: "1"
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m compileall -q .
+      - run: python -m pytest tests/source_platform_smoke.py -q

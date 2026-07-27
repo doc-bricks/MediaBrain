@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Plattform: Windows](https://img.shields.io/badge/Plattform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-ja-brightgreen.svg)]()
-[![Tests: 235 Passed](https://img.shields.io/badge/tests-235%20passed-brightgreen.svg)]()
+[![Tests: 238 Passed](https://img.shields.io/badge/tests-238%20passed-brightgreen.svg)]()
 [![LLM Kontext](https://img.shields.io/badge/LLM--Kontext-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain ist ein lokaler PySide6-Medienmanager für persönliche Video-, Musik-, Playlist- und Streaming-Verläufe.**
@@ -116,6 +116,18 @@ python -m pytest tests/ -q
 ```
 
 Die Tests decken Datenbankmanager, Metadaten, Tags, QueryBuilder, Playlists und Playlist-GUI-Verhalten im Offscreen-Modus ab.
+
+Der dedizierte Source-Plattform-Smoke prüft Unicode-Pfade, Konfiguration,
+JSON-Austausch, den betriebssystemspezifischen Dateiöffner sowie den
+Offscreen-Fenster-/Tray-Lebenszyklus:
+
+```bash
+python -m pytest tests/source_platform_smoke.py -q
+```
+
+GitHub Actions führt diesen fokussierten Smoke auf Ubuntu und macOS aus. Das ist
+ein Quellcode- und Offscreen-GUI-Vertrag, kein Beleg für native Paketierung,
+einen Tray in einer echten Desktop-Sitzung oder eine manuelle Plattformabnahme.
 
 ## Datenschutz
 

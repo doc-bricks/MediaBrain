@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-yes-brightgreen.svg)]()
-[![Tests: 235 Passed](https://img.shields.io/badge/tests-235%20passed-brightgreen.svg)]()
+[![Tests: 238 Passed](https://img.shields.io/badge/tests-238%20passed-brightgreen.svg)]()
 [![LLM Context](https://img.shields.io/badge/LLM--Context-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**
@@ -116,6 +116,18 @@ python -m pytest tests/ -q
 ```
 
 The test suite covers database managers, metadata, tags, QueryBuilder, playlists, and playlist GUI behavior in offscreen mode.
+
+The dedicated source-platform smoke exercises Unicode paths, configuration,
+JSON exchange, the operating-system file opener, and the offscreen window/tray
+lifecycle:
+
+```bash
+python -m pytest tests/source_platform_smoke.py -q
+```
+
+GitHub Actions runs that focused smoke on Ubuntu and macOS. It is a source and
+offscreen-GUI contract, not proof of native packaging, a desktop-session tray,
+or manual acceptance on either platform.
 
 ## Privacy
 

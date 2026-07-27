@@ -1,6 +1,6 @@
 # MediaBrain – Roadmap und Statusindex
 
-Stand: 2026-07-19
+Stand: 2026-07-27
 
 Diese Datei ist der projektweite Statusindex. Sie beschreibt keine zweite, von den
 Strangdokumenten abweichende Featureplanung.
@@ -39,7 +39,7 @@ Ein lokaler Contract-/Build-Smoke gilt ausdrücklich nicht als Live-Smoke.
 | ~~Web/PWA Companion~~ | **Am 2026-07-23 entfernt** (kein Nutzer-Usecase). Historie in `PORTIERUNGSPLAN.md`. | — (Strang zurückgezogen) |
 | Flutter / Android | App-Scan, UsageStats-Anbindung, SQLite, Bibliothek, Details, DE/EN-L10n und das v1-Dateiaustauschformat sind dokumentiert. Analyze, Tests und Debug-APK wurden am 2026-06-03 im lokalen Mirror belegt; Sync-Tests sind bis 2026-06-14 dokumentiert. | Permission-Fluss, Datei-Sync und großer Bestand auf einem echten Android-Ziel bleiben offen. Kotlin-Plugin-Warnungen sind kein aktueller Build-Fehler, aber vor Upgrades zu prüfen. |
 | Flutter / iOS | Das Flutter-Projekt enthält eine iOS-Zielstruktur. | Xcode-Build, Dateiimport und der bewusst reduzierte Trackingumfang sind mangels macOS/Xcode-/iOS-Beleg offen. |
-| Desktop / macOS und Linux | Gemeinsame PySide6-Quellbasis vorhanden. | Start, Import/Export, Pfade, Tray und Dateiöffner sind auf den Zielsystemen nicht live belegt. |
+| Desktop / macOS und Linux | Gemeinsame PySide6-Quellbasis vorhanden. `tests/source_platform_smoke.py` prüft Unicode-Pfade, Konfigurations- und JSON-Roundtrip, den OS-Dateiöffner sowie Offscreen-Fenster und Tray. Der Workflow `source-platform-smoke.yml` führt den Vertrag auf Ubuntu und macOS aus. | Native Paketierung, eine echte Desktop-Sitzung mit Tray sowie manuelle Start-, Browser-/Dateiöffner- und Integrationsabnahmen bleiben unbelegt. |
 
 ## Aktive Folgeaufgaben
 
@@ -57,7 +57,7 @@ offene Arbeit wird hier genau über ihre TASKPLAN-ID referenziert:
 | 941 | TW-MB-07 | Flutter-iOS-Build und Trackinggrenze | offen; macOS/Xcode/iOS erforderlich |
 | 942 | TW-MB-08 | Export-/Release-Version und Python-Vertrag | erledigt 2026-07-22; `version.py`, Python 3.10+, Exporttests |
 | 943 | TW-MB-09 | Status der headless Read-only-CLI | erledigt 2026-07-22; offiziell read-only, Blacklist-Vertrag und Tests |
-| 944 | TW-MB-10 | macOS-/Linux-Source-Smokes | offen; Zielsysteme erforderlich |
+| 944 | TW-MB-10 | macOS-/Linux-Source-Smokes | umgesetzt 2026-07-27; fokussierter Ubuntu-/macOS-CI-Vertrag, keine native oder manuelle Live-Abnahme |
 | 945 | TW-MB-11 | Flutter-Kotlin-Plugin-Warnungen | offen; kontrolliertes Upgrade-Fenster |
 
 TW-MB-12 / TASKPLAN 946 ist der Dokumentationsabgleich vom 2026-07-19 und wird

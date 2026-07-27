@@ -10,6 +10,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   `store_package.json`, bilingual `STORE_LISTING.md`, and `SUPPORT.md`.
   `scripts/check_store_readiness.py` validates their required metadata without
   treating Partner Center, MSIX signing, or WACK as complete.
+- `tests/source_platform_smoke.py` covers Unicode paths, configuration and JSON
+  exchange, the runner-specific file opener, and the offscreen window/tray
+  lifecycle. `source-platform-smoke.yml` runs the focused contract on Ubuntu
+  and macOS without claiming native packaging or manual desktop acceptance.
 
 ### Behoben / Fixed
 - Der Flutter-Import erhält `foreground_minutes` und `last_opened_at` bei
@@ -19,6 +23,8 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ### Geändert / Changed
 - Die Flutter-Mobil-Linie verwendet wieder einen konsistenten, aus `flutter_port/assets/icons/icon.png` abgeleiteten App-Icon-Satz für Android-Launcher, adaptiven Foreground und iOS-AppIcons. `README.md`, `README_de.md`, `flutter_port/README.md` und `flutter_port/PORTING_STATUS.md` verweisen auf den aktuellen Mobile-Stand.
+- Die öffentlichen Testhinweise und Badges spiegeln jetzt 238 gesammelte Tests
+  sowie die Grenze zwischen Source-/Offscreen-Smoke und Live-Abnahme.
 
 ## [2.1.0-hygiene] - 2026-07-25
 
