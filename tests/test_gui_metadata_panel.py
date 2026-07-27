@@ -262,6 +262,28 @@ class TestMediaItemWidgetAccessibility(unittest.TestCase):
             widget.deleteLater()
             _app.processEvents()
 
+    def test_temp_hide_error_uses_german_umlaut(self):
+        """Der sichtbare Fehlertext für temporäres Ausblenden bleibt korrekt lokalisiert."""
+        item = self._make_item()
+        widget = MediaItemWidget(
+            item,
+            SimpleNamespace(db=SimpleNamespace(execute=MagicMock(side_effect=RuntimeError("Datenbankproblem")))),
+            SimpleNamespace(set_blacklist=lambda *args: None),
+        )
+        try:
+            with patch("PySide6.QtWidgets.QMessageBox.warning") as warning:
+                widget.temp_delete()
+
+            warning.assert_called_once_with(
+                widget,
+                "Fehler",
+                "Temporäres Ausblenden fehlgeschlagen: Datenbankproblem",
+            )
+        finally:
+            widget.close()
+            widget.deleteLater()
+            _app.processEvents()
+
     def test_media_item_inlay_keeps_icons_and_actions_visible(self):
         item = self._make_item(title="Ein sehr langer Medientitel mit Zusatztext")
         widget = MediaItemWidget(

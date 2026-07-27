@@ -422,7 +422,7 @@ class MediaItemWidget(QFrame):
             notify_gui_refresh()
         except Exception as e:
             from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Fehler", f"Temporaeres Ausblenden fehlgeschlagen: {e}")
+            QMessageBox.warning(self, "Fehler", f"Temporäres Ausblenden fehlgeschlagen: {e}")
 
     def blacklist(self, code):
         try:

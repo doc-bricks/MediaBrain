@@ -16,6 +16,9 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   and macOS without claiming native packaging or manual desktop acceptance.
 
 ### Behoben / Fixed
+- Die sichtbare Fehlermeldung beim temporären Ausblenden verwendet jetzt das
+  korrekte deutsche Wort „Temporäres“; eine Offscreen-Regression sichert den
+  gesamten Fehlerpfad.
 - Der Flutter-Import erhält `foreground_minutes` und `last_opened_at` bei
   Desktop-Payloads, die diese Mobile-Felder nicht mitsenden. Explizit gelieferte
   Werte werden weiterhin übernommen; Regressionstests und ein neuer
