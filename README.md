@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Platform: Windows](https://img.shields.io/badge/platform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-yes-brightgreen.svg)]()
-[![Tests: 238 Passed](https://img.shields.io/badge/tests-238%20passed-brightgreen.svg)]()
+[![Tests: 239 Passed](https://img.shields.io/badge/tests-239%20passed-brightgreen.svg)]()
 [![LLM Context](https://img.shields.io/badge/LLM--Context-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain is a local-first PySide6 media library manager for personal video, music, playlist, and streaming-watch history.**

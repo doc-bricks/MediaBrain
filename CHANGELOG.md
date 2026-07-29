@@ -5,6 +5,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Technische Hygiene & Doku-Wartung / Maintenance (Pfad A) [2026-07-29]
+- `llms.txt`: Header auf `Last-checked: 2026-07-29` aktualisiert.
+- `README.md` & `README_de.md`: Pytest-Statusbadge auf 239 Passed Tests synchronisiert.
+
 ### Added
 - Windows Store readiness materials now provide a repository-owned
   `store_package.json`, bilingual `STORE_LISTING.md`, and `SUPPORT.md`.
