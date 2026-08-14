@@ -1,4 +1,4 @@
-<img src="assets/banner.svg" width="100%" alt="MediaBrain Banner">
+<img src="assets/banner.png" width="100%" alt="MediaBrain Banner">
 
 # MediaBrain
 
@@ -6,7 +6,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Plattform: Windows](https://img.shields.io/badge/Plattform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-ja-brightgreen.svg)]()
-[![Tests: 239 Passed](https://img.shields.io/badge/tests-239%20passed-brightgreen.svg)]()
+[![Tests: 244 Passed](https://img.shields.io/badge/tests-244%20passed-brightgreen.svg)]()
 [![LLM Kontext](https://img.shields.io/badge/LLM--Kontext-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain ist ein lokaler PySide6-Medienmanager für persönliche Video-, Musik-, Playlist- und Streaming-Verläufe.**

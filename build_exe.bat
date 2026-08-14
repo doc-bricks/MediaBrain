@@ -45,6 +45,8 @@ python -m PyInstaller ^
   --distpath "%LOCAL_DIST%" ^
   --specpath "%LOCAL_BUILD_ROOT%" ^
   --icon "%cd%\MediaBrain.ico" ^
+  --add-data "assets;assets" ^
+  --add-data "locales;locales" ^
   --noupx ^
   %EXCLUDES% ^
   MediaBrain.py

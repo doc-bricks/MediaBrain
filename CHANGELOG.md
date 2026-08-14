@@ -5,6 +5,14 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Windows Store Release Packaging & Asset Staging (TW-MB-01 / #935) [2026-08-14]
+- **Windows Store Packaging Staging:** `store_package/MediaBrain/AppxManifest.xml` mit `Geiger.MediaBrain`, Version `2.1.0.0`, `runFullTrust`-Capability, `de-de`/`en-us`-Lokalisierungsressourcen und Standard-Tile-Bindings angelegt.
+- **Store-Tile & Multi-Resolution App Icons:** Vollständiges Asset-Set in `assets/` und `store_package/MediaBrain/icons/` generiert (`icon_44x44.png`, `icon_50x50.png`, `icon_150x150.png`, `icon_310x150.png`, `icon_310x310.png`, 512x512 Master-PNG, Favicon sowie Multi-Layer Windows-ICOs `MediaBrain.ico`, `assets/app_icon.ico`, `assets/icon.ico` mit allen 7 Standardauflösungen).
+- **Store Promo & Feature Screenshots:** 4 hochauflösende 1920x1080 Store-Screenshots unter `screenshots/store/` und `README/screenshots/store/` (`shot-1-library-overview.png`, `shot-2-smart-playlists.png`, `shot-3-metadata-tags.png`, `shot-4-export-backup.png`) bereitgestellt.
+- **Fail-Closed Store-Readiness Audit:** `scripts/check_store_readiness.py` zu vollständigem Release-Gate-Tool ausgebaut (prüft Manifest, JSON-Metadaten, Versionsparität, Kachelicons, Store-Screenshots, bilinguale Doku, Lizenz/Datenschutz sowie externe WACK/MSIX/SBOM/Signaturnachweise).
+- **Testabdeckung & Asset-Validierung:** `tests/test_store_materials.py` erweitert und neue Testsuite `tests/test_app_assets.py` integriert (244/244 Tests passed).
+- **Build-Tooling:** `build_exe.bat` um automatische Einbettung von `assets` und `locales` (`--add-data`) ergänzt.
+
 ### Technische Hygiene & Doku-Wartung / Maintenance (Pfad A) [2026-07-29]
 - `llms.txt`: Header auf `Last-checked: 2026-07-29` aktualisiert.
 - `README.md` & `README_de.md`: Pytest-Statusbadge auf 239 Passed Tests synchronisiert.

@@ -24,7 +24,14 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 - `core.py` - media, tags, playlists, blacklist, and database logic
 - `providers.py` - streaming and local-provider detection
 - `gui.py` and `gui_playlists.py` - PySide6 user interface
-- `tests/` - pytest regression and GUI smoke tests
+- `store_package/MediaBrain/AppxManifest.xml` - canonical Windows Store AppxManifest
+- `store_package.json` - package manifest and Store release configuration
+- `STORE_LISTING.md` - bilingual Microsoft Store listing copy and feature index
+- `SUPPORT.md` - bilingual user support and security guidance
+- `scripts/check_store_readiness.py` - Store readiness preflight and release gate audit tool
+- `tests/` - pytest regression, asset, and GUI smoke tests
+- `tests/test_store_materials.py` - packaging and metadata contract tests
+- `tests/test_app_assets.py` - icon resolution and store screenshot validation
 - `tests/source_platform_smoke.py` - Ubuntu/macOS source and offscreen-GUI contract
 - `.github/workflows/source-platform-smoke.yml` - real Ubuntu/macOS CI runners
 
@@ -44,4 +51,4 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 
 MediaBrain is not a streaming service, not a cloud sync product, not an advertising/media-planning analytics platform, not the MediaBrain-SJTU research organization, and not an AI media generator. Optional metadata lookup depends on user-configured API keys or public metadata services.
 
-## Last-checked: 2026-07-29
+## Last-checked: 2026-08-14

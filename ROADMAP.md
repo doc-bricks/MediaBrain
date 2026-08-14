@@ -1,6 +1,6 @@
 # MediaBrain – Roadmap und Statusindex
 
-Stand: 2026-07-27
+Stand: 2026-08-14
 
 Diese Datei ist der projektweite Statusindex. Sie beschreibt keine zweite, von den
 Strangdokumenten abweichende Featureplanung.
@@ -35,7 +35,7 @@ Ein lokaler Contract-/Build-Smoke gilt ausdrücklich nicht als Live-Smoke.
 
 | Strang | Implementiert bzw. lokal belegt | Offene oder externe Prüfgrenze |
 |---|---|---|
-| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen, drei Themes sowie die getestete Read-only-CLI sind vorhanden. Der Desktop-Versions-/Python-Vertrag und der bestehende Desktop-EN-Katalog sind seit 2026-07-22 konsolidiert. | Store-Gate bleibt offen. |
+| Desktop / Windows | Datenbank und MediaManager, acht Provider, WindowWatcher, FileIndexer, Tray, erweiterte Suche und Filter, QueryBuilder/Smart-Playlists, Import/Export, Dateiaktionen, drei Themes sowie die getestete Read-only-CLI sind vorhanden. Der Desktop-Versions-/Python-Vertrag (2.1.0 / Python 3.10+), AppxManifest.xml, Store-Tile-Icons (44x44 bis 310x310), Store-Screenshots, store_package.json und das zweistufige Store-Readiness-Tooling sind vollständig gestaged. | Externe Gates bleiben: Partner-Center-Reservierung, signiertes MSIX, WACK. |
 | ~~Web/PWA Companion~~ | **Am 2026-07-23 entfernt** (kein Nutzer-Usecase). Historie in `PORTIERUNGSPLAN.md`. | — (Strang zurückgezogen) |
 | Flutter / Android | App-Scan, UsageStats-Anbindung, SQLite, Bibliothek, Details, DE/EN-L10n und das v1-Dateiaustauschformat sind dokumentiert. Analyze, Tests und Debug-APK wurden am 2026-06-03 im lokalen Mirror belegt; Sync-Tests sind bis 2026-06-14 dokumentiert. | Permission-Fluss, Datei-Sync und großer Bestand auf einem echten Android-Ziel bleiben offen. Kotlin-Plugin-Warnungen sind kein aktueller Build-Fehler, aber vor Upgrades zu prüfen. |
 | Flutter / iOS | Das Flutter-Projekt enthält eine iOS-Zielstruktur. | Xcode-Build, Dateiimport und der bewusst reduzierte Trackingumfang sind mangels macOS/Xcode-/iOS-Beleg offen. |
@@ -48,7 +48,7 @@ offene Arbeit wird hier genau über ihre TASKPLAN-ID referenziert:
 
 | TASKPLAN | Stable-ID | Gegenstand | Status |
 |---:|---|---|---|
-| 935 | TW-MB-01 | Windows-Store-Release-Gate | offen; externe Store-/Toolchain-Anteile möglich |
+| 935 | TW-MB-01 | Windows-Store-Release-Gate | repository-seitig gestaged 2026-08-14 (`store_package.json`, `AppxManifest.xml`, Kachelicons, 4 Screenshots, Readiness-Gate); externe Signatur/WACK offen |
 | 936 | TW-MB-02 | Desktop-Englisch bis zur Parität | erledigt 2026-07-22; alle 29 gescannten Desktop-Keys haben einen EN-Wert, Regression abgesichert |
 | 937 | TW-MB-03 | Web-Companion DE/EN-I18N | entfällt — Web-Companion am 2026-07-23 entfernt |
 | 938 | TW-MB-04 | echter Android-PWA-Smoke | entfällt — Web-Companion am 2026-07-23 entfernt |
