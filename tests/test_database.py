@@ -18,9 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import unittest
 import tempfile
 import os
-from datetime import datetime, timedelta
 from unittest.mock import patch
-from core import Database, MediaManager, MediaItem, BlacklistManager, OpenHandler
+from core import Database, MediaManager, BlacklistManager, OpenHandler
 
 
 class TestDatabase(unittest.TestCase):

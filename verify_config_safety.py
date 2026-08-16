@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 
 # Add current dir to path to import config
 sys.path.append(os.getcwd())
@@ -9,7 +8,7 @@ from config import Config, SETTINGS_PATH
 
 def test_safe_config():
     print("--- START Config Safety Test ---")
-    
+
     # Clean state
     if SETTINGS_PATH.exists():
         try: os.remove(SETTINGS_PATH)
@@ -23,11 +22,11 @@ def test_safe_config():
     conf = Config()
     conf.set("ui.theme", "test_theme")
     print(f"1. Init & Save: theme={conf.get('ui.theme')}")
-    
+
     # 2. Modify & Save (should create Backup)
     conf.set("ui.theme", "new_theme")
     print(f"2. Modify & Save: theme={conf.get('ui.theme')}")
-    
+
     if not backup_path.exists():
         print("FAIL: No backup created")
         return
@@ -43,14 +42,14 @@ def test_safe_config():
     print("4. Reloading Config...")
     conf2 = Config()
     val = conf2.get("ui.theme")
-    
+
     # Expect 'test_theme' because backup contains state BEFORE last save
-    if val == "test_theme": 
+    if val == "test_theme":
         print(f"PASS: Recovered value '{val}' from backup")
     elif val == "new_theme":
         print(f"WARN: Recovered CURRENT value (backup overwrote file?): {val}")
     elif val == "light":
-        print(f"FAIL: Reset to defaults (Recovery failed)")
+        print("FAIL: Reset to defaults (Recovery failed)")
     else:
         print(f"ERROR: Unexpected value '{val}'")
 
@@ -59,7 +58,7 @@ def test_safe_config():
         if SETTINGS_PATH.exists(): os.remove(SETTINGS_PATH)
         if backup_path.exists(): os.remove(backup_path)
     except (OSError, PermissionError): pass
-    
+
     print("--- END Config Safety Test ---")
 
 if __name__ == "__main__":

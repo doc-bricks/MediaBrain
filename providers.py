@@ -262,10 +262,10 @@ class SpotifyProvider(BaseProvider):
     name = "Spotify"
     source = "spotify"
     regex = re.compile(r"open\.spotify\.com/(track|album|playlist)/([a-zA-Z0-9]+)")
-    
-    def matches(self, s): 
+
+    def matches(self, s):
         return "Spotify" in s or bool(self.regex.search(s))
-    
+
     def extract_info(self, s):
         match = self.regex.search(s)
         if match:
@@ -304,8 +304,8 @@ class DisneyPlusProvider(BaseProvider):
 
     def matches(self, source_string: str) -> bool:
         return (
-            bool(self.regex.search(source_string)) or 
-            "Disney+" in source_string or 
+            bool(self.regex.search(source_string)) or
+            "Disney+" in source_string or
             "disneyplus" in source_string.lower()
         )
 
@@ -366,14 +366,14 @@ class AmazonPrimeProvider(BaseProvider):
                 "provider_id": video_id,
                 "has_real_id": True
             }
-        
+
         title = clean_window_title(source_string, [" - Prime Video", " | Prime Video", "Prime Video -"])
         if not title:
             return None
 
         if title in ["Prime Video", "Amazon Prime Video"]:
             title = "Prime Video Übersicht"
-            
+
         return {
             "title": title,
             "type": "movie",
@@ -420,14 +420,14 @@ class AppleTVProvider(BaseProvider):
                 "provider_id": content_id,
                 "has_real_id": True
             }
-        
+
         title = clean_window_title(source_string, [" - Apple TV+", " | Apple TV+", "Apple TV+ -"])
         if not title:
             return None
 
         if title in ["Apple TV+", "Apple TV"]:
             title = "Apple TV+ Übersicht"
-            
+
         return {
             "title": title,
             "type": "movie",
@@ -470,11 +470,11 @@ class TwitchProvider(BaseProvider):
                     "channel": channel,
                     "has_real_id": True
                 }
-        
+
         title = clean_window_title(source_string, [" - Twitch"])
         if not title:
             return None
-            
+
         return {
             "title": title,
             "type": "clip",
@@ -568,12 +568,12 @@ class ProviderRegistry:
                     logger.debug(f"[Registry] Treffer! Provider: {p.name} -> {source_string[:40]}...")
                     return result
         return None
-    
+
     @classmethod
     def get_provider_names(cls) -> list:
         """Gibt Liste aller Provider-Namen zurück."""
         return [p.name for p in cls.providers]
-    
+
     @classmethod
     def get_provider_by_source(cls, source: str):
         """Findet Provider anhand source-ID."""

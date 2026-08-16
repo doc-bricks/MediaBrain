@@ -10,7 +10,6 @@ Version: 2.0
 """
 import logging
 import requests
-import re
 import os
 import json
 import sqlite3
@@ -119,7 +118,7 @@ def get_api_key(service):
     env_key = os.environ.get(f"{service.upper()}_API_KEY")
     if env_key:
         return env_key
-    
+
     # 2. settings.json
     if CONFIG_PATH.exists():
         try:
@@ -128,7 +127,7 @@ def get_api_key(service):
                 return config.get("api_keys", {}).get(service, "")
         except (json.JSONDecodeError, IOError):
             pass
-    
+
     return ""
 
 # ============================================================
@@ -139,14 +138,14 @@ def fetch_opengraph(url):
     """Holt OpenGraph-Metadaten von einer URL."""
     if not HAS_BS4:
         return None
-    
+
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         response = requests.get(url, headers=headers, timeout=5)
-        
+
         if response.status_code != 200:
             return None
-            
+
         soup = BeautifulSoup(response.text, 'html.parser')
         data = {}
 
@@ -487,22 +486,22 @@ def fetch_local_metadata(file_path):
 
 class TMDbFetcher:
     """Holt Metadaten von The Movie Database (TMDb)."""
-    
+
     BASE_URL = "https://api.themoviedb.org/3"
     IMAGE_BASE = "https://image.tmdb.org/t/p"
-    
+
     def __init__(self, api_key=None):
         self.api_key = api_key or get_api_key("tmdb")
-        
+
     def is_available(self):
         """Prüft ob API-Key vorhanden ist."""
         return bool(self.api_key)
-    
+
     def search_movie(self, title, year=None):
         """Sucht nach einem Film."""
         if not self.is_available():
             return None
-            
+
         try:
             params = {
                 "api_key": self.api_key,
@@ -511,18 +510,18 @@ class TMDbFetcher:
             }
             if year:
                 params["year"] = year
-                
+
             response = requests.get(
                 f"{self.BASE_URL}/search/movie",
                 params=params,
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get("results"):
                     return data["results"][0]  # Bester Treffer
-                    
+
         except Exception as e:
             logger.error(f"[TMDb] Suche fehlgeschlagen: {e}")
 
@@ -532,7 +531,7 @@ class TMDbFetcher:
         """Sucht nach einer Serie."""
         if not self.is_available():
             return None
-            
+
         try:
             params = {
                 "api_key": self.api_key,
@@ -541,48 +540,48 @@ class TMDbFetcher:
             }
             if year:
                 params["first_air_date_year"] = year
-                
+
             response = requests.get(
                 f"{self.BASE_URL}/search/tv",
                 params=params,
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get("results"):
                     return data["results"][0]
-                    
+
         except Exception as e:
             logger.error(f"[TMDb] TV-Suche fehlgeschlagen: {e}")
 
         return None
-    
+
     def get_movie_details(self, movie_id):
         """Holt detaillierte Film-Informationen."""
         if not self.is_available():
             return None
-            
+
         try:
             response = requests.get(
                 f"{self.BASE_URL}/movie/{movie_id}",
                 params={"api_key": self.api_key, "language": "de-DE"},
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 return response.json()
-                
+
         except Exception as e:
             logger.error(f"[TMDb] Details fehlgeschlagen: {e}")
 
         return None
-    
+
     def format_result(self, tmdb_data, media_type="movie"):
         """Formatiert TMDb-Ergebnis für MediaBrain."""
         if not tmdb_data:
             return None
-            
+
         result = {
             "title": tmdb_data.get("title") or tmdb_data.get("name"),
             "description": tmdb_data.get("overview"),
@@ -590,30 +589,30 @@ class TMDbFetcher:
             "type": media_type,
             "source": "tmdb"
         }
-        
+
         # Poster
         poster = tmdb_data.get("poster_path")
         if poster:
             result["thumbnail_url"] = f"{self.IMAGE_BASE}/w500{poster}"
-        
+
         # Backdrop
         backdrop = tmdb_data.get("backdrop_path")
         if backdrop:
             result["backdrop_url"] = f"{self.IMAGE_BASE}/original{backdrop}"
-        
+
         # Rating
         result["rating"] = tmdb_data.get("vote_average")
-        
+
         # Release-Jahr
         release = tmdb_data.get("release_date") or tmdb_data.get("first_air_date")
         if release:
             result["year"] = release[:4]
-        
+
         # Genres
         genres = tmdb_data.get("genres", [])
         if genres:
             result["genres"] = [g["name"] for g in genres]
-        
+
         return result
 
 # ============================================================
@@ -622,21 +621,21 @@ class TMDbFetcher:
 
 class OMDbFetcher:
     """Holt Metadaten von OMDb (IMDb-basiert)."""
-    
+
     BASE_URL = "http://www.omdbapi.com/"
-    
+
     def __init__(self, api_key=None):
         self.api_key = api_key or get_api_key("omdb")
 
     def is_available(self):
         """Prüft ob API-Key vorhanden ist."""
         return bool(self.api_key)
-    
+
     def search(self, title, year=None, media_type=None):
         """Sucht nach einem Film/Serie."""
         if not self.is_available():
             return None
-            
+
         try:
             params = {
                 "apikey": self.api_key,
@@ -647,24 +646,24 @@ class OMDbFetcher:
                 params["y"] = year
             if media_type:
                 params["type"] = media_type  # movie, series, episode
-                
+
             response = requests.get(self.BASE_URL, params=params, timeout=5)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get("Response") == "True":
                     return data
-                    
+
         except Exception as e:
             logger.error(f"[OMDb] Suche fehlgeschlagen: {e}")
 
         return None
-    
+
     def format_result(self, omdb_data):
         """Formatiert OMDb-Ergebnis für MediaBrain."""
         if not omdb_data:
             return None
-            
+
         result = {
             "title": omdb_data.get("Title"),
             "description": omdb_data.get("Plot"),
@@ -672,31 +671,31 @@ class OMDbFetcher:
             "year": omdb_data.get("Year"),
             "source": "omdb"
         }
-        
+
         # Typ
         media_type = omdb_data.get("Type", "movie")
         result["type"] = "series" if media_type == "series" else "movie"
-        
+
         # Poster
         poster = omdb_data.get("Poster")
         if poster and poster != "N/A":
             result["thumbnail_url"] = poster
-        
+
         # Rating
         rating = omdb_data.get("imdbRating")
         if rating and rating != "N/A":
             result["rating"] = float(rating)
-        
+
         # Genres
         genres = omdb_data.get("Genre")
         if genres and genres != "N/A":
             result["genres"] = [g.strip() for g in genres.split(",")]
-        
+
         # Weitere Infos
         result["director"] = omdb_data.get("Director") if omdb_data.get("Director") != "N/A" else None
         result["actors"] = omdb_data.get("Actors") if omdb_data.get("Actors") != "N/A" else None
         result["runtime"] = omdb_data.get("Runtime") if omdb_data.get("Runtime") != "N/A" else None
-        
+
         return result
 
 # ============================================================
@@ -705,10 +704,10 @@ class OMDbFetcher:
 
 class MusicBrainzFetcher:
     """Holt Metadaten von MusicBrainz (keine API-Key nötig)."""
-    
+
     BASE_URL = "https://musicbrainz.org/ws/2"
     COVER_URL = "https://coverartarchive.org"
-    
+
     def search_artist(self, name):
         """Sucht nach einem Künstler."""
         try:
@@ -718,41 +717,41 @@ class MusicBrainzFetcher:
                 headers={"User-Agent": "MediaBrain/2.0"},
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get("artists"):
                     return data["artists"][0]
-                    
+
         except Exception as e:
             logger.error(f"[MusicBrainz] Suche fehlgeschlagen: {e}")
 
         return None
-    
+
     def search_release(self, title, artist=None):
         """Sucht nach einem Album/Release."""
         try:
             query = f'release:"{title}"'
             if artist:
                 query += f' AND artist:"{artist}"'
-                
+
             response = requests.get(
                 f"{self.BASE_URL}/release",
                 params={"query": query, "fmt": "json", "limit": 1},
                 headers={"User-Agent": "MediaBrain/2.0"},
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if data.get("releases"):
                     return data["releases"][0]
-                    
+
         except Exception as e:
             logger.error(f"[MusicBrainz] Release-Suche fehlgeschlagen: {e}")
 
         return None
-    
+
     def get_cover_art(self, release_id):
         """Holt Cover-Art URL für ein Release."""
         try:
@@ -761,7 +760,7 @@ class MusicBrainzFetcher:
                 headers={"User-Agent": "MediaBrain/2.0"},
                 timeout=5
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 images = data.get("images", [])
@@ -864,7 +863,7 @@ class MetadataFetcher:
     Einheitlicher Metadaten-Fetcher für MediaBrain.
     Kombiniert alle Quellen mit Fallback-Logik.
     """
-    
+
     def __init__(self, cache_enabled=True):
         self.tmdb = TMDbFetcher()
         self.omdb = OMDbFetcher()
@@ -1033,7 +1032,7 @@ class MetadataFetcher:
     def auto_fetch(self, title, media_type="movie", year=None, artist=None, source=None, provider_id=None, provider_subtype=None, url=None):
         """
         Automatischer Fetch basierend auf Medientyp.
-        
+
         Args:
             title: Titel des Mediums
             media_type: movie, series, music, clip
@@ -1061,7 +1060,7 @@ class MetadataFetcher:
             if result:
                 return result
             return self.fetch_series(title, year)
-    
+
     def get_status(self):
         """Gibt Status der API-Verbindungen zurück."""
         return {
@@ -1093,9 +1092,9 @@ def fetch_metadata(url):
 
 if __name__ == "__main__":
     fetcher = MetadataFetcher()
-    
+
     print("API Status:", fetcher.get_status())
-    
+
     # Test Film
     print("\n--- Film-Test ---")
     result = fetcher.fetch_movie("Inception")
@@ -1105,7 +1104,7 @@ if __name__ == "__main__":
         print(f"Rating: {result.get('rating')}")
     else:
         print("Keine API-Keys konfiguriert oder keine Ergebnisse")
-    
+
     # Test MusicBrainz (kein API-Key nötig)
     print("\n--- Musik-Test ---")
     result = fetcher.fetch_music("Abbey Road", "The Beatles")

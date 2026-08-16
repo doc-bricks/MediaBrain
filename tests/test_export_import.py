@@ -1,7 +1,6 @@
 """Regression tests for MediaBrain export/import roundtrips."""
 
 import json
-import os
 import sys
 import tempfile
 import unittest

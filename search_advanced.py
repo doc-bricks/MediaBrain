@@ -12,11 +12,9 @@ Version: 1.0
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QComboBox, QCheckBox, QFrame, QGroupBox,
-    QDateEdit, QSpinBox, QListWidget, QListWidgetItem,
-    QDialog, QDialogButtonBox, QFormLayout, QCompleter
+    QDialog, QDialogButtonBox, QFormLayout
 )
-from PySide6.QtCore import Qt, Signal, QDate, QStringListModel
-from PySide6.QtGui import QIcon
+from PySide6.QtCore import Signal
 
 from datetime import datetime, timedelta
 import json
@@ -73,7 +71,7 @@ TIME_FILTERS = [
 
 class SearchCriteria:
     """Hält alle Suchkriterien."""
-    
+
     def __init__(self):
         self.text = ""
         self.media_type = None
@@ -129,9 +127,9 @@ class AdvancedSearchBar(QWidget):
     - Quick-Filter Buttons
     - Erweiterbare Filter-Optionen
     """
-    
+
     search_triggered = Signal(SearchCriteria)
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.criteria = SearchCriteria()
@@ -145,14 +143,14 @@ class AdvancedSearchBar(QWidget):
             widget.setAccessibleDescription(description)
         if tooltip:
             widget.setToolTip(tooltip)
-        
+
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         # === Hauptzeile: Suchfeld + Buttons ===
         search_row = QHBoxLayout()
-        
+
         # Suchfeld
         self.search_input = QLineEdit()
         self._set_a11y(
@@ -165,7 +163,7 @@ class AdvancedSearchBar(QWidget):
         self.search_input.textChanged.connect(self._on_text_changed)
         self.search_input.returnPressed.connect(self._trigger_search)
         search_row.addWidget(self.search_input, stretch=1)
-        
+
         # Quick-Filter Buttons
         self.btn_favorites = QPushButton("⭐")
         self.btn_favorites.setCheckable(True)
@@ -179,7 +177,7 @@ class AdvancedSearchBar(QWidget):
         self.btn_favorites.setFixedWidth(40)
         self.btn_favorites.toggled.connect(self._on_favorites_toggle)
         search_row.addWidget(self.btn_favorites)
-        
+
         # Typ-Filter Dropdown
         self.combo_type = QComboBox()
         self._set_a11y(
@@ -193,7 +191,7 @@ class AdvancedSearchBar(QWidget):
             self.combo_type.addItem(label, value)
         self.combo_type.currentIndexChanged.connect(self._on_type_changed)
         search_row.addWidget(self.combo_type)
-        
+
         # Provider-Filter Dropdown
         self.combo_provider = QComboBox()
         self._set_a11y(
@@ -207,7 +205,7 @@ class AdvancedSearchBar(QWidget):
             self.combo_provider.addItem(label, value)
         self.combo_provider.currentIndexChanged.connect(self._on_provider_changed)
         search_row.addWidget(self.combo_provider)
-        
+
         # Erweitert-Button
         self.btn_expand = QPushButton("Filter \u25BC")
         self._set_a11y(
@@ -231,16 +229,16 @@ class AdvancedSearchBar(QWidget):
         self.btn_reset.setToolTip("Alle Filter zurücksetzen")
         self.btn_reset.clicked.connect(self.reset_filters)
         search_row.addWidget(self.btn_reset)
-        
+
         main_layout.addLayout(search_row)
-        
+
         # === Erweiterte Filter (ausklappbar) ===
         self.filter_panel = QFrame()
         self.filter_panel.setFrameStyle(QFrame.Shape.StyledPanel)
         self.filter_panel.setVisible(False)
-        
+
         filter_layout = QHBoxLayout(self.filter_panel)
-        
+
         # Zeitraum
         time_group = QGroupBox("Zeitraum")
         time_layout = QVBoxLayout(time_group)
@@ -256,7 +254,7 @@ class AdvancedSearchBar(QWidget):
         self.combo_time.currentIndexChanged.connect(self._on_time_changed)
         time_layout.addWidget(self.combo_time)
         filter_layout.addWidget(time_group)
-        
+
         # Sortierung
         sort_group = QGroupBox("Sortierung")
         sort_layout = QVBoxLayout(sort_group)
@@ -272,11 +270,11 @@ class AdvancedSearchBar(QWidget):
         self.combo_sort.currentIndexChanged.connect(self._on_sort_changed)
         sort_layout.addWidget(self.combo_sort)
         filter_layout.addWidget(sort_group)
-        
+
         # Optionen
         options_group = QGroupBox("Optionen")
         options_layout = QVBoxLayout(options_group)
-        
+
         self.chk_blacklist = QCheckBox("Blacklist ausblenden")
         self._set_a11y(
             self.chk_blacklist,
@@ -287,7 +285,7 @@ class AdvancedSearchBar(QWidget):
         self.chk_blacklist.setChecked(True)
         self.chk_blacklist.toggled.connect(self._on_blacklist_toggle)
         options_layout.addWidget(self.chk_blacklist)
-        
+
         self.chk_local_only = QCheckBox("Nur lokale Dateien")
         self._set_a11y(
             self.chk_local_only,
@@ -297,9 +295,9 @@ class AdvancedSearchBar(QWidget):
         )
         self.chk_local_only.toggled.connect(self._on_local_only_toggle)
         options_layout.addWidget(self.chk_local_only)
-        
+
         filter_layout.addWidget(options_group)
-        
+
         # Tags
         tags_group = QGroupBox("Tags")
         tags_layout = QVBoxLayout(tags_group)
@@ -313,45 +311,45 @@ class AdvancedSearchBar(QWidget):
         self.tag_input.setPlaceholderText("Tag hinzufügen...")
         self.tag_input.returnPressed.connect(self._add_tag)
         tags_layout.addWidget(self.tag_input)
-        
+
         self.tag_list = QLabel("")
         self.tag_list.setWordWrap(True)
         tags_layout.addWidget(self.tag_list)
         filter_layout.addWidget(tags_group)
-        
+
         main_layout.addWidget(self.filter_panel)
-        
+
     def _toggle_expand(self):
         self.is_expanded = not self.is_expanded
         self.filter_panel.setVisible(self.is_expanded)
         self.btn_expand.setText("Filter \u25B2" if self.is_expanded else "Filter \u25BC")
-        
+
     def _on_text_changed(self, text):
         self.criteria.text = text
         self._trigger_search()
-        
+
     def _on_type_changed(self, index):
         self.criteria.media_type = self.combo_type.currentData()
         self._trigger_search()
-        
+
     def _on_provider_changed(self, index):
         self.criteria.provider = self.combo_provider.currentData()
         self._trigger_search()
-        
+
     def _on_favorites_toggle(self, checked):
         self.criteria.favorites_only = checked
         self._trigger_search()
-        
+
     def _on_time_changed(self, index):
         self.criteria.time_filter_days = self.combo_time.currentData()
         self._trigger_search()
-        
+
     def _on_sort_changed(self, index):
         data = self.combo_sort.currentData()
         if data:
             self.criteria.sort_field, self.criteria.sort_desc = data
         self._trigger_search()
-        
+
     def _on_blacklist_toggle(self, checked):
         self.criteria.exclude_blacklist = checked
         self._trigger_search()
@@ -367,16 +365,16 @@ class AdvancedSearchBar(QWidget):
             self._update_tag_display()
             self.tag_input.clear()
             self._trigger_search()
-            
+
     def _update_tag_display(self):
         if self.criteria.tags:
             self.tag_list.setText("Tags: " + ", ".join(f"[{t}]" for t in self.criteria.tags))
         else:
             self.tag_list.setText("")
-            
+
     def _trigger_search(self):
         self.search_triggered.emit(self.criteria)
-        
+
     def reset_filters(self):
         """Setzt alle Filter zurück."""
         self.criteria = SearchCriteria()
@@ -391,7 +389,7 @@ class AdvancedSearchBar(QWidget):
         self.criteria.tags.clear()
         self._update_tag_display()
         self._trigger_search()
-        
+
     def get_criteria(self):
         return self.criteria
 
@@ -403,10 +401,10 @@ class SearchEngine:
     """
     Führt erweiterte Suchen auf der Datenbank aus.
     """
-    
+
     def __init__(self, db):
         self.db = db
-        
+
     @staticmethod
     def _escape_like(value: str) -> str:
         """Escapes LIKE wildcards so user input is treated literally."""
@@ -425,21 +423,21 @@ class SearchEngine:
             query += " AND (title LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')"
             search_term = f"%{escaped}%"
             params.extend([search_term, search_term])
-        
+
         # Typ-Filter
         if criteria.media_type:
             query += " AND type = ?"
             params.append(criteria.media_type)
-        
+
         # Provider-Filter
         if criteria.provider:
             query += " AND source = ?"
             params.append(criteria.provider)
-        
+
         # Favoriten
         if criteria.favorites_only:
             query += " AND is_favorite = 1"
-        
+
         # Blacklist
         if criteria.exclude_blacklist:
             query += " AND blacklist_flag = 0"
@@ -468,22 +466,22 @@ class SearchEngine:
         sort_field = criteria.sort_field if criteria.sort_field in allowed_sort_fields else "last_opened_at"
         order_dir = "DESC" if criteria.sort_desc else "ASC"
         query += f" ORDER BY {sort_field} {order_dir}"
-        
+
         # Limit
         query += " LIMIT 500"
-        
+
         # Ausführen
         rows = self.db.fetchall(query, params)
-        
+
         # In MediaItem-Objekte umwandeln
         from core import MediaItem
         return [MediaItem(row) for row in rows]
-    
+
     def get_suggestions(self, text, limit=10):
         """Holt Vorschläge für Autocomplete."""
         if not text or len(text) < 2:
             return []
-        
+
         query = """
             SELECT DISTINCT title FROM media_items
             WHERE title LIKE ? ESCAPE '\\' AND blacklist_flag = 0
@@ -493,7 +491,7 @@ class SearchEngine:
         escaped = self._escape_like(text)
         rows = self.db.fetchall(query, (f"%{escaped}%", limit))
         return [row["title"] for row in rows]
-    
+
     def get_all_tags(self):
         """Returns all tag names from the database (for autocomplete)."""
         try:
@@ -510,12 +508,12 @@ class SearchEngine:
 
 class SearchProfileManager:
     """Verwaltet gespeicherte Suchprofile."""
-    
+
     def __init__(self, config_path=None):
         self.config_path = config_path or Path.home() / ".mediabrain" / "search_profiles.json"
         self.profiles = {}
         self._load()
-        
+
     def _load(self):
         if self.config_path.exists():
             try:
@@ -525,25 +523,25 @@ class SearchProfileManager:
                         self.profiles[name] = SearchCriteria.from_dict(criteria_dict)
             except json.JSONDecodeError:
                 pass
-                
+
     def _save(self):
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.config_path, "w", encoding="utf-8") as f:
             data = {name: criteria.to_dict() for name, criteria in self.profiles.items()}
             json.dump(data, f, indent=2)
-            
+
     def save_profile(self, name, criteria):
         self.profiles[name] = criteria
         self._save()
-        
+
     def load_profile(self, name):
         return self.profiles.get(name)
-        
+
     def delete_profile(self, name):
         if name in self.profiles:
             del self.profiles[name]
             self._save()
-            
+
     def list_profiles(self):
         return list(self.profiles.keys())
 
@@ -553,34 +551,34 @@ class SearchProfileManager:
 
 class SaveSearchDialog(QDialog):
     """Dialog zum Speichern einer Suche als Profil."""
-    
+
     def __init__(self, criteria, parent=None):
         super().__init__(parent)
         self.criteria = criteria
         self.setWindowTitle("Suche speichern")
         self.setMinimumWidth(300)
-        
+
         layout = QFormLayout(self)
-        
+
         self.name_input = QLineEdit()
         self.name_input.setPlaceholderText("Name für diese Suche...")
         layout.addRow("Name:", self.name_input)
-        
+
         # Zusammenfassung
         summary = self._build_summary()
         summary_label = QLabel(summary)
         summary_label.setStyleSheet("color: gray; font-size: 11px;")
         layout.addRow("Filter:", summary_label)
-        
+
         # Buttons
         buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Save | 
+            QDialogButtonBox.StandardButton.Save |
             QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addRow(buttons)
-        
+
     def _build_summary(self):
         parts = []
         if self.criteria.text:
@@ -592,6 +590,6 @@ class SaveSearchDialog(QDialog):
         if self.criteria.favorites_only:
             parts.append("Nur Favoriten")
         return ", ".join(parts) if parts else "Keine Filter"
-        
+
     def get_name(self):
         return self.name_input.text().strip()

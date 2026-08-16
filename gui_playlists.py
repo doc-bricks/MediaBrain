@@ -17,11 +17,11 @@ from typing import Optional
 from PySide6.QtCore import Qt, QAbstractListModel, QModelIndex
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
-    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
-    QFormLayout, QFrame, QHBoxLayout, QInputDialog, QLabel, QLineEdit,
-    QListView, QListWidget, QListWidgetItem, QMenu, QMessageBox,
+    QComboBox, QDialog, QDialogButtonBox,
+    QFormLayout, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QListView, QListWidget, QMenu, QMessageBox,
     QPushButton, QScrollArea, QSizePolicy, QSpinBox, QSplitter,
-    QStyledItemDelegate, QTextEdit, QVBoxLayout, QWidget,
+    QTextEdit, QVBoxLayout, QWidget,
 )
 
 from playlists import Playlist, PlaylistManager

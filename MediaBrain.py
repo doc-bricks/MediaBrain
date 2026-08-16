@@ -66,7 +66,7 @@ class AppController:
                                  self.tag_manager, self.playlist_manager)
         if self.app_icon is not None:
             self.window.setWindowIcon(self.app_icon)
-        
+
         # GUI Refresh verbinden
         self.event_processor.on_data_changed = self.window.refresh_all_views
 
@@ -83,11 +83,11 @@ class AppController:
     # In MediaBrain.py -> AppController
     def _start_event_loop(self):
         """Prüft regelmäßig die Queue auf neue Daten."""
-        
+
         def process_queue():
             processed_count = 0
             has_updates = False
-            
+
             # Verarbeite maximal 50 Items pro Tick, damit die GUI nicht einfriert
             while not self.event_processor.queue.empty() and processed_count < 50:
                 event = self.event_processor.queue.get()
@@ -96,7 +96,7 @@ class AppController:
                     has_updates = True
                 except Exception as e:
                     logger.error(f"Fehler bei Event-Verarbeitung: {e}")
-                
+
                 processed_count += 1
 
             # Erst NACHDEM der Stapel (bis zu 50 Stück) durch ist: EINMAL refreshen

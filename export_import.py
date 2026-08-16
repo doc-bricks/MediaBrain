@@ -13,7 +13,7 @@ import platform
 import sqlite3
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from version import __version__
 

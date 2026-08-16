@@ -170,20 +170,20 @@ class FileIndexer(threading.Thread):
             # Schneller Check: Hat sich im Ordner was getan?
             # Hinweis: Manche Dateisysteme aktualisieren mtime nicht rekursiv,
             # daher ist dies ein Kompromiss für Performance.
-            
+
             # Wir holen alle Items im aktuellen Ordner
             try:
                 with os.scandir(path) as it:
                     for entry in it:
                         if not self.running: return
-                        
+
                         if entry.is_file():
                             self._process_file(Path(entry.path))
                         elif entry.is_dir():
                             self._scan_recursive(Path(entry.path))
             except PermissionError:
                 pass
-                
+
         except Exception as e:
             logger.warning(f"Fehler beim rekursiven Scan von {path}: {e}")
 

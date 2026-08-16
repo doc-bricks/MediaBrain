@@ -1,7 +1,6 @@
 """Release, export, and mobile privacy contract regressions."""
 
 import csv
-import json
 import os
 import plistlib
 import tempfile

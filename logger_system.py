@@ -1,6 +1,5 @@
 
 import logging
-import os
 from pathlib import Path
 
 # Log-Pfad sicherstellen
@@ -11,7 +10,7 @@ LOG_FILE = LOG_DIR / "mediabrain.log"
 def setup_logger(name="MediaBrain"):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    
+
     # Verhindern, dass Handler mehrfach hinzugefügt werden (Singleton-ish)
     if logger.handlers:
         return logger

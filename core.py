@@ -12,7 +12,7 @@ import sqlite3
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Optional, Union, Tuple, List
+from typing import Optional, Tuple, List
 
 logger = logging.getLogger(__name__)
 
@@ -491,7 +491,7 @@ class MediaManager:
         # --- METADATEN NUR LADEN, WENN WIR EINE ECHTE ID HABEN ---
         # Wir prüfen auf das Flag 'has_real_id', das wir in providers.py gesetzt haben.
         # Wenn es fehlt (LocalProvider), nehmen wir False an, außer es ist explizit True.
-        
+
         # Prüfe auto_fetch_metadata Setting (nur wenn config verfügbar)
         auto_fetch_enabled = HAS_CONFIG and config.config.get("auto_fetch_metadata", True)
         should_fetch_meta = (

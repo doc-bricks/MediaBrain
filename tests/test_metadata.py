@@ -6,8 +6,6 @@ Run with: pytest tests/test_metadata.py -v
 """
 import sys
 import json
-import hashlib
-import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 from datetime import datetime, timedelta

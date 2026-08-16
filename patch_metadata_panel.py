@@ -3,7 +3,6 @@
 Patch: Erweitert MediaDetailView um Online-Metadaten-Anzeige.
 Aufgabe: GUI - Metadaten im Detail-Panel anzeigen
 """
-import re
 from pathlib import Path
 
 GUI_FILE = Path(__file__).parent / "gui.py"
@@ -19,14 +18,14 @@ def patch():
     old_import = "from pathlib import Path"
     new_import = """from pathlib import Path
 from threading import Thread"""
-    
+
     if "from threading import Thread" not in content:
         content = content.replace(old_import, new_import)
         print("[OK] Thread-Import hinzugefuegt")
-    
+
     # 2. MediaDetailView komplett ersetzen
     # Original MediaDetailView finden und ersetzen
-    
+
     old_class = '''class MediaDetailView(QWidget):
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager, back_callback):
         super().__init__()
@@ -95,10 +94,10 @@ from threading import Thread"""
             (new_value, self.item.id)
         )
         notify_gui_refresh()'''
-    
+
     new_class = '''class MediaDetailView(QWidget):
     """Detailansicht für ein Medium - zeigt alle verfügbaren Metadaten."""
-    
+
     def __init__(self, item: MediaItem, media_manager: MediaManager, blacklist_manager: BlacklistManager, back_callback):
         super().__init__()
 
@@ -115,7 +114,7 @@ from threading import Thread"""
         icon = QLabel("🎬" if item.type == "movie" else "🎵" if item.type == "music" else "📺")
         icon.setStyleSheet("font-size: 24px;")
         header_row.addWidget(icon)
-        
+
         title = QLabel(item.title)
         title.setStyleSheet("font-size: 20px; font-weight: bold;")
         header_row.addWidget(title)
@@ -132,7 +131,7 @@ from threading import Thread"""
         desc_label = QLabel("Beschreibung:")
         desc_label.setStyleSheet("font-weight: bold; margin-top: 10px;")
         layout.addWidget(desc_label)
-        
+
         desc = QLabel(item.description or "Keine Beschreibung verfügbar.")
         desc.setWordWrap(True)
         desc.setStyleSheet("padding-left: 10px;")
@@ -142,7 +141,7 @@ from threading import Thread"""
         local_label = QLabel("Lokale Daten:")
         local_label.setStyleSheet("font-weight: bold; margin-top: 15px;")
         layout.addWidget(local_label)
-        
+
         meta = QLabel(
             f"  Typ: {item.type}\\n"
             f"  Provider: {item.source}\\n"
@@ -158,13 +157,13 @@ from threading import Thread"""
         online_label = QLabel("Online Metadaten:")
         online_label.setStyleSheet("font-weight: bold; margin-top: 15px;")
         layout.addWidget(online_label)
-        
+
         self.online_meta_container = QVBoxLayout()
         self.online_meta_label = QLabel("Lade Online-Metadaten...")
         self.online_meta_label.setStyleSheet("padding-left: 10px; color: #888;")
         self.online_meta_container.addWidget(self.online_meta_label)
         layout.addLayout(self.online_meta_container)
-        
+
         # Online-Metadaten im Hintergrund laden
         self._load_online_metadata()
 
@@ -178,7 +177,7 @@ from threading import Thread"""
         fav_btn = QPushButton("Favorit" if not item.is_favorite else "Favorit entfernen")
         fav_btn.clicked.connect(self.toggle_favorite)
         btn_row.addWidget(fav_btn)
-        
+
         fetch_btn = QPushButton("🌐 Metadaten aktualisieren")
         fetch_btn.clicked.connect(self._fetch_and_save_metadata)
         btn_row.addWidget(fetch_btn)
@@ -189,7 +188,7 @@ from threading import Thread"""
 
         btn_row.addStretch()
         layout.addLayout(btn_row)
-        
+
         layout.addStretch()
 
     def _load_online_metadata(self):
@@ -218,25 +217,25 @@ from threading import Thread"""
                     Qt.ConnectionType.QueuedConnection,
                     Q_ARG(object, {"error": str(e)})
                 )
-        
+
         Thread(target=fetch, daemon=True).start()
-    
+
     def _update_online_metadata(self, result):
         """Aktualisiert die Online-Metadaten-Anzeige."""
         self.online_meta_label.deleteLater()
-        
+
         if not result:
             label = QLabel("  Keine Online-Metadaten gefunden.")
             label.setStyleSheet("padding-left: 10px; color: #888;")
             self.online_meta_container.addWidget(label)
             return
-        
+
         if "error" in result:
             label = QLabel(f"  Fehler: {result['error']}")
             label.setStyleSheet("padding-left: 10px; color: red;")
             self.online_meta_container.addWidget(label)
             return
-        
+
         # Metadaten formatiert anzeigen
         lines = []
         if result.get("title"):
@@ -253,19 +252,19 @@ from threading import Thread"""
             lines.append(f"  Regie: {result['director']}")
         if result.get("source"):
             lines.append(f"  Quelle: {result['source']}")
-        
+
         if lines:
             meta_text = "\\n".join(lines)
             label = QLabel(meta_text)
             label.setStyleSheet("padding-left: 10px; font-family: monospace;")
             self.online_meta_container.addWidget(label)
-        
+
         # Beschreibung separat (falls laenger)
         if result.get("description") and result["description"] != self.item.description:
             desc_label = QLabel("Online-Beschreibung:")
             desc_label.setStyleSheet("font-weight: bold; margin-top: 10px; padding-left: 10px;")
             self.online_meta_container.addWidget(desc_label)
-            
+
             desc = QLabel(result["description"][:500] + "..." if len(result.get("description", "")) > 500 else result.get("description", ""))
             desc.setWordWrap(True)
             desc.setStyleSheet("padding-left: 20px; color: #555;")
@@ -281,15 +280,15 @@ from threading import Thread"""
                 title=self.item.title,
                 media_type=self.item.type
             )
-            
+
             if not result:
                 QMessageBox.information(self, "Keine Daten", "Keine Online-Metadaten gefunden.")
                 return
-            
+
             # DB Update
             updates = []
             params = []
-            
+
             if result.get("description"):
                 updates.append("description = ?")
                 params.append(result["description"])
@@ -299,19 +298,19 @@ from threading import Thread"""
             if result.get("rating"):
                 updates.append("rating = ?")
                 params.append(result["rating"])
-            
+
             if updates:
                 params.append(self.item.id)
                 query = f"UPDATE media_items SET {', '.join(updates)} WHERE id = ?"
                 self.media_manager.db.execute(query, tuple(params))
-                
-                QMessageBox.information(self, "Gespeichert", 
+
+                QMessageBox.information(self, "Gespeichert",
                     f"Metadaten aktualisiert. Quelle: {result.get('source', 'unbekannt')}")
-                
+
                 notify_gui_refresh()
             else:
                 QMessageBox.information(self, "Keine änderungen", "Keine neuen Daten zum Speichern.")
-                
+
         except Exception as e:
             QMessageBox.warning(self, "Fehler", f"Fehler beim Abrufen: {e}")
 
@@ -327,7 +326,7 @@ from threading import Thread"""
             (new_value, self.item.id)
         )
         notify_gui_refresh()'''
-    
+
     # Ersetzen (vorsichtig - exakter Match)
     if old_class in content:
         content = content.replace(old_class, new_class)
@@ -337,7 +336,7 @@ from threading import Thread"""
         print("[WARN] Exakter Match fehlgeschlagen - manuelles Patching noetig")
         print("Bitte die Klasse MediaDetailView manuell durch den neuen Code ersetzen.")
         return False
-    
+
     # Speichern
     GUI_FILE.write_text(content, encoding="utf-8")
     print(f"[OK] {GUI_FILE} aktualisiert")

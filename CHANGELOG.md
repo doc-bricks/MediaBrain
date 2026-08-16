@@ -5,6 +5,12 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Technische Hygiene & Linting-Standardisierung / Maintenance (Pfad A) [2026-08-16]
+- `pyproject.toml`: `[tool.ruff]` und `[tool.ruff.lint]` Konfiguration integriert (`target-version = "py310"`, `line-length = 120`, `E501`/`E402`/`E701`/`E741`/`F841` ignore, `ruff check` 100% sauber).
+- `patch_metadata_panel.py`, `search_advanced.py`, `tests/`: Ungenutzte Imports und Trailing Whitespace bereinigt.
+- `llms.txt`: Last-checked Timestamp auf `2026-08-16` aktualisiert.
+- Testsuite-Verifikation: 244/244 Pytest-Tests bestanden (30.73s).
+
 ### Windows Store Release Packaging & Asset Staging (TW-MB-01 / #935) [2026-08-14]
 - **Windows Store Packaging Staging:** `store_package/MediaBrain/AppxManifest.xml` mit `Geiger.MediaBrain`, Version `2.1.0.0`, `runFullTrust`-Capability, `de-de`/`en-us`-Lokalisierungsressourcen und Standard-Tile-Bindings angelegt.
 - **Store-Tile & Multi-Resolution App Icons:** Vollständiges Asset-Set in `assets/` und `store_package/MediaBrain/icons/` generiert (`icon_44x44.png`, `icon_50x50.png`, `icon_150x150.png`, `icon_310x150.png`, `icon_310x310.png`, 512x512 Master-PNG, Favicon sowie Multi-Layer Windows-ICOs `MediaBrain.ico`, `assets/app_icon.ico`, `assets/icon.ico` mit allen 7 Standardauflösungen).

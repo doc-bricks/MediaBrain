@@ -162,7 +162,7 @@ class Config:
         - Atomic Write: Schreibt in .tmp und benennt um
         """
         SETTINGS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # 1. Backup erstellen (falls Original existiert)
         if create_backup and SETTINGS_PATH.exists():
             try:
@@ -176,7 +176,7 @@ class Config:
         try:
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(self.settings, f, indent=4)
-            
+
             # Atomic Rename with Retry (OneDrive fix)
             max_retries = 5
             for i in range(max_retries):
@@ -185,12 +185,12 @@ class Config:
                         os.replace(tmp_path, SETTINGS_PATH)
                     else:
                         os.rename(tmp_path, SETTINGS_PATH)
-                    break 
+                    break
                 except OSError as e:
                     if i == max_retries - 1:
                         raise e
                     time.sleep(0.2)
-            
+
         except Exception as e:
             logger.error(f"[Config] Speichern fehlgeschlagen: {e}")
             if tmp_path.exists():

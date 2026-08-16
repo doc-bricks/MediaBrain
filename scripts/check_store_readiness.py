@@ -10,7 +10,6 @@ import argparse
 import hashlib
 import json
 import re
-import sys
 import tomllib
 import zipfile
 from pathlib import Path

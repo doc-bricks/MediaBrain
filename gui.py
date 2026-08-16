@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QListWidget, QListWidgetItem, QPushButton, QLineEdit,
+    QLabel, QListWidget, QPushButton, QLineEdit,
     QStackedWidget, QMenu, QScrollArea, QFrame, QSplitter, QTabWidget,
     QComboBox, QCheckBox, QSystemTrayIcon, QFileDialog, QMessageBox
 )
@@ -25,7 +25,6 @@ from core import MediaManager, MediaItem, BlacklistManager, TagManager
 from playlists import PlaylistManager
 from export_import import MediaExporter, MediaImporter
 import config
-from pathlib import Path
 from theme_engine import ThemeEngine
 
 # Erweiterte Suche
@@ -289,7 +288,6 @@ class MediaItemWidget(QFrame):
 
     def open_detail_page(self):
         try:
-            from gui import MainWindow
             mw = QApplication.activeWindow()
             if hasattr(mw, "open_detail"):
                 mw.open_detail(self.item)
@@ -314,7 +312,9 @@ class MediaItemWidget(QFrame):
         self.details_panel.toggle()
     def show_in_explorer(self):
         try:
-            import subprocess, platform, os
+            import subprocess
+            import platform
+            import os
             path = self.item.local_path
 
             system = platform.system()
@@ -503,8 +503,8 @@ class MediaItemWidget(QFrame):
 # Duplikat blacklist() entfernt - existiert bereits in Zeile 285 mit Error-Handling
 
 
-from PySide6.QtCore import QAbstractListModel, Qt, QModelIndex, QRect
-from PySide6.QtWidgets import QListView, QMenu, QStyledItemDelegate, QStyle
+from PySide6.QtCore import QAbstractListModel, QModelIndex, QRect
+from PySide6.QtWidgets import QListView, QStyledItemDelegate, QStyle
 from PySide6.QtGui import QPainter, QFont, QColor, QPen, QFontMetrics
 
 # --- 1. Das Daten-Modell (Hält die Daten effizient im Speicher) ---
@@ -792,7 +792,9 @@ def _toggle_fav(item, media_manager):
 def _show_in_explorer(item):
     """Opens the file location in OS file manager."""
     try:
-        import subprocess, platform, os
+        import subprocess
+        import platform
+        import os
         path = item.local_path
         system = platform.system()
         if system == "Windows":
@@ -1183,10 +1185,10 @@ class DashboardView(QWidget):
 
         self.media_manager = media_manager
         self.blacklist_manager = blacklist_manager
-        
+
         # SearchEngine für erweiterte Suche
         self.search_engine = SearchEngine(self.media_manager.db)
-        
+
         # Callbacks speichern
         self.open_settings_callback = open_settings_callback
         self.open_blacklist_callback = open_blacklist_callback
@@ -1201,7 +1203,7 @@ class DashboardView(QWidget):
 
         # 2. Quick Actions (Statisch - wird nicht neu geladen -> KEIN FLACKERN MEHR)
         actions_layout = QHBoxLayout()
-        
+
         btn_scan = QPushButton("Bibliothek scannen")
         # btn_scan.clicked.connect(...) # Später Funktion einbauen
         actions_layout.addWidget(btn_scan)
@@ -1215,7 +1217,7 @@ class DashboardView(QWidget):
         if self.open_blacklist_callback:
             btn_bl.clicked.connect(self.open_blacklist_callback)
         actions_layout.addWidget(btn_bl)
-        
+
         actions_layout.addStretch()
         layout.addLayout(actions_layout)
 
@@ -1289,14 +1291,14 @@ class DashboardView(QWidget):
 
         # Prüfe ob Filter aktiv sind
         has_filters = (
-            criteria.text.strip() or 
-            criteria.media_type or 
-            criteria.provider or 
-            criteria.favorites_only or 
+            criteria.text.strip() or
+            criteria.media_type or
+            criteria.provider or
+            criteria.favorites_only or
             criteria.time_filter_days or
             criteria.tags
         )
-        
+
         if not has_filters:
             self.refresh()
             return
@@ -1313,7 +1315,7 @@ class DashboardView(QWidget):
             filter_parts.append("⭐ Favoriten")
         if criteria.time_filter_days:
             filter_parts.append(f"Letzte {criteria.time_filter_days} Tage")
-            
+
         search_info = " | ".join(filter_parts) if filter_parts else "Alle"
         search_label = QLabel(f"Suche: {search_info}")
         search_label.setObjectName("sectionHeader")
@@ -1321,12 +1323,12 @@ class DashboardView(QWidget):
 
         # Suche ausführen via SearchEngine
         results = self.search_engine.search(criteria)
-        
+
         if results:
             count_label = QLabel(f"{len(results)} Ergebnisse gefunden")
             count_label.setObjectName("mutedLabel")
             self.container_layout.addWidget(count_label)
-            
+
             for media_item in results:
                 widget = MediaItemWidget(media_item, self.media_manager, self.blacklist_manager)
                 self.container_layout.addWidget(widget)
@@ -1334,7 +1336,7 @@ class DashboardView(QWidget):
             no_results = QLabel("Keine Treffer gefunden.")
             no_results.setObjectName("mutedLabel")
             self.container_layout.addWidget(no_results)
-            
+
         self.container_layout.addStretch()
 # ============================================================
 # BlacklistView – vollständige Verwaltung
@@ -1342,10 +1344,8 @@ class DashboardView(QWidget):
 
 from datetime import datetime, timedelta
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QScrollArea, QHBoxLayout,
-    QPushButton, QComboBox, QFrame
+    QWidget, QFrame
 )
-from PySide6.QtCore import Qt
 
 class BlacklistView(QWidget):
     def __init__(self, media_manager: MediaManager, blacklist_manager: BlacklistManager):
@@ -1794,7 +1794,6 @@ class StatsView(QWidget):
 
     def _build_ui(self):
         """Erstellt das Layout des Statistik-Panels."""
-        import os
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
         layout.setSpacing(16)
@@ -1977,7 +1976,7 @@ class MainWindow(QMainWindow):
 
         # 1. Dashboard (Korrigiert: Echte View statt QLabel)
         self.dashboard = DashboardView(
-            media_manager, 
+            media_manager,
             blacklist_manager,
             open_settings_callback=self.open_settings,
             open_blacklist_callback=lambda: self.stack.setCurrentWidget(self.blacklist_view)
@@ -2018,7 +2017,7 @@ class MainWindow(QMainWindow):
         # 7. Suche
         self.global_search = GlobalSearchView(media_manager, blacklist_manager)
         self.stack.addWidget(self.global_search)
-        
+
         # Theme anwenden
         self.apply_media_type_visibility()
         self.apply_theme()
@@ -2045,7 +2044,7 @@ class MainWindow(QMainWindow):
         )
         self.stack.addWidget(self.detail_view)
         self.stack.setCurrentWidget(self.detail_view)
-           
+
     def refresh_all_views(self):
         """Aktualisiert Views - optimiert: nur sichtbare View sofort, Rest lazy.
 
@@ -2159,7 +2158,7 @@ class MainWindow(QMainWindow):
     def open_settings(self):
         self.settings_window = SettingsWindow()
         self.settings_window.show()
-    
+
     def _setup_system_tray(self):
         """Erstellt das System-Tray-Icon mit Kontextmenu."""
         if self.tray_icon is not None:

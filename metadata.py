@@ -9,10 +9,10 @@ def fetch_metadata(url):
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
         response = requests.get(url, headers=headers, timeout=3)
-        
+
         if response.status_code != 200:
             return None
-            
+
         soup = BeautifulSoup(response.text, 'html.parser')
         data = {}
 
