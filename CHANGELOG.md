@@ -5,6 +5,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Discoverability, README-Design, Badges & Metadata Parity / Maintenance (Pfad B) [2026-08-20]
+- `README.md` & `README_de.md`: Badges für Version (`2.1.0`), Tests (`247 passed`), `doc-bricks`-Ökosystem und `open-bricks`-Dachprojekt synchronisiert.
+- `README.md` & `README_de.md`: Umfassende zweisprachige Geschwisterwerkzeuge-Matrix innerhalb der `doc-bricks`-, `file-bricks`- und `open-bricks`-Ökosysteme (`CleanMarkdown`, `PDFtoPDFocr`, `llm-note`, `LaunchBoards`, `ProFiler`, `KnowledgeDigest`, `WinStorePackager`, `DevCenter`, `open-bricks`) integriert.
+- `tests/test_repo_metadata.py`: Neue automatisierte Testsuite für Versionsparität (`version.py`, `pyproject.toml`, `store_package.json`, `AppxManifest.xml`, Docs), Badges und Dokumentationsintegrität implementiert.
+- `llms.txt`: Last-checked Timestamp auf `2026-08-20` und Schlüsseldateienliste um `test_repo_metadata.py` erweitert.
+- Testsuite-Verifikation: Vollständige Pytest-Suite mit 247/247 Tests (29 Subtests) erfolgreich bestanden.
+
 ### Technische Hygiene & Linting-Standardisierung / Maintenance (Pfad A) [2026-08-16]
 - `pyproject.toml`: `[tool.ruff]` und `[tool.ruff.lint]` Konfiguration integriert (`target-version = "py310"`, `line-length = 120`, `E501`/`E402`/`E701`/`E741`/`F841` ignore, `ruff check` 100% sauber).
 - `patch_metadata_panel.py`, `search_advanced.py`, `tests/`: Ungenutzte Imports und Trailing Whitespace bereinigt.

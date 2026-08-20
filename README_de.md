@@ -2,11 +2,14 @@
 
 # MediaBrain
 
+[![Version: 2.1.0](https://img.shields.io/badge/Version-2.1.0-orange.svg)](version.py)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Plattform: Windows](https://img.shields.io/badge/Plattform-Windows-lightgrey.svg)]()
 [![Offline-first](https://img.shields.io/badge/offline--first-ja-brightgreen.svg)]()
-[![Tests: 244 Passed](https://img.shields.io/badge/tests-244%20passed-brightgreen.svg)]()
+[![Tests: 247 Passed](https://img.shields.io/badge/tests-247%20passed-brightgreen.svg)]()
+[![doc-bricks](https://img.shields.io/badge/doc--bricks-%C3%96kosystem-blue.svg)](https://github.com/doc-bricks)
+[![open-bricks](https://img.shields.io/badge/open--bricks-Dachprojekt-purple.svg)](https://github.com/open-bricks)
 [![LLM Kontext](https://img.shields.io/badge/LLM--Kontext-llms.txt-blue.svg)](llms.txt)
 
 > **MediaBrain ist ein lokaler PySide6-Medienmanager für persönliche Video-, Musik-, Playlist- und Streaming-Verläufe.**
@@ -66,6 +69,23 @@ GUI Layer         Dashboard, Libraries, Favorites, Blacklist, Playlists, Search,
 ```
 
 Vollständiges Diagramm: [ARCH.md](ARCH.md)
+
+## Ökosystem & Verwandte Werkzeuge
+
+MediaBrain ist Bestandteil der [`doc-bricks`](https://github.com/doc-bricks)-Produktivitätssuite unter dem Dach von [`open-bricks`](https://github.com/open-bricks):
+
+| Werkzeug | Schwerpunkt | Repository |
+|---|---|---|
+| **MediaBrain** | Lokaler Medienmanager, Smart-Playlists & private Medienbibliothek | [doc-bricks/MediaBrain](https://github.com/doc-bricks/MediaBrain) |
+| **CleanMarkdown** | Markdown-Normalisierer, Typografie-Bereinigung & PDF-Export | [doc-bricks/CleanMarkdown](https://github.com/doc-bricks/CleanMarkdown) |
+| **PDFtoPDFocr** | Durchsuchbare PDF-OCR-Pipeline & Metadaten-Extraktion | [doc-bricks/PDFtoPDFocr](https://github.com/doc-bricks/PDFtoPDFocr) |
+| **llm-note** | Markdown-Notizen mit lokaler LLM-Assistenten-Integration | [doc-bricks/llm-note](https://github.com/doc-bricks/llm-note) |
+| **LaunchBoards** | Visueller Desktop-Launcher, App-Organizer & Dashboard | [file-bricks/LaunchBoards](https://github.com/file-bricks/LaunchBoards) |
+| **ProFiler** | Datenschutzorientierter Dateianalysator & Dubletten-Finder | [file-bricks/ProFiler](https://github.com/file-bricks/ProFiler) |
+| **KnowledgeDigest** | Offline-Wissensdatenbank & Dokumentationskompressor | [file-bricks/KnowledgeDigest](https://github.com/file-bricks/KnowledgeDigest) |
+| **WinStorePackager** | MSIX-Paketierung, Store-Manifest-Staging & Asset-Generator | [file-bricks/WinStorePackager](https://github.com/file-bricks/WinStorePackager) |
+| **DevCenter** | Multi-Repo Entwickler-Dashboard & Workspace-Manager | [dev-bricks/DevCenter](https://github.com/dev-bricks/DevCenter) |
+| **open-bricks** | Dachorganisation & Portal für alle Open-Source-Desktop-Werkzeuge | [open-bricks/open-bricks](https://github.com/open-bricks/open-bricks) |
 
 ## Installation
 
