@@ -122,6 +122,35 @@ class TestPlaylistManager(unittest.TestCase):
 
         self.assertEqual(self.playlists.get_items(playlist_id), [self.matrix_id])
 
+    def test_smart_playlist_supports_advanced_tag_operators(self):
+        tag_id = self.tags.create_tag("SciFi")
+        self.tags.add_tag_to_media(self.matrix_id, tag_id)
+
+        # Smart playlist excluding SciFi tag
+        qb_not = QueryBuilder()
+        qb_not.add_condition("tags", "!=", "SciFi")
+        pl_not = self.playlists.create_smart_playlist("No SciFi", qb_not.to_json())
+        items_not = self.playlists.get_items(pl_not)
+        self.assertNotIn(self.matrix_id, items_not)
+        self.assertIn(self.arrival_id, items_not)
+        self.assertIn(self.clip_id, items_not)
+
+        # Smart playlist for items with empty tags
+        qb_empty = QueryBuilder()
+        qb_empty.add_condition("tags", "is_empty")
+        pl_empty = self.playlists.create_smart_playlist("Untagged", qb_empty.to_json())
+        items_empty = self.playlists.get_items(pl_empty)
+        self.assertNotIn(self.matrix_id, items_empty)
+        self.assertIn(self.arrival_id, items_empty)
+        self.assertIn(self.clip_id, items_empty)
+
+        # Smart playlist for items with tags
+        qb_tagged = QueryBuilder()
+        qb_tagged.add_condition("tags", "is_not_empty")
+        pl_tagged = self.playlists.create_smart_playlist("Tagged Only", qb_tagged.to_json())
+        items_tagged = self.playlists.get_items(pl_tagged)
+        self.assertEqual(items_tagged, [self.matrix_id])
+
     def test_malformed_smart_query_returns_no_items(self):
         playlist_id = self.playlists.create_playlist(
             "Broken Smart",

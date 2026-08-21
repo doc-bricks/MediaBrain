@@ -560,7 +560,7 @@ class MediaImporter:
             }
             filtered["name"] = name
             filtered["playlist_type"] = playlist_type
-            filtered["smart_query"] = smart_query
+            filtered["smart_query"] = self._coerce_value("smart_query", smart_query if smart_query is not None else "")
             filtered = {
                 k: v for k, v in filtered.items()
                 if k in self.playlist_columns

@@ -289,6 +289,57 @@ class TestProviderSubtypeRoundtrip(unittest.TestCase):
             finally:
                 target_db.close()
 
+    def test_smart_playlist_json_import_coerces_dict_and_preserves_smart_query(self):
+        """Smart playlists with dict/structured smart_query in JSON must be coerced to valid JSON string."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            db = Database(tmpdir / "test.db")
+            try:
+                PlaylistManager(db.conn)
+                payload = {
+                    "schema": EXPORT_SCHEMA,
+                    "schema_version": EXPORT_SCHEMA_VERSION,
+                    "items": [
+                        {
+                            "title": "Movie Test",
+                            "type": "movie",
+                            "source": "local",
+                            "provider_id": "loc-1",
+                        }
+                    ],
+                    "playlists": [
+                        {
+                            "name": "Smart Action Movies",
+                            "playlist_type": "smart",
+                            "smart_query": {
+                                "conditions": [
+                                    {"field": "type", "operator": "=", "value": "movie"}
+                                ],
+                                "order_by": "title",
+                                "order_dir": "ASC",
+                            },
+                        }
+                    ],
+                }
+                json_path = tmpdir / "smart_import.json"
+                json_path.write_text(json.dumps(payload), encoding="utf-8")
+
+                importer = MediaImporter(db.conn)
+                stats = importer.import_json(str(json_path))
+
+                self.assertEqual(stats["imported"], 1)
+                self.assertEqual(stats["playlists_imported"], 1)
+                self.assertEqual(stats["errors"], 0)
+
+                pm = PlaylistManager(db.conn)
+                pls = pm.get_playlists()
+                self.assertEqual(len(pls), 1)
+                self.assertEqual(pls[0].name, "Smart Action Movies")
+                self.assertEqual(pls[0].playlist_type, "smart")
+                self.assertEqual(pls[0].item_count, 1)
+            finally:
+                db.close()
+
 
 if __name__ == "__main__":
     unittest.main()

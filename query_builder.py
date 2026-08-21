@@ -178,7 +178,7 @@ class QueryBuilder:
 
         return "", []
 
-    def _build_tag_condition(self, op: str, tag_name: str) -> Tuple[str, list]:
+    def _build_tag_condition(self, op: str, tag_name: Any) -> Tuple[str, list]:
         """Builds a subquery for tag filtering."""
         if op == "contains":
             escaped = self._escape_like(tag_name)
@@ -194,11 +194,34 @@ class QueryBuilder:
                 "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ? ESCAPE '\\')",
                 [f"%{escaped}%"]
             )
+        elif op == "starts_with":
+            escaped = self._escape_like(tag_name)
+            return (
+                "id IN (SELECT media_id FROM media_tags mt "
+                "JOIN tags t ON mt.tag_id = t.id WHERE t.name LIKE ? ESCAPE '\\')",
+                [f"{escaped}%"]
+            )
         elif op == "=":
             return (
                 "id IN (SELECT media_id FROM media_tags mt "
                 "JOIN tags t ON mt.tag_id = t.id WHERE t.name = ?)",
-                [tag_name]
+                [str(tag_name)]
+            )
+        elif op == "!=":
+            return (
+                "id NOT IN (SELECT media_id FROM media_tags mt "
+                "JOIN tags t ON mt.tag_id = t.id WHERE t.name = ?)",
+                [str(tag_name)]
+            )
+        elif op == "is_empty":
+            return (
+                "id NOT IN (SELECT media_id FROM media_tags)",
+                []
+            )
+        elif op == "is_not_empty":
+            return (
+                "id IN (SELECT media_id FROM media_tags)",
+                []
             )
         return "", []
 

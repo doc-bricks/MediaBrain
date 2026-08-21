@@ -5,7 +5,10 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
-### Windows Store Readiness Audit & Packaging Preparation [2026-08-21]
+### Tag-Matching, Query-Builder & Smart-Playlist Import Hardening [2026-08-21]
+- **QueryBuilder Tag-Filter-Operatoren (`query_builder.py`):** Vollständige Unterstützung für die Operatoren `!=`, `starts_with`, `is_empty` und `is_not_empty` beim Tag-Filtering implementiert. Zuvor wurden diese gültigen Operatoren in `_build_tag_condition` lautlos übersprungen und führten zu ungefilterten Gesamtabfragen.
+- **Smart-Playlist-Import Typsicherheit (`export_import.py`):** `smart_query`-Payloads werden beim Import aus JSON-Dateien auch dann via `_coerce_value` sicher als JSON-Zeichenkette serialisiert, wenn sie als verschachteltes Dictionary übergeben werden, wodurch `sqlite3.ProgrammingError` zuverlässig verhindert wird.
+- **Regressionstests (`tests/`):** 5 neue Tests in `tests/test_query_builder.py`, `tests/test_playlists.py` und `tests/test_export_import.py` integriert; Pytest-Vollsuite mit 263 Tests und 29 Subtests zu 100% grün (56.7s).
 - **Windows Store Preparation Guide (`WINDOWS_STORE_PREP.md`):** Umfassenden Leitfaden mit Identitätsmetadaten (`CN=52596601-BAB4-4F3F-B182-E8F3F273B202`, `Geiger.MediaBrain`, `2.1.0.0`), Vorbereitungsschritten, Kachel-Assets, Screenshot-Zuordnungen, Partner-Center-Gates und Offline-First-Architektur implementiert.
 - **Store Policy 10.1.3 Compliance (`STORE_LISTING.md`):** Bilinguale Suchbegriffe (Suchbegriffe / Keywords) auf strikt maximal 7 Keywords pro Sprache ohne Fremdmarkenverletzungen gehärtet.
 - **Store-Asset-Spiegelung (`store_assets/`):** Vollständiges Set an MSIX-Tile-Icons (`icon_44x44.png`, `icon_50x50.png`, `icon_150x150.png`, `icon_310x150.png`, `icon_310x310.png`) in `store_assets/` synchronisiert.

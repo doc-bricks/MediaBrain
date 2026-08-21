@@ -196,16 +196,86 @@ class TestQueryBuilder(unittest.TestCase):
         self.assertNotIn(scixfi_id, ids)
 
 
+    def test_tag_not_equal_filters_out_specific_tag(self):
+        scifi_id = self._insert_media(
+            title="Interstellar",
+            media_type="movie",
+            source="local",
+            provider_id="local-interstellar",
+        )
+        tag_scifi = self.tags.create_tag("SciFi")
+        self.tags.add_tag_to_media(scifi_id, tag_scifi)
+
+        builder = QueryBuilder()
+        builder.add_condition("tags", "!=", "SciFi")
+        sql, rows = self._run(builder)
+
+        self.assertIn("NOT IN (SELECT media_id FROM media_tags", sql)
+        matched_ids = [r["id"] for r in rows]
+        self.assertNotIn(scifi_id, matched_ids)
+        self.assertIn(self.matrix_id, matched_ids)
+
+    def test_tag_starts_with_matches_prefix(self):
+        scifi_id = self._insert_media(
+            title="Solaris",
+            media_type="movie",
+            source="local",
+            provider_id="local-solaris",
+        )
+        tag_scifi = self.tags.create_tag("Science Fiction")
+        self.tags.add_tag_to_media(scifi_id, tag_scifi)
+
+        builder = QueryBuilder()
+        builder.add_condition("tags", "starts_with", "Science")
+        sql, rows = self._run(builder)
+
+        self.assertIn("LIKE ? ESCAPE '\\'", sql)
+        matched_ids = [r["id"] for r in rows]
+        self.assertIn(scifi_id, matched_ids)
+        self.assertNotIn(self.matrix_id, matched_ids)
+
+    def test_tag_is_empty_and_is_not_empty(self):
+        tagged_id = self._insert_media(
+            title="Blade Runner",
+            media_type="movie",
+            source="local",
+            provider_id="local-bladerunner",
+        )
+        tag_cyber = self.tags.create_tag("Cyberpunk")
+        self.tags.add_tag_to_media(tagged_id, tag_cyber)
+
+        # is_empty: only items without any tags
+        builder_empty = QueryBuilder()
+        builder_empty.add_condition("tags", "is_empty")
+        sql_empty, rows_empty = self._run(builder_empty)
+
+        self.assertIn("id NOT IN (SELECT media_id FROM media_tags)", sql_empty)
+        empty_ids = [r["id"] for r in rows_empty]
+        self.assertIn(self.matrix_id, empty_ids)
+        self.assertNotIn(tagged_id, empty_ids)
+
+        # is_not_empty: only items with at least one tag
+        builder_not_empty = QueryBuilder()
+        builder_not_empty.add_condition("tags", "is_not_empty")
+        sql_not_empty, rows_not_empty = self._run(builder_not_empty)
+
+        self.assertIn("id IN (SELECT media_id FROM media_tags)", sql_not_empty)
+        not_empty_ids = [r["id"] for r in rows_not_empty]
+        self.assertIn(tagged_id, not_empty_ids)
+        self.assertNotIn(self.matrix_id, not_empty_ids)
+
     def test_skipped_first_condition_does_not_produce_where_and(self):
         """If the first condition yields no SQL clause, later conditions must not
         receive a dangling conjunction (e.g. 'WHERE AND type = ?').
-
-        Regression: build() used loop index (i > 0) instead of whether any
-        clause had been emitted, causing invalid SQL when condition[0] was
-        silently skipped (tags field + unimplemented operator like 'is_empty').
         """
         builder = QueryBuilder()
-        builder.add_condition("tags", "is_empty", None)
+        builder.conditions.append(
+            builder.conditions.__class__.__name__ and None
+        )
+        builder.conditions.clear()
+        # Manually create a condition that produces empty clause
+        from query_builder import FilterCondition
+        builder.conditions.append(FilterCondition(field="tags", operator="unknown_op", value=None))
         builder.add_condition("type", "=", "movie")
         sql, rows = self._run(builder)
 
@@ -217,3 +287,4 @@ class TestQueryBuilder(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
