@@ -5,6 +5,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Flutter Mobile Port: Smart-Playlists & Tag-System (Android/iOS) [2026-08-21]
+- **Datenmodelle & Smart-Matching:** Neue Modelle `MediaTag`, `Playlist`, `SmartPlaylistQuery` und `PlaylistType` mit nativer JSON-Serialisierung und deterministischer In-Memory-Query-Matching-Engine für dynamische Smart-Playlists (Filter nach Kategorie, Tag, Favoriten, Mindest-Foreground-Zeit und Volltext-Suchquery) in `flutter_port/lib/models/models.dart`.
+- **SQLite-Schema v2 & Persistenz:** SQLite-Datenbank in `DatabaseService` (`flutter_port/lib/services/database_service.dart`) auf Version 2 aktualisiert mit automatischer Migration (`playlists`, `playlist_items`), Indexierung, Tag-Aggregation (`listTags`, `addTagToItem`, `removeTagFromItem`) und vollständigen Playlist-CRUD-Methoden (`listPlaylists`, `getPlaylist`, `upsertPlaylist`, `deletePlaylist`, `addItemToPlaylist`, `removeItemFromPlaylist`, `getPlaylistItems`, `evaluateSmartPlaylist`).
+- **UI-Screens & Dialoge:** Neuer Tab `PlaylistsScreen` (`flutter_port/lib/screens/playlists_screen.dart`), Playlist-Detailansicht mit Smart-Filter-Chips und Entfernungs-Funktion (`flutter_port/lib/screens/playlist_detail_screen.dart`), Erstellungs-/Bearbeitungsdialog (`flutter_port/lib/dialogs/playlist_dialog.dart`), interaktive Tag-Verwaltung und Schnellzuweisung in `item_detail_screen.dart`, Tag-Filter-Chips in `library_screen.dart` sowie Tab-Integration in `home_screen.dart`.
+- **Vollständige Lokalisierung & Parität:** Bilinguale DE/EN Lokalisierungs-Strings mit echten deutschen Umlauten in `flutter_port/lib/l10n/app_localizations.dart`.
+- **Testabdeckung & Qualitätsprüfung:** Neue Dart-Testsuite `flutter_port/test/playlists_and_tags_test.dart` und Python-Contract-Testsuite `tests/test_flutter_playlists_and_tags_contract.py` integriert; 254/254 Pytest-Tests erfolgreich bestanden (100% grün).
+
 ### Discoverability, README-Design, Badges & Metadata Parity / Maintenance (Pfad B) [2026-08-20]
 - `README.md` & `README_de.md`: Badges für Version (`2.1.0`), Tests (`247 passed`), `doc-bricks`-Ökosystem und `open-bricks`-Dachprojekt synchronisiert.
 - `README.md` & `README_de.md`: Umfassende zweisprachige Geschwisterwerkzeuge-Matrix innerhalb der `doc-bricks`-, `file-bricks`- und `open-bricks`-Ökosysteme (`CleanMarkdown`, `PDFtoPDFocr`, `llm-note`, `LaunchBoards`, `ProFiler`, `KnowledgeDigest`, `WinStorePackager`, `DevCenter`, `open-bricks`) integriert.

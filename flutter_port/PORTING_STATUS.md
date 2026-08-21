@@ -22,7 +22,7 @@ am 2026-07-23 entfernten `web_companion/` (siehe Abschnitt unten)
 | 10. App-Icon + Name | FERTIG | flutter_launcher_icons + AndroidManifest; 2026-07-26 Icon-Satz aus `assets/icons/icon.png` für Android-Launcher, adaptiven Foreground und iOS-AppIcon readback-geprüft |
 | 11. Debug-APK | FERTIG | 2026-06-03 im lokalen Mirror mit Flutter 3.44.0 verifiziert (`flutter analyze`, `flutter test`, `flutter build apk --debug`) |
 | 12. Flutter L10n DE+EN | FERTIG | 2026-06-07 — handgeschriebene `AppLocalizations` (DE+EN), ARB-Referenzdateien, alle Screens/Dialoge lokalisiert. `flutter analyze` 0 Fehler, 8/8 L10n-Tests + widget_test grün. |
-| 13. Sync-Format (Export/Import) | FERTIG | 2026-07-26 — `buildExportPayload()` + `importLibraryBundle()` in `database_service.dart`. Schema `mediabrain-library-v1`, Desktop-kompatibel (`type`↔`category`-Mapping, Fixture-Test). Merge via source+provider_id (Fallback: title+category). UUID-Validierung via `_isUuid()` verhindert Desktop-Integer-IDs als Flutter-PK. Feldselektiver Merge erhält `foreground_minutes` und `last_opened_at`, wenn Desktop-Payloads diese Mobile-Felder auslassen; explizite Werte werden weiterhin übernommen. |
+| 14. Smart-Playlists & Tag-System | FERTIG | 2026-08-21 — Datenmodelle (`MediaTag`, `Playlist`, `SmartPlaylistQuery`, `PlaylistType`), SQLite-Schema v2 mit Migration (`playlists`, `playlist_items`), dynamische Query-Matching-Engine, Tag-CRUD & Tag-Filter-Chips in `library_screen.dart`, `playlists_screen.dart`, `playlist_detail_screen.dart`, `playlist_dialog.dart`, `item_detail_screen.dart`, Navigation Bar Integration in `home_screen.dart`, vollständige DE/EN-Lokalisierung sowie Dart- und Python-Contract-Testsuiten (`playlists_and_tags_test.dart`, `test_flutter_playlists_and_tags_contract.py`). |
 
 ## Was die App macht
 
@@ -32,8 +32,9 @@ also nutzen wir stattdessen Android `UsageStatsManager`:
 1. **Scan-Tab:** "Medien-Apps scannen" liest installierte Apps und ihre Foreground-Zeit
 2. Erkannte Medien-Apps werden in die Bibliothek übernommen (Titel = App-Name,
    Kategorie aus `MediaAppCatalog`)
-3. **Bibliothek:** Filter nach Kategorie/Favoriten/Suche, sortiert nach letzter Nutzung
-4. **Detail:** Beschreibung, Tags, Play-Store-Link
+3. **Bibliothek:** Filter nach Kategorie/Favoriten/Tags/Suche, sortiert nach letzter Nutzung
+4. **Playlists & Sammlungen:** Manuelle Playlists und dynamische Smart-Playlists (nach Kategorie, Tag, Favoriten, Mindestlaufzeit, Volltextsuche)
+5. **Detail:** Beschreibung, interaktive Tags, Playlist-Zuweisung, Play-Store- und Medien-Links
 
 ## Kategorien (8)
 
@@ -86,6 +87,5 @@ Die Flutter-Variante ist Standalone und davon nicht betroffen.
 
 - iOS-Build (Xcode)
 - Server-Sync (Mac Studio als zentraler Host)
-- Manuelles Erfassen einzelner Medien (z.B. ein gerade gesehener Film, der nicht aus einer Tracking-App stammt)
-- Smart-Playlists & Tag-System (P2)
 - Kotlin-Plugin-Warnungen der Dependencies vor späteren Flutter-Upgrades nachziehen
+

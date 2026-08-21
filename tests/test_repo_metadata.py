@@ -1,7 +1,6 @@
 """Tests for repository metadata, version parity, badges, and documentation consistency."""
 
 import json
-import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -55,7 +54,7 @@ def test_llms_txt_structure_and_parity():
     llms_txt = (ROOT / "llms.txt").read_text(encoding="utf-8")
 
     assert "https://github.com/doc-bricks/MediaBrain" in llms_txt
-    assert "Last-checked: 2026-08-20" in llms_txt
+    assert "Last-checked: 2026-08-21" in llms_txt
     assert "PySide6" in llms_txt
     assert "SQLite" in llms_txt
     assert "Boundaries" in llms_txt

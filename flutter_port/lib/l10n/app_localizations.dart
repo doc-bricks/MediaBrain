@@ -102,6 +102,34 @@ abstract class AppLocalizations {
   String get fieldTags;
   String get fieldTagsHint;
   String get markAsFavorite;
+  String get navPlaylists;
+  String get screenPlaylists;
+  String get playlistTypeManual;
+  String get playlistTypeSmart;
+  String get dialogNewPlaylist;
+  String get dialogEditPlaylist;
+  String get fieldPlaylistName;
+  String get fieldPlaylistDescription;
+  String get fieldPlaylistType;
+  String get smartFilterCriteria;
+  String get smartFilterCategory;
+  String get smartFilterTag;
+  String get smartFilterFavoritesOnly;
+  String get smartFilterMinMinutes;
+  String get smartFilterSearch;
+  String get emptyPlaylists;
+  String get emptyPlaylistItems;
+  String get deletePlaylistTitle;
+  String get deletePlaylistContent;
+  String get addToPlaylist;
+  String get removeFromPlaylist;
+  String get addedToPlaylist;
+  String get removedFromPlaylist;
+  String get filterByTag;
+  String get allTags;
+  String get addTag;
+  String get removeTag;
+  String get noPlaylistsFound;
 
   String error(String msg);
   String foregroundMinutesLabel(int minutes);
@@ -113,6 +141,8 @@ abstract class AppLocalizations {
   String pushPullStatus(String push, String pull);
   String seasonEpisode(int s, int e);
   String usageMinutes(int n);
+  String playlistItemCount(int count);
+  String tagCount(String tag, int count);
 }
 
 class _AppLocalizationsDelegate
@@ -235,6 +265,36 @@ class _AppLocalizationsDe extends AppLocalizations {
   @override String get fieldTags => 'Tags (Komma-getrennt)';
   @override String get fieldTagsHint => 'z.B. Dokumentation, Wochenende';
   @override String get markAsFavorite => 'Als Favorit markieren';
+  @override String get navPlaylists => 'Playlists';
+  @override String get screenPlaylists => 'Playlists & Sammlungen';
+  @override String get playlistTypeManual => 'Manuell';
+  @override String get playlistTypeSmart => 'Smart (Dynamischer Filter)';
+  @override String get dialogNewPlaylist => 'Neue Playlist';
+  @override String get dialogEditPlaylist => 'Playlist bearbeiten';
+  @override String get fieldPlaylistName => 'Name der Playlist';
+  @override String get fieldPlaylistDescription => 'Beschreibung (optional)';
+  @override String get fieldPlaylistType => 'Playlist-Typ';
+  @override String get smartFilterCriteria => 'Smarte Filterkriterien';
+  @override String get smartFilterCategory => 'Kategorie';
+  @override String get smartFilterTag => 'Tag / Stichwort';
+  @override String get smartFilterFavoritesOnly => 'Nur Favoriten';
+  @override String get smartFilterMinMinutes => 'Minimale Nutzungszeit (Min.)';
+  @override String get smartFilterSearch => 'Suchbegriff';
+  @override String get emptyPlaylists =>
+      'Noch keine Playlists angelegt.\nErstelle manuelle Sammlungen oder dynamische Smart-Playlists.';
+  @override String get emptyPlaylistItems => 'Diese Playlist enthält noch keine Medien.';
+  @override String get deletePlaylistTitle => 'Playlist löschen?';
+  @override String get deletePlaylistContent =>
+      'Möchtest du diese Playlist wirklich löschen? Die enthaltenen Medien bleiben in der Bibliothek erhalten.';
+  @override String get addToPlaylist => 'Zu Playlist hinzufügen';
+  @override String get removeFromPlaylist => 'Aus Playlist entfernen';
+  @override String get addedToPlaylist => 'Zur Playlist hinzugefügt.';
+  @override String get removedFromPlaylist => 'Aus Playlist entfernt.';
+  @override String get filterByTag => 'Tag-Filter';
+  @override String get allTags => 'Alle Tags';
+  @override String get addTag => 'Tag hinzufügen';
+  @override String get removeTag => 'Tag entfernen';
+  @override String get noPlaylistsFound => 'Keine Playlists vorhanden.';
 
   @override String error(String msg) => 'Fehler: $msg';
   @override String foregroundMinutesLabel(int minutes) => '$minutes Min insgesamt';
@@ -249,6 +309,8 @@ class _AppLocalizationsDe extends AppLocalizations {
       'Push: $push · Pull: $pull';
   @override String seasonEpisode(int s, int e) => 'S$s E$e';
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'Minute' : 'Minuten'}';
+  @override String playlistItemCount(int count) => '$count ${count == 1 ? 'Eintrag' : 'Einträge'}';
+  @override String tagCount(String tag, int count) => '#$tag ($count)';
 }
 
 class _AppLocalizationsEn extends AppLocalizations {
@@ -350,6 +412,36 @@ class _AppLocalizationsEn extends AppLocalizations {
   @override String get fieldTags => 'Tags (comma-separated)';
   @override String get fieldTagsHint => 'e.g. Documentary, Weekend';
   @override String get markAsFavorite => 'Mark as favorite';
+  @override String get navPlaylists => 'Playlists';
+  @override String get screenPlaylists => 'Playlists & Collections';
+  @override String get playlistTypeManual => 'Manual';
+  @override String get playlistTypeSmart => 'Smart (Dynamic Filter)';
+  @override String get dialogNewPlaylist => 'New Playlist';
+  @override String get dialogEditPlaylist => 'Edit Playlist';
+  @override String get fieldPlaylistName => 'Playlist Name';
+  @override String get fieldPlaylistDescription => 'Description (optional)';
+  @override String get fieldPlaylistType => 'Playlist Type';
+  @override String get smartFilterCriteria => 'Smart Filter Criteria';
+  @override String get smartFilterCategory => 'Category';
+  @override String get smartFilterTag => 'Tag / Keyword';
+  @override String get smartFilterFavoritesOnly => 'Favorites only';
+  @override String get smartFilterMinMinutes => 'Minimum usage time (min)';
+  @override String get smartFilterSearch => 'Search term';
+  @override String get emptyPlaylists =>
+      'No playlists created yet.\nCreate manual collections or dynamic smart playlists.';
+  @override String get emptyPlaylistItems => 'This playlist does not contain any media yet.';
+  @override String get deletePlaylistTitle => 'Delete playlist?';
+  @override String get deletePlaylistContent =>
+      'Do you really want to delete this playlist? The media items will remain in your library.';
+  @override String get addToPlaylist => 'Add to playlist';
+  @override String get removeFromPlaylist => 'Remove from playlist';
+  @override String get addedToPlaylist => 'Added to playlist.';
+  @override String get removedFromPlaylist => 'Removed from playlist.';
+  @override String get filterByTag => 'Tag Filter';
+  @override String get allTags => 'All Tags';
+  @override String get addTag => 'Add tag';
+  @override String get removeTag => 'Remove tag';
+  @override String get noPlaylistsFound => 'No playlists available.';
 
   @override String error(String msg) => 'Error: $msg';
   @override String foregroundMinutesLabel(int minutes) => '$minutes min total';
@@ -364,4 +456,6 @@ class _AppLocalizationsEn extends AppLocalizations {
       'Push: $push · Pull: $pull';
   @override String seasonEpisode(int s, int e) => 'S$s E$e';
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'minute' : 'minutes'}';
+  @override String playlistItemCount(int count) => '$count ${count == 1 ? 'item' : 'items'}';
+  @override String tagCount(String tag, int count) => '#$tag ($count)';
 }

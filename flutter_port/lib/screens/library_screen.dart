@@ -1,4 +1,4 @@
-/// Bibliotheks-Screen mit Filter und Suche.
+/// Bibliotheks-Screen mit Filter, Tag-Filter und Suche.
 library;
 
 import 'package:flutter/material.dart';
@@ -19,6 +19,7 @@ class LibraryScreen extends StatefulWidget {
 class _LibraryScreenState extends State<LibraryScreen> {
   late Future<_LibData> _future;
   MediaCategory? _category;
+  String? _tag;
   bool _favorites = false;
   final _searchCtrl = TextEditingController();
   String _query = '';
@@ -45,12 +46,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final db = DatabaseService.instance;
     final items = await db.listItems(
       category: _category,
+      tag: _tag,
       favoritesOnly: _favorites,
       query: _query,
       limit: 500,
     );
     final counts = await db.countByCategory();
-    return _LibData(items: items, counts: counts);
+    final tags = await db.listTags();
+    return _LibData(items: items, counts: counts, tags: tags);
   }
 
   Future<void> _addManual() async {
@@ -71,103 +74,139 @@ class _LibraryScreenState extends State<LibraryScreen> {
         label: Text(loc.fabAdd),
       ),
       body: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(loc.screenLibrary, style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _searchCtrl,
-                decoration: InputDecoration(
-                  hintText: loc.searchHint,
-                  prefixIcon: const Icon(Icons.search),
-                  border: const OutlineInputBorder(),
-                  isDense: true,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(loc.screenLibrary, style: Theme.of(context).textTheme.headlineMedium),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _searchCtrl,
+                  decoration: InputDecoration(
+                    hintText: loc.searchHint,
+                    prefixIcon: const Icon(Icons.search),
+                    border: const OutlineInputBorder(),
+                    isDense: true,
+                  ),
+                  onChanged: (v) {
+                    setState(() => _query = v);
+                    _reload();
+                  },
                 ),
-                onChanged: (v) {
-                  setState(() => _query = v);
-                  _reload();
-                },
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 40,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            children: [
-              _chip(
-                label: loc.filterAll,
-                selected: _category == null && !_favorites,
-                onSelected: () {
-                  setState(() {
-                    _category = null;
-                    _favorites = false;
-                  });
-                  _reload();
-                },
-              ),
-              _chip(
-                label: loc.filterFavorites,
-                selected: _favorites,
-                onSelected: () {
-                  setState(() => _favorites = !_favorites);
-                  _reload();
-                },
-              ),
-              ...MediaCategory.values.map((c) => _chip(
-                    label: '${c.icon} ${c.label}',
-                    selected: _category == c,
-                    onSelected: () {
-                      setState(() => _category = _category == c ? null : c);
-                      _reload();
-                    },
-                  )),
-            ],
+          const SizedBox(height: 8),
+          // Category Chips
+          SizedBox(
+            height: 38,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              children: [
+                _chip(
+                  label: loc.filterAll,
+                  selected: _category == null && !_favorites && _tag == null,
+                  onSelected: () {
+                    setState(() {
+                      _category = null;
+                      _favorites = false;
+                      _tag = null;
+                    });
+                    _reload();
+                  },
+                ),
+                _chip(
+                  label: loc.filterFavorites,
+                  selected: _favorites,
+                  onSelected: () {
+                    setState(() => _favorites = !_favorites);
+                    _reload();
+                  },
+                ),
+                ...MediaCategory.values.map((c) => _chip(
+                      label: '${c.icon} ${c.label}',
+                      selected: _category == c,
+                      onSelected: () {
+                        setState(() => _category = _category == c ? null : c);
+                        _reload();
+                      },
+                    )),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 8),
-        Expanded(
-          child: FutureBuilder<_LibData>(
+          // Tag Chips (if available)
+          FutureBuilder<_LibData>(
             future: _future,
             builder: (context, snap) {
-              if (snap.hasError) {
-                return Center(child: Text(loc.error('${snap.error}')));
-              }
-              if (!snap.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final data = snap.data!;
-              if (data.items.isEmpty) {
-                return _EmptyState(hasAnyData: data.totalCount > 0);
-              }
-              return RefreshIndicator(
-                onRefresh: () async => _reload(),
-                child: ListView.builder(
-                  itemCount: data.items.length,
-                  itemBuilder: (_, i) => _MediaRow(
-                    item: data.items[i],
-                    onTap: () async {
-                      await Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ItemDetailScreen(id: data.items[i].id),
-                        ),
-                      );
-                      if (mounted) _reload();
-                    },
-                  ),
+              final tags = snap.data?.tags ?? [];
+              if (tags.isEmpty) return const SizedBox(height: 4);
+              return Container(
+                height: 34,
+                margin: const EdgeInsets.only(top: 4),
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  children: [
+                    ...tags.take(12).map((t) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: ChoiceChip(
+                            avatar: const Icon(Icons.tag, size: 14),
+                            label: Text(
+                              '${t.name} (${t.count})',
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                            selected: _tag == t.name,
+                            visualDensity: VisualDensity.compact,
+                            onSelected: (sel) {
+                              setState(() => _tag = sel ? t.name : null);
+                              _reload();
+                            },
+                          ),
+                        )),
+                  ],
                 ),
               );
             },
           ),
-        ),
-      ],
+          const Divider(height: 8),
+          Expanded(
+            child: FutureBuilder<_LibData>(
+              future: _future,
+              builder: (context, snap) {
+                if (snap.hasError) {
+                  return Center(child: Text(loc.error('${snap.error}')));
+                }
+                if (!snap.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final data = snap.data!;
+                if (data.items.isEmpty) {
+                  return _EmptyState(hasAnyData: data.totalCount > 0);
+                }
+                return RefreshIndicator(
+                  onRefresh: () async => _reload(),
+                  child: ListView.builder(
+                    itemCount: data.items.length,
+                    itemBuilder: (_, i) => _MediaRow(
+                      item: data.items[i],
+                      onTap: () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ItemDetailScreen(id: data.items[i].id),
+                          ),
+                        );
+                        if (mounted) _reload();
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -189,9 +228,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
 }
 
 class _LibData {
-  _LibData({required this.items, required this.counts});
+  _LibData({required this.items, required this.counts, required this.tags});
   final List<MediaItem> items;
   final Map<MediaCategory, int> counts;
+  final List<MediaTag> tags;
   int get totalCount => counts.values.fold(0, (a, b) => a + b);
 }
 
@@ -236,7 +276,7 @@ class _MediaRow extends StatelessWidget {
         foregroundColor: item.category.color,
         child: Text(item.category.icon),
       ),
-      title: Text(item.title),
+      title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -244,6 +284,16 @@ class _MediaRow extends StatelessWidget {
             '${item.category.label}${item.source.isEmpty ? '' : ' · ${item.source}'}',
             style: const TextStyle(fontSize: 12),
           ),
+          if (item.tags.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                item.tags.take(3).map((t) => '#$t').join(' '),
+                style: TextStyle(fontSize: 11, color: Colors.blueGrey.shade600),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           if (item.foregroundMinutes > 0)
             Text(
               loc.foregroundMinutesLabel(item.foregroundMinutes),

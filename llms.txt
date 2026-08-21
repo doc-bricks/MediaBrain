@@ -33,6 +33,7 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 - `tests/test_store_materials.py` - packaging and metadata contract tests
 - `tests/test_app_assets.py` - icon resolution and store screenshot validation
 - `tests/test_repo_metadata.py` - repository metadata, version parity, and badges validation
+- `tests/test_flutter_playlists_and_tags_contract.py` - Flutter mobile playlists and tags contract tests
 - `tests/source_platform_smoke.py` - Ubuntu/macOS source and offscreen-GUI contract
 - `.github/workflows/source-platform-smoke.yml` - real Ubuntu/macOS CI runners
 
@@ -52,4 +53,5 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 
 MediaBrain is not a streaming service, not a cloud sync product, not an advertising/media-planning analytics platform, not the MediaBrain-SJTU research organization, and not an AI media generator. Optional metadata lookup depends on user-configured API keys or public metadata services.
 
-## Last-checked: 2026-08-20
+## Last-checked: 2026-08-21
+

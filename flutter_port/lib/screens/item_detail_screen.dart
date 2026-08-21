@@ -1,4 +1,4 @@
-/// Detail-Screen für einen Bibliotheks-Eintrag.
+/// Detail-Screen für einen Bibliotheks-Eintrag mit Tag-Verwaltung und Playlist-Zuweisung.
 library;
 
 import 'package:flutter/material.dart';
@@ -34,6 +34,97 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   Future<void> _toggleFav() async {
     await DatabaseService.instance.toggleFavorite(widget.id);
     _reload();
+  }
+
+  Future<void> _addTagPrompt() async {
+    final loc = AppLocalizations.of(context);
+    final ctrl = TextEditingController();
+    final tag = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(loc.addTag),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'z.B. anime, doku, top10',
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (v) => Navigator.of(ctx).pop(v.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(loc.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(ctrl.text.trim()),
+            child: Text(loc.save),
+          ),
+        ],
+      ),
+    );
+
+    if (tag != null && tag.isNotEmpty) {
+      await DatabaseService.instance.addTagToItem(widget.id, tag);
+      _reload();
+    }
+  }
+
+  Future<void> _removeTag(String tag) async {
+    await DatabaseService.instance.removeTagFromItem(widget.id, tag);
+    _reload();
+  }
+
+  Future<void> _addToPlaylistPrompt() async {
+    final loc = AppLocalizations.of(context);
+    final allPlaylists = await DatabaseService.instance.listPlaylists();
+    final manualPlaylists = allPlaylists.where((p) => !p.isSmart).toList();
+
+    if (!mounted) return;
+    if (manualPlaylists.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.noPlaylistsFound)),
+      );
+      return;
+    }
+
+    final selected = await showDialog<Playlist>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(loc.addToPlaylist),
+        content: SizedBox(
+          width: 350,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: manualPlaylists.length,
+            itemBuilder: (ctx, idx) {
+              final pl = manualPlaylists[idx];
+              return ListTile(
+                leading: const Icon(Icons.queue_music, color: Colors.blue),
+                title: Text(pl.name),
+                subtitle: Text(loc.playlistItemCount(pl.itemCount)),
+                onTap: () => Navigator.of(ctx).pop(pl),
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(loc.cancel),
+          ),
+        ],
+      ),
+    );
+
+    if (selected != null) {
+      await DatabaseService.instance.addItemToPlaylist(selected.id, widget.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.addedToPlaylist)),
+      );
+    }
   }
 
   Future<void> _openExternal() async {
@@ -84,6 +175,11 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         title: Text(i.title),
         actions: [
           IconButton(
+            icon: const Icon(Icons.playlist_add),
+            tooltip: loc.addToPlaylist,
+            onPressed: _addToPlaylistPrompt,
+          ),
+          IconButton(
             icon: Text(i.isFavorite ? '⭐' : '☆',
                 style: const TextStyle(fontSize: 22)),
             onPressed: _toggleFav,
@@ -119,19 +215,38 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
           if (i.description != null && i.description!.isNotEmpty)
             _section(loc.detailDescription, Text(i.description!)),
           _section(loc.detailDetails, _details(i, loc)),
-          if (i.tags.isNotEmpty)
-            _section(
-              loc.detailTags,
-              Wrap(
-                spacing: 6,
-                children: i.tags
-                    .map((t) => Chip(
-                          label: Text(t),
-                          visualDensity: VisualDensity.compact,
-                        ))
-                    .toList(),
-              ),
+          _section(
+            loc.detailTags,
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                ...i.tags.map((t) => InputChip(
+                      avatar: const Icon(Icons.tag, size: 14),
+                      label: Text(t),
+                      visualDensity: VisualDensity.compact,
+                      onDeleted: () => _removeTag(t),
+                    )),
+                ActionChip(
+                  avatar: const Icon(Icons.add, size: 16),
+                  label: Text(loc.addTag),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: _addTagPrompt,
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _addToPlaylistPrompt,
+            icon: const Icon(Icons.playlist_add),
+            label: Text(loc.addToPlaylist),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(44),
+            ),
+          ),
+          const SizedBox(height: 8),
           if (_guessUrl(i) != null)
             ElevatedButton.icon(
               onPressed: _openExternal,

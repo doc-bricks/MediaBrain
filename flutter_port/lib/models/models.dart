@@ -4,6 +4,7 @@
 /// um Mobile-spezifische Felder.
 library;
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 const librarySchemaName = 'mediabrain-library-v1';
@@ -192,31 +193,236 @@ class MediaItem {
       };
 
   MediaItem copyWith({
+    String? title,
+    MediaCategory? category,
+    String? source,
+    String? providerId,
+    String? artist,
+    String? album,
+    String? channel,
+    int? season,
+    int? episode,
+    int? lengthSeconds,
     bool? isFavorite,
     DateTime? lastOpenedAt,
     int? foregroundMinutes,
     String? description,
     String? thumbnailUrl,
+    String? localPath,
     List<String>? tags,
   }) =>
       MediaItem(
         id: id,
-        title: title,
-        category: category,
-        source: source,
-        providerId: providerId,
-        artist: artist,
-        album: album,
-        channel: channel,
-        season: season,
-        episode: episode,
-        lengthSeconds: lengthSeconds,
+        title: title ?? this.title,
+        category: category ?? this.category,
+        source: source ?? this.source,
+        providerId: providerId ?? this.providerId,
+        artist: artist ?? this.artist,
+        album: album ?? this.album,
+        channel: channel ?? this.channel,
+        season: season ?? this.season,
+        episode: episode ?? this.episode,
+        lengthSeconds: lengthSeconds ?? this.lengthSeconds,
         lastOpenedAt: lastOpenedAt ?? this.lastOpenedAt,
         foregroundMinutes: foregroundMinutes ?? this.foregroundMinutes,
         isFavorite: isFavorite ?? this.isFavorite,
         description: description ?? this.description,
         thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
-        localPath: localPath,
+        localPath: localPath ?? this.localPath,
         tags: tags ?? this.tags,
+      );
+}
+
+/// Tag / Schlagwort mit Häufigkeitszähler.
+class MediaTag {
+  const MediaTag({required this.name, this.count = 0});
+  final String name;
+  final int count;
+
+  factory MediaTag.fromMap(Map<String, dynamic> m) => MediaTag(
+        name: m['name'] as String,
+        count: (m['count'] as num?)?.toInt() ?? 0,
+      );
+
+  Map<String, dynamic> toMap() => {
+        'name': name,
+        'count': count,
+      };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MediaTag && runtimeType == other.runtimeType && name == other.name;
+
+  @override
+  int get hashCode => name.hashCode;
+}
+
+/// Typ einer Playlist: manuell oder smart (dynamische Abfrage).
+enum PlaylistType { manual, smart }
+
+PlaylistType playlistTypeFromString(String? s) {
+  switch (s) {
+    case 'smart':
+      return PlaylistType.smart;
+    case 'manual':
+    default:
+      return PlaylistType.manual;
+  }
+}
+
+String playlistTypeToString(PlaylistType t) => t.name;
+
+/// Dynamische Filterkriterien für eine Smart-Playlist.
+class SmartPlaylistQuery {
+  const SmartPlaylistQuery({
+    this.category,
+    this.tag,
+    this.favoritesOnly = false,
+    this.minForegroundMinutes,
+    this.searchQuery,
+    this.source,
+  });
+
+  final MediaCategory? category;
+  final String? tag;
+  final bool favoritesOnly;
+  final int? minForegroundMinutes;
+  final String? searchQuery;
+  final String? source;
+
+  /// Prüft, ob ein MediaItem den Kriterien entspricht.
+  bool matches(MediaItem item) {
+    if (category != null && item.category != category) return false;
+    if (favoritesOnly && !item.isFavorite) return false;
+    if (tag != null &&
+        tag!.trim().isNotEmpty &&
+        !item.tags.map((t) => t.toLowerCase()).contains(tag!.trim().toLowerCase())) {
+      return false;
+    }
+    if (minForegroundMinutes != null && item.foregroundMinutes < minForegroundMinutes!) {
+      return false;
+    }
+    if (source != null &&
+        source!.trim().isNotEmpty &&
+        item.source.toLowerCase() != source!.trim().toLowerCase()) {
+      return false;
+    }
+    if (searchQuery != null && searchQuery!.trim().isNotEmpty) {
+      final q = searchQuery!.trim().toLowerCase();
+      final inTitle = item.title.toLowerCase().contains(q);
+      final inArtist = (item.artist ?? '').toLowerCase().contains(q);
+      final inAlbum = (item.album ?? '').toLowerCase().contains(q);
+      final inChannel = (item.channel ?? '').toLowerCase().contains(q);
+      final inDescription = (item.description ?? '').toLowerCase().contains(q);
+      final inTags = item.tags.any((t) => t.toLowerCase().contains(q));
+      if (!inTitle && !inArtist && !inAlbum && !inChannel && !inDescription && !inTags) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  factory SmartPlaylistQuery.fromMap(Map<String, dynamic> m) => SmartPlaylistQuery(
+        category: m['category'] == null ? null : categoryFromString(m['category'] as String?),
+        tag: m['tag'] as String?,
+        favoritesOnly: m['favorites_only'] == 1 || m['favorites_only'] == true,
+        minForegroundMinutes: (m['min_foreground_minutes'] as num?)?.toInt(),
+        searchQuery: m['search_query'] as String?,
+        source: m['source'] as String?,
+      );
+
+  Map<String, dynamic> toMap() => {
+        if (category != null) 'category': categoryToString(category!),
+        if (tag != null && tag!.isNotEmpty) 'tag': tag,
+        'favorites_only': favoritesOnly ? 1 : 0,
+        if (minForegroundMinutes != null) 'min_foreground_minutes': minForegroundMinutes,
+        if (searchQuery != null && searchQuery!.isNotEmpty) 'search_query': searchQuery,
+        if (source != null && source!.isNotEmpty) 'source': source,
+      };
+
+  factory SmartPlaylistQuery.fromJsonString(String? jsonStr) {
+    if (jsonStr == null || jsonStr.trim().isEmpty) {
+      return const SmartPlaylistQuery();
+    }
+    try {
+      final decoded = json.decode(jsonStr) as Map<String, dynamic>;
+      return SmartPlaylistQuery.fromMap(decoded);
+    } catch (_) {
+      return const SmartPlaylistQuery();
+    }
+  }
+
+  String toJsonString() => json.encode(toMap());
+}
+
+/// Playlist-Modell (manuell zusammengestellt oder smart per Abfrage).
+class Playlist {
+  const Playlist({
+    required this.id,
+    required this.name,
+    this.description = '',
+    this.type = PlaylistType.manual,
+    this.smartQuery,
+    required this.createdAt,
+    required this.updatedAt,
+    this.itemCount = 0,
+  });
+
+  final String id;
+  final String name;
+  final String description;
+  final PlaylistType type;
+  final SmartPlaylistQuery? smartQuery;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final int itemCount;
+
+  bool get isSmart => type == PlaylistType.smart;
+
+  factory Playlist.fromMap(Map<String, dynamic> m, {int itemCount = 0}) => Playlist(
+        id: m['id'] as String,
+        name: m['name'] as String,
+        description: (m['description'] as String?) ?? '',
+        type: playlistTypeFromString(m['playlist_type'] as String?),
+        smartQuery: m['smart_query'] != null && (m['smart_query'] as String).isNotEmpty
+            ? SmartPlaylistQuery.fromJsonString(m['smart_query'] as String)
+            : null,
+        createdAt: m['created_at'] == null
+            ? DateTime.now()
+            : DateTime.tryParse(m['created_at'] as String) ?? DateTime.now(),
+        updatedAt: m['updated_at'] == null
+            ? DateTime.now()
+            : DateTime.tryParse(m['updated_at'] as String) ?? DateTime.now(),
+        itemCount: (m['item_count'] as num?)?.toInt() ?? itemCount,
+      );
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'name': name,
+        'description': description,
+        'playlist_type': playlistTypeToString(type),
+        'smart_query': smartQuery?.toJsonString() ?? '',
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
+
+  Playlist copyWith({
+    String? name,
+    String? description,
+    PlaylistType? type,
+    SmartPlaylistQuery? smartQuery,
+    DateTime? updatedAt,
+    int? itemCount,
+  }) =>
+      Playlist(
+        id: id,
+        name: name ?? this.name,
+        description: description ?? this.description,
+        type: type ?? this.type,
+        smartQuery: smartQuery ?? this.smartQuery,
+        createdAt: createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        itemCount: itemCount ?? this.itemCount,
       );
 }

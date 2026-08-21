@@ -32,9 +32,42 @@ class DatabaseService {
     final dbPath = overrideDbPath ?? p.join(await getDatabasesPath(), 'mediabrain.db');
     return openDatabase(
       dbPath,
-      version: 1,
+      version: 2,
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, _) async => _createSchema(db),
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await _createPlaylistTables(db);
+        }
+      },
+    );
+  }
+
+  Future<void> _createPlaylistTables(DatabaseExecutor db) async {
+    await db.execute('''
+CREATE TABLE IF NOT EXISTS playlists (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  playlist_type TEXT NOT NULL DEFAULT 'manual',
+  smart_query TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+)
+''');
+    await db.execute('''
+CREATE TABLE IF NOT EXISTS playlist_items (
+  playlist_id TEXT NOT NULL,
+  media_id TEXT NOT NULL,
+  position INTEGER NOT NULL DEFAULT 0,
+  added_at TEXT NOT NULL,
+  PRIMARY KEY (playlist_id, media_id),
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+  FOREIGN KEY (media_id) REFERENCES media_items(id) ON DELETE CASCADE
+)
+''');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_playlist_items_playlist ON playlist_items(playlist_id)',
     );
   }
 
@@ -82,17 +115,79 @@ CREATE TABLE IF NOT EXISTS settings (
   updated_at TEXT NOT NULL
 )
 ''');
+
+    batch.execute('''
+CREATE TABLE IF NOT EXISTS playlists (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  playlist_type TEXT NOT NULL DEFAULT 'manual',
+  smart_query TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+)
+''');
+    batch.execute('''
+CREATE TABLE IF NOT EXISTS playlist_items (
+  playlist_id TEXT NOT NULL,
+  media_id TEXT NOT NULL,
+  position INTEGER NOT NULL DEFAULT 0,
+  added_at TEXT NOT NULL,
+  PRIMARY KEY (playlist_id, media_id),
+  FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE,
+  FOREIGN KEY (media_id) REFERENCES media_items(id) ON DELETE CASCADE
+)
+''');
+    batch.execute(
+      'CREATE INDEX IF NOT EXISTS idx_playlist_items_playlist ON playlist_items(playlist_id)',
+    );
+
     await batch.commit();
   }
 
   // ─── MediaItems ─────────────────────────────────────────────────
 
+  // ─── MediaItems & Filtering ─────────────────────────────────────
+
   Future<List<MediaItem>> listItems({
     MediaCategory? category,
     bool favoritesOnly = false,
     String? query,
+    String? tag,
+    String? playlistId,
     int? limit,
   }) async {
+    if (playlistId != null && playlistId.isNotEmpty) {
+      final items = await getPlaylistItems(playlistId);
+      var filtered = items;
+      if (category != null) {
+        filtered = filtered.where((m) => m.category == category).toList();
+      }
+      if (favoritesOnly) {
+        filtered = filtered.where((m) => m.isFavorite).toList();
+      }
+      if (tag != null && tag.trim().isNotEmpty) {
+        final tLower = tag.trim().toLowerCase();
+        filtered = filtered
+            .where((m) => m.tags.map((t) => t.toLowerCase()).contains(tLower))
+            .toList();
+      }
+      if (query != null && query.trim().isNotEmpty) {
+        final q = query.trim().toLowerCase();
+        filtered = filtered.where((m) =>
+            m.title.toLowerCase().contains(q) ||
+            (m.artist ?? '').toLowerCase().contains(q) ||
+            (m.album ?? '').toLowerCase().contains(q) ||
+            (m.channel ?? '').toLowerCase().contains(q) ||
+            (m.description ?? '').toLowerCase().contains(q) ||
+            m.tags.any((t) => t.toLowerCase().contains(q))).toList();
+      }
+      if (limit != null && filtered.length > limit) {
+        return filtered.sublist(0, limit);
+      }
+      return filtered;
+    }
+
     final db = await database;
     final wheres = <String>[];
     final args = <Object?>[];
@@ -112,16 +207,23 @@ CREATE TABLE IF NOT EXISTS settings (
       orderBy: '(last_opened_at IS NULL), last_opened_at DESC, title ASC',
       limit: limit,
     );
-    final items = rows.map(MediaItem.fromMap).toList();
-    if (query == null || query.isEmpty) return items;
-    final q = query.toLowerCase();
+    var items = rows.map(MediaItem.fromMap).toList();
+    if (tag != null && tag.trim().isNotEmpty) {
+      final tLower = tag.trim().toLowerCase();
+      items = items
+          .where((m) => m.tags.map((t) => t.toLowerCase()).contains(tLower))
+          .toList();
+    }
+    if (query == null || query.trim().isEmpty) return items;
+    final q = query.trim().toLowerCase();
     return items
         .where((m) =>
             m.title.toLowerCase().contains(q) ||
             (m.artist ?? '').toLowerCase().contains(q) ||
             (m.album ?? '').toLowerCase().contains(q) ||
             (m.channel ?? '').toLowerCase().contains(q) ||
-            (m.description ?? '').toLowerCase().contains(q))
+            (m.description ?? '').toLowerCase().contains(q) ||
+            m.tags.any((t) => t.toLowerCase().contains(q)))
         .toList();
   }
 
@@ -168,7 +270,10 @@ CREATE TABLE IF NOT EXISTS settings (
 
   Future<void> delete(String id) async {
     final db = await database;
-    await db.delete('media_items', where: 'id = ?', whereArgs: [id]);
+    await db.transaction((txn) async {
+      await txn.delete('playlist_items', where: 'media_id = ?', whereArgs: [id]);
+      await txn.delete('media_items', where: 'id = ?', whereArgs: [id]);
+    });
   }
 
   Future<List<String>> listCategories() async {
@@ -189,6 +294,181 @@ CREATE TABLE IF NOT EXISTS settings (
       out[categoryFromString(r['category'] as String?)] = (r['c'] as int);
     }
     return out;
+  }
+
+  // ─── Tags ────────────────────────────────────────────────────────
+
+  /// Liefert alle eindeutigen Tags mit ihrer Häufigkeit, sortiert nach Count DESC.
+  Future<List<MediaTag>> listTags() async {
+    final db = await database;
+    final rows = await db.rawQuery("SELECT tags FROM media_items WHERE tags != ''");
+    final counts = <String, int>{};
+    for (final r in rows) {
+      final raw = (r['tags'] as String?) ?? '';
+      for (final t in raw.split('|')) {
+        final clean = t.trim();
+        if (clean.isNotEmpty) {
+          counts[clean] = (counts[clean] ?? 0) + 1;
+        }
+      }
+    }
+    final sorted = counts.entries
+        .map((e) => MediaTag(name: e.key, count: e.value))
+        .toList();
+    sorted.sort((a, b) {
+      final cmp = b.count.compareTo(a.count);
+      return cmp != 0 ? cmp : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    });
+    return sorted;
+  }
+
+  /// Fügt einem MediaItem einen Tag hinzu (idempotent).
+  Future<void> addTagToItem(String itemId, String tag) async {
+    final clean = tag.trim();
+    if (clean.isEmpty) return;
+    final item = await getItem(itemId);
+    if (item == null) return;
+    if (item.tags.map((t) => t.toLowerCase()).contains(clean.toLowerCase())) return;
+    final newTags = List<String>.from(item.tags)..add(clean);
+    await upsert(item.copyWith(tags: newTags));
+  }
+
+  /// Entfernt einen Tag von einem MediaItem.
+  Future<void> removeTagFromItem(String itemId, String tag) async {
+    final clean = tag.trim().toLowerCase();
+    final item = await getItem(itemId);
+    if (item == null) return;
+    final newTags = item.tags.where((t) => t.toLowerCase() != clean).toList();
+    await upsert(item.copyWith(tags: newTags));
+  }
+
+  // ─── Playlists ───────────────────────────────────────────────────
+
+  /// Liefert alle Playlists mit berechneter Anzahl an Einträgen.
+  Future<List<Playlist>> listPlaylists() async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+SELECT p.*, COUNT(pi.media_id) AS item_count
+FROM playlists p
+LEFT JOIN playlist_items pi ON p.id = pi.playlist_id
+GROUP BY p.id
+ORDER BY p.name COLLATE NOCASE ASC
+''');
+    final out = <Playlist>[];
+    for (final r in rows) {
+      final pl = Playlist.fromMap(r);
+      if (pl.isSmart && pl.smartQuery != null) {
+        final smartItems = await evaluateSmartPlaylist(pl.smartQuery!);
+        out.add(pl.copyWith(itemCount: smartItems.length));
+      } else {
+        out.add(pl);
+      }
+    }
+    return out;
+  }
+
+  /// Liefert eine Playlist per ID.
+  Future<Playlist?> getPlaylist(String id) async {
+    final db = await database;
+    final rows = await db.rawQuery('''
+SELECT p.*, COUNT(pi.media_id) AS item_count
+FROM playlists p
+LEFT JOIN playlist_items pi ON p.id = pi.playlist_id
+WHERE p.id = ?
+GROUP BY p.id
+''', [id]);
+    if (rows.isEmpty) return null;
+    final pl = Playlist.fromMap(rows.first);
+    if (pl.isSmart && pl.smartQuery != null) {
+      final smartItems = await evaluateSmartPlaylist(pl.smartQuery!);
+      return pl.copyWith(itemCount: smartItems.length);
+    }
+    return pl;
+  }
+
+  /// Legt eine Playlist neu an oder aktualisiert sie.
+  Future<void> upsertPlaylist(Playlist playlist) async {
+    final db = await database;
+    await db.insert(
+      'playlists',
+      playlist.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Löscht eine Playlist und ihre Item-Zuordnungen.
+  Future<void> deletePlaylist(String id) async {
+    final db = await database;
+    await db.transaction((txn) async {
+      await txn.delete('playlist_items', where: 'playlist_id = ?', whereArgs: [id]);
+      await txn.delete('playlists', where: 'id = ?', whereArgs: [id]);
+    });
+  }
+
+  /// Fügt ein MediaItem einer manuellen Playlist hinzu.
+  Future<void> addItemToPlaylist(String playlistId, String mediaId) async {
+    final db = await database;
+    final maxPosRow = await db.rawQuery(
+      'SELECT MAX(position) AS max_pos FROM playlist_items WHERE playlist_id = ?',
+      [playlistId],
+    );
+    final nextPos = ((maxPosRow.first['max_pos'] as num?)?.toInt() ?? -1) + 1;
+    await db.insert(
+      'playlist_items',
+      {
+        'playlist_id': playlistId,
+        'media_id': mediaId,
+        'position': nextPos,
+        'added_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+    await db.update(
+      'playlists',
+      {'updated_at': DateTime.now().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [playlistId],
+    );
+  }
+
+  /// Entfernt ein MediaItem aus einer manuellen Playlist.
+  Future<void> removeItemFromPlaylist(String playlistId, String mediaId) async {
+    final db = await database;
+    await db.delete(
+      'playlist_items',
+      where: 'playlist_id = ? AND media_id = ?',
+      whereArgs: [playlistId, mediaId],
+    );
+    await db.update(
+      'playlists',
+      {'updated_at': DateTime.now().toIso8601String()},
+      where: 'id = ?',
+      whereArgs: [playlistId],
+    );
+  }
+
+  /// Liefert alle MediaItems einer Playlist (bei smart: dynamisch evaluiert).
+  Future<List<MediaItem>> getPlaylistItems(String playlistId) async {
+    final pl = await getPlaylist(playlistId);
+    if (pl == null) return [];
+    if (pl.isSmart && pl.smartQuery != null) {
+      return evaluateSmartPlaylist(pl.smartQuery!);
+    }
+    final db = await database;
+    final rows = await db.rawQuery('''
+SELECT m.*
+FROM media_items m
+INNER JOIN playlist_items pi ON m.id = pi.media_id
+WHERE pi.playlist_id = ?
+ORDER BY pi.position ASC, pi.added_at ASC
+''', [playlistId]);
+    return rows.map(MediaItem.fromMap).toList();
+  }
+
+  /// Wertet eine Smart-Playlist-Query gegen die gesamte Bibliothek aus.
+  Future<List<MediaItem>> evaluateSmartPlaylist(SmartPlaylistQuery query) async {
+    final all = await listItems();
+    return all.where(query.matches).toList();
   }
 
   // ─── Settings ───────────────────────────────────────────────────
@@ -220,6 +500,8 @@ CREATE TABLE IF NOT EXISTS settings (
   Future<void> clearAll() async {
     final db = await database;
     await db.transaction((txn) async {
+      await txn.delete('playlist_items');
+      await txn.delete('playlists');
       await txn.delete('media_items');
       await txn.delete('settings');
     });
