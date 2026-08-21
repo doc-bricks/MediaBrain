@@ -27,6 +27,7 @@ MediaBrain is a local-first PySide6 desktop application for managing personal me
 - `store_package/MediaBrain/AppxManifest.xml` - canonical Windows Store AppxManifest
 - `store_package.json` - package manifest and Store release configuration
 - `STORE_LISTING.md` - bilingual Microsoft Store listing copy and feature index
+- `WINDOWS_STORE_PREP.md` - Windows Store packaging, identity, and preparation guide
 - `SUPPORT.md` - bilingual user support and security guidance
 - `scripts/check_store_readiness.py` - Store readiness preflight and release gate audit tool
 - `tests/` - pytest regression, asset, and GUI smoke tests

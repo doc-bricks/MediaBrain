@@ -36,8 +36,7 @@ auslösen.
 
 **Suchbegriffe**
 
-Medienbibliothek, Streaming-Verlauf, Wiedergabelisten, Medienverwaltung,
-Video, Musik, Dokumente, lokal, offline, Smart-Playlists
+Medienbibliothek, Streaming-Verlauf, Wiedergabelisten, Medienverwaltung, Smart-Playlists, Offline-Player, Metadaten-Manager
 
 ## English
 
@@ -70,8 +69,7 @@ or perform a manual data transfer.
 
 **Keywords**
 
-media library, streaming history, playlists, media manager, video, music,
-documents, local, offline, smart playlists
+media library, streaming history, playlists, media manager, smart playlists, offline library, metadata inspector
 
 ## Submission prerequisites status
 

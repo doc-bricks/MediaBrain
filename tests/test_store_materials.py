@@ -77,3 +77,63 @@ def test_store_readiness_reports_repository_staged() -> None:
     assert result.returncode == 0, result.stdout + result.stderr
     assert "STORE READINESS: METADATA & REPOSITORY STAGED" in result.stdout
     assert "Partner Center reservation" in result.stdout
+
+
+def test_store_listing_keywords_adhere_to_policy_10_1_3() -> None:
+    listing = (ROOT / "STORE_LISTING.md").read_text(encoding="utf-8")
+
+    import re
+    de_match = re.search(r"\*\*Suchbegriffe\*\*\s*\n+([^\n#]+)", listing)
+    assert de_match is not None, "German keywords section missing"
+    de_keywords = [k.strip() for k in de_match.group(1).split(",") if k.strip()]
+    assert 1 <= len(de_keywords) <= 7, f"German keywords must be 1-7 (found {len(de_keywords)})"
+
+    en_match = re.search(r"\*\*Keywords\*\*\s*\n+([^\n#]+)", listing)
+    assert en_match is not None, "English keywords section missing"
+    en_keywords = [k.strip() for k in en_match.group(1).split(",") if k.strip()]
+    assert 1 <= len(en_keywords) <= 7, f"English keywords must be 1-7 (found {len(en_keywords)})"
+
+
+def test_windows_store_prep_matches_metadata_and_policy() -> None:
+    prep_path = ROOT / "WINDOWS_STORE_PREP.md"
+    assert prep_path.is_file(), "WINDOWS_STORE_PREP.md must exist"
+    prep_text = prep_path.read_text(encoding="utf-8")
+
+    config = json.loads((ROOT / "store_package.json").read_text(encoding="utf-8"))
+    assert config["identity_name"] in prep_text
+    assert config["publisher"] in prep_text
+    assert config["version"] in prep_text
+    assert "Policy 10.1.3" in prep_text
+    assert "WACK" in prep_text
+
+
+def test_tile_icons_present_in_all_store_locations() -> None:
+    required_icons = (
+        "icon_44x44.png",
+        "icon_50x50.png",
+        "icon_150x150.png",
+        "icon_310x150.png",
+        "icon_310x310.png",
+    )
+    for loc in (
+        ROOT / "assets" / "icons",
+        ROOT / "store_assets",
+        ROOT / "store_package" / "MediaBrain" / "icons",
+    ):
+        assert loc.is_dir(), f"Icon folder {loc} must exist"
+        for icon_name in required_icons:
+            icon_file = loc / icon_name
+            assert icon_file.is_file(), f"Icon {icon_name} missing in {loc}"
+            assert icon_file.stat().st_size > 0, f"Icon {icon_name} in {loc} is empty"
+
+
+def test_german_umlaut_integrity_in_store_materials() -> None:
+    listing = (ROOT / "STORE_LISTING.md").read_text(encoding="utf-8")
+    prep = (ROOT / "WINDOWS_STORE_PREP.md").read_text(encoding="utf-8")
+    pkg = (ROOT / "store_package.json").read_text(encoding="utf-8")
+
+    # Ensure real German umlauts are used
+    assert any(c in listing for c in "äöüÄÖÜß")
+    assert any(c in prep for c in "äöüÄÖÜß")
+    assert any(c in pkg for c in "äöüÄÖÜß")
+

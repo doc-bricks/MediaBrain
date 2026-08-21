@@ -5,6 +5,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Windows Store Readiness Audit & Packaging Preparation [2026-08-21]
+- **Windows Store Preparation Guide (`WINDOWS_STORE_PREP.md`):** Umfassenden Leitfaden mit Identitätsmetadaten (`CN=52596601-BAB4-4F3F-B182-E8F3F273B202`, `Geiger.MediaBrain`, `2.1.0.0`), Vorbereitungsschritten, Kachel-Assets, Screenshot-Zuordnungen, Partner-Center-Gates und Offline-First-Architektur implementiert.
+- **Store Policy 10.1.3 Compliance (`STORE_LISTING.md`):** Bilinguale Suchbegriffe (Suchbegriffe / Keywords) auf strikt maximal 7 Keywords pro Sprache ohne Fremdmarkenverletzungen gehärtet.
+- **Store-Asset-Spiegelung (`store_assets/`):** Vollständiges Set an MSIX-Tile-Icons (`icon_44x44.png`, `icon_50x50.png`, `icon_150x150.png`, `icon_310x150.png`, `icon_310x310.png`) in `store_assets/` synchronisiert.
+- **Automatisierter Readiness-Auditor (`scripts/check_store_readiness.py`):** Prüfung um `WINDOWS_STORE_PREP.md`, strikte Keyword-Limits (Policy 10.1.3) und Kachelicon-Verifikation über alle drei Speicherorte (`assets/icons/`, `store_assets/`, `store_package/MediaBrain/icons/`) erweitert.
+- **Testsuite-Erweiterung (`tests/test_store_materials.py`):** 4 neue Contract-Tests für Keyword-Limits, Metadaten-Parität, Multi-Location-Tile-Assets und deutsche Umlaut-Integrität hinzugefügt (8/8 passed, 258/258 Pytest-Tests grün).
+
 ### Flutter Mobile Port: Smart-Playlists & Tag-System (Android/iOS) [2026-08-21]
 - **Datenmodelle & Smart-Matching:** Neue Modelle `MediaTag`, `Playlist`, `SmartPlaylistQuery` und `PlaylistType` mit nativer JSON-Serialisierung und deterministischer In-Memory-Query-Matching-Engine für dynamische Smart-Playlists (Filter nach Kategorie, Tag, Favoriten, Mindest-Foreground-Zeit und Volltext-Suchquery) in `flutter_port/lib/models/models.dart`.
 - **SQLite-Schema v2 & Persistenz:** SQLite-Datenbank in `DatabaseService` (`flutter_port/lib/services/database_service.dart`) auf Version 2 aktualisiert mit automatischer Migration (`playlists`, `playlist_items`), Indexierung, Tag-Aggregation (`listTags`, `addTagToItem`, `removeTagFromItem`) und vollständigen Playlist-CRUD-Methoden (`listPlaylists`, `getPlaylist`, `upsertPlaylist`, `deletePlaylist`, `addItemToPlaylist`, `removeItemFromPlaylist`, `getPlaylistItems`, `evaluateSmartPlaylist`).

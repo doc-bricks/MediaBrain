@@ -20,6 +20,7 @@ REQUIRED_DOCUMENTS = (
     "PRIVACY_POLICY.md",
     "SUPPORT.md",
     "STORE_LISTING.md",
+    "WINDOWS_STORE_PREP.md",
     "THIRD_PARTY_LICENSES.txt",
 )
 
@@ -164,11 +165,35 @@ def _check_repository(project_root: Path) -> list[str]:
     if readme_content is None or "PRIVACY_POLICY.md" not in readme_content:
         findings.append("[repository] README.md does not reference PRIVACY_POLICY.md")
 
-    # Verify tile icons
+    # Check Store Listing keywords according to Policy 10.1.3 (max 7 per language)
+    listing_content = _read_nonempty(project_root / "STORE_LISTING.md")
+    if listing_content:
+        de_match = re.search(r"\*\*Suchbegriffe\*\*\s*\n+([^\n#]+)", listing_content)
+        if de_match:
+            de_kw = [k.strip() for k in de_match.group(1).split(",") if k.strip()]
+            if len(de_kw) > 7:
+                findings.append(
+                    f"[repository] STORE_LISTING.md German keywords exceed Policy 10.1.3 limit (max 7, found {len(de_kw)})"
+                )
+        en_match = re.search(r"\*\*Keywords\*\*\s*\n+([^\n#]+)", listing_content)
+        if en_match:
+            en_kw = [k.strip() for k in en_match.group(1).split(",") if k.strip()]
+            if len(en_kw) > 7:
+                findings.append(
+                    f"[repository] STORE_LISTING.md English keywords exceed Policy 10.1.3 limit (max 7, found {len(en_kw)})"
+                )
+
+    # Verify tile icons across assets/icons, store_assets and store_package
     for icon_name in REQUIRED_TILE_ICONS:
         icon_path = project_root / "assets" / "icons" / icon_name
         if not icon_path.is_file():
             findings.append(f"[repository] tile icon missing in assets/icons: {icon_name}")
+        store_icon_path = project_root / "store_assets" / icon_name
+        if not store_icon_path.is_file():
+            findings.append(f"[repository] tile icon missing in store_assets: {icon_name}")
+        pkg_icon_path = project_root / "store_package" / "MediaBrain" / "icons" / icon_name
+        if not pkg_icon_path.is_file():
+            findings.append(f"[repository] tile icon missing in store_package/MediaBrain/icons: {icon_name}")
 
     # Check store screenshots
     screenshot_dirs = [
