@@ -97,6 +97,18 @@ class TestInlayPanelMinimumSizes(unittest.TestCase):
             "fav_btn zu niedrig — Stern-Icon kann abgeschnitten sein",
         )
 
+    def test_type_icon_exposes_accessible_media_type(self):
+        """Das kompakte Medientyp-Icon darf nicht nur als Emoji exponiert werden."""
+        self.assertEqual(self.widget.type_icon_label.toolTip(), "Film")
+        self.assertEqual(
+            self.widget.type_icon_label.accessibleName(),
+            "Medientyp: Film",
+        )
+        self.assertIn(
+            "Inlay-Testfilm",
+            self.widget.type_icon_label.accessibleDescription(),
+        )
+
     def test_action_buttons_tall_enough(self):
         """Aktions-Buttons (Öffnen / Details) müssen ≥40 px hoch sein."""
         self.assertGreaterEqual(

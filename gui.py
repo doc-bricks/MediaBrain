@@ -233,6 +233,12 @@ class MediaItemWidget(QFrame):
         icon.setFixedSize(self.ICON_SIZE)
         icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         icon.setStyleSheet("font-size: 22px;")  # war 20px — passt besser zu 44px-Container
+        media_type_label = self._media_type_label()
+        icon.setToolTip(media_type_label)
+        icon.setAccessibleName(f"Medientyp: {media_type_label}")
+        icon.setAccessibleDescription(
+            f"Zeigt den Medientyp für {self.item.title} an."
+        )
         layout.addWidget(icon)
         self.type_icon_label = icon
 
@@ -276,6 +282,21 @@ class MediaItemWidget(QFrame):
         if self.item.is_favorite:
             return f"{self.item.title} aus Favoriten entfernen"
         return f"{self.item.title} als Favorit markieren"
+
+    def _media_type_label(self) -> str:
+        labels = {
+            "movie": "Film",
+            "music": "Musik",
+            "series": "Serie",
+            "clip": "Clip",
+            "video": "Video",
+            "short": "Kurzvideo",
+            "youtube": "YouTube-Clip",
+            "podcast": "Podcast",
+            "audiobook": "Hörbuch",
+            "document": "Dokument",
+        }
+        return labels.get(str(getattr(self.item, "type", "") or "").lower(), "Medium")
 
     def open_item(self):
         try:
