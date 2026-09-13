@@ -58,6 +58,11 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
   and macOS without claiming native packaging or manual desktop acceptance.
 
 ### Behoben / Fixed
+- Die kompakten Medientyp-Icons in Medienkarten bleiben visuell unverändert,
+  exponieren jetzt aber Tooltips, Accessible Names und Accessible Descriptions
+  für Screenreader. Eine Offscreen-Regression sichert den Kontext.
+- `README.md` und `README_de.md` spiegeln den neuen Teststand von 264 bestandenen
+  Tests.
 - Die sichtbare Fehlermeldung beim temporären Ausblenden verwendet jetzt das
   korrekte deutsche Wort „Temporäres“; eine Offscreen-Regression sichert den
   gesamten Fehlerpfad.
