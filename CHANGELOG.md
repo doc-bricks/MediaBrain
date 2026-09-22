@@ -5,6 +5,13 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### I18N-Expansion & Mehrsprachigkeits-Härtung (Tier-2-Parität) [2026-09-22]
+- **Vollständige Tier-2-Lokalisierung (`locales/translations.json`):** Fehlende Lokalisierungseinträge für `Lokale Daten:` in Spanisch (`Datos locales:`), Chinesisch (`本地数据:`), Japanisch (`ローカルデータ:`) und Russisch (`Локальные данные:`) kuratiert ergänzt. Damit erreichen alle 29 Desktop-Catalog-Keys eine 100%-Vollabdeckung über alle 6 unterstützten Sprachen (DE, EN, ES, ZH, JA, RU).
+- **Robuste 4-Stufen-Fallback-Kette (`translator.py`):** `TranslationSystem.t()` implementiert eine strikte Fallback-Hierarchie (`Ziel-Sprache -> Englisch -> Deutsch -> Original-Key`), die UI-Glitches durch leere Zeichenketten ausschließt; zudem Unterstützung für variable Platzhalter-Interpolation (`**kwargs`) und neue Status-/Abdeckungsmethoden (`get_supported_languages()`, `get_coverage()`, `is_fully_translated()`).
+- **Erweiterte Vertrags- & Regressionstests (`tests/test_translations.py`):** Umfassende Multi-Language-Vertragstests (14 Tests / Subtests) für 100%-Abdeckung aller 6 Zielsprachen, Schlüssel-Konsistenz, Fallback-Verhalten bei Teilausfällen und String-Interpolation integriert; Vollsuite 274 Tests grün (100%).
+- **Scanner-Hygiene (`manage_translations.py`):** UTF-8-Encoding für Konsolenausgabe gesichert und Leerstring-Validierung gehärtet.
+- **Dokumentations-Synchronisation (`README.md`, `README_de.md`):** Testzähler-Badges auf 274 bestandene Tests synchronisiert.
+
 ### Tag-Matching, Query-Builder & Smart-Playlist Import Hardening [2026-08-21]
 - **QueryBuilder Tag-Filter-Operatoren (`query_builder.py`):** Vollständige Unterstützung für die Operatoren `!=`, `starts_with`, `is_empty` und `is_not_empty` beim Tag-Filtering implementiert. Zuvor wurden diese gültigen Operatoren in `_build_tag_condition` lautlos übersprungen und führten zu ungefilterten Gesamtabfragen.
 - **Smart-Playlist-Import Typsicherheit (`export_import.py`):** `smart_query`-Payloads werden beim Import aus JSON-Dateien auch dann via `_coerce_value` sicher als JSON-Zeichenkette serialisiert, wenn sie als verschachteltes Dictionary übergeben werden, wodurch `sqlite3.ProgrammingError` zuverlässig verhindert wird.

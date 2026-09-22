@@ -12,6 +12,12 @@ import re
 import os
 import sys
 
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 TRANSLATION_FILE = "locales/translations.json"
 SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru']
 
@@ -97,7 +103,7 @@ def manage_translations(source_dir="."):
         print("[i] Keine neuen deutschen Strings gefunden.")
 
     missing = [k for k, v in translations.items()
-               if any(not v.get(l) for l in SUPPORTED_LANGUAGES if l != "de")]
+               if any(not v.get(l) or not str(v.get(l)).strip() for l in SUPPORTED_LANGUAGES if l != "de")]
     if missing:
         print(f"\n[!] {len(missing)} Strings mit fehlenden Übersetzungen")
     else:

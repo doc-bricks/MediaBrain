@@ -76,28 +76,59 @@ class TranslationSystem:
         with open(self.translations_file, 'w', encoding='utf-8') as f:
             json.dump(self.translations, f, indent=2, ensure_ascii=False)
 
-    def t(self, key: str) -> str:
+    def t(self, key: str, **kwargs) -> str:
         """
-        übersetzt einen Key in die aktuelle Sprache.
+        Übersetzt einen Key in die aktuelle Sprache mit robuster 4-Stufen-Fallback-Kette.
+
+        Fallback-Reihenfolge:
+            1. Aktuelle Sprache (self.current_lang)
+            2. Englisch ('en')
+            3. Deutsch ('de')
+            4. Ursprünglicher Key
 
         Args:
             key: Translation-Key (oft der deutsche Originaltext)
+            **kwargs: Optionale Formatierungs-Parameter für String-Interpolation
 
         Returns:
-            übersetzter Text oder Key als Fallback
+            Übersetzter und ggf. formatierter Text
         """
+        text = None
         if key in self.translations:
-            return self.translations[key].get(self.current_lang, key)
+            entry = self.translations[key]
+            if isinstance(entry, dict):
+                # 1. Stufe: Aktuelle Sprache prüfen
+                val = entry.get(self.current_lang)
+                if val and isinstance(val, str) and val.strip():
+                    text = val
+                # 2. Stufe: Fallback auf Englisch
+                elif self.current_lang != 'en':
+                    val_en = entry.get('en')
+                    if val_en and isinstance(val_en, str) and val_en.strip():
+                        text = val_en
+                # 3. Stufe: Fallback auf Deutsch
+                if text is None and self.current_lang != 'de':
+                    val_de = entry.get('de')
+                    if val_de and isinstance(val_de, str) and val_de.strip():
+                        text = val_de
 
-        if self._is_german(key):
-            entry = {"de": key}
-            for lang in SUPPORTED_LANGUAGES:
-                if lang != "de":
-                    entry.setdefault(lang, "")
-            self.translations[key] = entry
-            self._save_translations()
+        if text is None:
+            if key not in self.translations and self._is_german(key):
+                entry = {"de": key}
+                for lang in SUPPORTED_LANGUAGES:
+                    if lang != "de":
+                        entry.setdefault(lang, "")
+                self.translations[key] = entry
+                self._save_translations()
+            text = key
 
-        return key
+        if kwargs and text:
+            try:
+                return text.format(**kwargs)
+            except (KeyError, IndexError, ValueError):
+                return text
+
+        return text
 
     def set_language(self, lang: str):
         if lang in SUPPORTED_LANGUAGES:
@@ -164,16 +195,42 @@ class TranslationSystem:
         text_lower = text.lower()
         return any(hint in text_lower for hint in self.german_hints)
 
+    def get_supported_languages(self) -> List[str]:
+        """Gibt eine Liste aller unterstützten Sprachcodes zurück."""
+        return list(SUPPORTED_LANGUAGES)
+
     def get_missing_translations(self, lang: str = None) -> List[str]:
-        """Gibt Keys zurück, bei denen Übersetzungen fehlen.
+        """Gibt Keys zurück, bei denen Übersetzungen fehlen oder leer sind.
 
         Args:
             lang: Einzelne Sprache prüfen (default: alle außer 'de')
         """
+        def _is_empty(val) -> bool:
+            return not val or not str(val).strip()
+
         if lang:
-            return [k for k, v in self.translations.items() if not v.get(lang)]
+            return [k for k, v in self.translations.items() if _is_empty(v.get(lang))]
         return [k for k, v in self.translations.items()
-                if any(not v.get(l) for l in SUPPORTED_LANGUAGES if l != "de")]
+                if any(_is_empty(v.get(l)) for l in SUPPORTED_LANGUAGES if l != "de")]
+
+    def get_coverage(self, lang: str = None) -> Dict[str, float]:
+        """Berechnet die Übersetzungsabdeckung in Prozent (0.0 bis 100.0)."""
+        total = len(self.translations)
+        if total == 0:
+            targets = [lang] if lang else SUPPORTED_LANGUAGES
+            return {l: 100.0 for l in targets}
+
+        def _cov(l: str) -> float:
+            missing = len([k for k, v in self.translations.items() if not v.get(l) or not str(v.get(l)).strip()])
+            return round(((total - missing) / total) * 100.0, 1)
+
+        if lang:
+            return {lang: _cov(lang)}
+        return {l: _cov(l) for l in SUPPORTED_LANGUAGES}
+
+    def is_fully_translated(self, lang: str) -> bool:
+        """Prüft, ob eine Sprache zu 100% ohne Leerstellen übersetzt ist."""
+        return len(self.get_missing_translations(lang)) == 0
 
 
 if __name__ == "__main__":
