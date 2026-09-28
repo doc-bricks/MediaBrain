@@ -5,6 +5,11 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Repository-Hygiene & interne Dateien [2026-09-28]
+- **Interne Dateien geschuetzt (`.gitignore`):** `BEFUNDE.md`, `MARKETING-LOG.txt`, `TASKPLAN_STATUS_*.md` und `_after-care/` in `.gitignore` aufgenommen.
+- **Git-Tracking bereinigt:** `BEFUNDE.md` aus dem Git-Tracking entfernt (`git rm --cached`), bleibt lokal erhalten.
+- **Vertragstests (`tests/test_repo_metadata.py`):** `test_gitignore_internal_file_hygiene` hinzugefuegt (T-20260926-434768981).
+
 ### I18N-Expansion & Mehrsprachigkeits-Härtung (Tier-2-Parität) [2026-09-22]
 - **Vollständige Tier-2-Lokalisierung (`locales/translations.json`):** Fehlende Lokalisierungseinträge für `Lokale Daten:` in Spanisch (`Datos locales:`), Chinesisch (`本地数据:`), Japanisch (`ローカルデータ:`) und Russisch (`Локальные данные:`) kuratiert ergänzt. Damit erreichen alle 29 Desktop-Catalog-Keys eine 100%-Vollabdeckung über alle 6 unterstützten Sprachen (DE, EN, ES, ZH, JA, RU).
 - **Robuste 4-Stufen-Fallback-Kette (`translator.py`):** `TranslationSystem.t()` implementiert eine strikte Fallback-Hierarchie (`Ziel-Sprache -> Englisch -> Deutsch -> Original-Key`), die UI-Glitches durch leere Zeichenketten ausschließt; zudem Unterstützung für variable Platzhalter-Interpolation (`**kwargs`) und neue Status-/Abdeckungsmethoden (`get_supported_languages()`, `get_coverage()`, `is_fully_translated()`).

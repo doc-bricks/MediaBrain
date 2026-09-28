@@ -58,3 +58,11 @@ def test_llms_txt_structure_and_parity():
     assert "PySide6" in llms_txt
     assert "SQLite" in llms_txt
     assert "Boundaries" in llms_txt
+
+
+def test_gitignore_internal_file_hygiene():
+    """Verify internal maintenance files are protected in .gitignore."""
+    gitignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    for pattern in ["BEFUNDE.md", "MARKETING-LOG.txt", "TODO.md", "DONE.md", "DECISIONS.md"]:
+        assert pattern in gitignore, f"{pattern} must be ignored in .gitignore"
+
