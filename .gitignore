@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.pyc
 *.pyo
@@ -113,3 +113,8 @@ DECISIONS.md
 PORTIERUNGSPLAN.md
 TODO.md
 DONE.md
+BEFUNDE.md
+MARKETING-LOG.txt
+TASKPLAN_STATUS_*.md
+_after-care/
+
