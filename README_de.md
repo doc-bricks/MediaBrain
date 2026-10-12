@@ -79,7 +79,7 @@ MediaBrain ist Bestandteil der [`doc-bricks`](https://github.com/doc-bricks)-Pro
 | **MediaBrain** | Lokaler Medienmanager, Smart-Playlists & private Medienbibliothek | [doc-bricks/MediaBrain](https://github.com/doc-bricks/MediaBrain) |
 | **CleanMarkdown** | Markdown-Normalisierer, Typografie-Bereinigung & PDF-Export | [doc-bricks/CleanMarkdown](https://github.com/doc-bricks/CleanMarkdown) |
 | **PDFtoPDFocr** | Durchsuchbare PDF-OCR-Pipeline & Metadaten-Extraktion | [doc-bricks/PDFtoPDFocr](https://github.com/doc-bricks/PDFtoPDFocr) |
-| **llm-note** | Markdown-Notizen mit lokaler LLM-Assistenten-Integration | [doc-bricks/llm-note](https://github.com/doc-bricks/llm-note) |
+| **llm-note** | Lokales SQLite- und Klartext-Notizbuch für persönliche oder von Agenten verfasste Notizen | [doc-bricks/llm-note](https://github.com/doc-bricks/llm-note) |
 | **LaunchBoards** | Visueller Desktop-Launcher, App-Organizer & Dashboard | [file-bricks/LaunchBoards](https://github.com/file-bricks/LaunchBoards) |
 | **ProFiler** | Datenschutzorientierter Dateianalysator & Dubletten-Finder | [file-bricks/ProFiler](https://github.com/file-bricks/ProFiler) |
 | **KnowledgeDigest** | Offline-Wissensdatenbank & Dokumentationskompressor | [file-bricks/KnowledgeDigest](https://github.com/file-bricks/KnowledgeDigest) |
