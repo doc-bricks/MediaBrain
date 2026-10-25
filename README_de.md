@@ -17,7 +17,7 @@
 > [!NOTE]
 > **KI / Agenten-Kontext**: Maschinenlesbare Architektur, Dateiverzeichnisse, Suchphrasen und Systemgrenzen sind in [llms.txt](llms.txt) dokumentiert.
 
-[English](README.md) | **[Deutsch](README_de.md)** | [Español](README_es.md) | [中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+[English](README.md) | **Deutsch** | [Español](README_es.md) | [简体中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Français](README_fr.md) | [हिन्दी](README_hi.md) | [العربية](README_ar.md) | [বাংলা](README_bn.md) | [Português](README_pt.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
 ![MediaBrain Hauptfenster](README/screenshots/main.png)
 
@@ -25,12 +25,17 @@
 
 | Sprache | Dokument |
 |---|---|
-| Englisch | [README.md](README.md) |
+| English | [README.md](README.md) |
 | Deutsch | [README_de.md](README_de.md) |
-| Spanisch | [README_es.md](README_es.md) |
-| Chinesisch (vereinfacht) | [README_zh.md](README_zh.md) |
-| Japanisch | [README_ja.md](README_ja.md) |
-| Russisch | [README_ru.md](README_ru.md) |
+| Español | [README_es.md](README_es.md) |
+| 简体中文 | [README_zh.md](README_zh.md) |
+| 日本語 | [README_ja.md](README_ja.md) |
+| Русский | [README_ru.md](README_ru.md) |
+| Français | [README_fr.md](README_fr.md) |
+| हिन्दी | [README_hi.md](README_hi.md) |
+| العربية | [README_ar.md](README_ar.md) |
+| বাংলা | [README_bn.md](README_bn.md) |
+| Português | [README_pt.md](README_pt.md) |
 
 Diese Liste beschreibt ausschließlich die Sprachfassungen der README-Dokumentation.
 

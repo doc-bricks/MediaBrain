@@ -1,3 +1,4 @@
+<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain バナー">
 
 # MediaBrain
@@ -17,7 +18,7 @@
 > [!NOTE]
 > **AI / エージェント向けコンテキスト**: リポジトリのアーキテクチャ、ファイル索引、検索フレーズ、システム境界の機械可読情報は [llms.txt](llms.txt) を参照してください。
 
-[English](README.md) | [Deutsch](README_de.md) | **日本語** | [プライバシー](PRIVACY_POLICY.md) | [コントリビューション](CONTRIBUTING.md) | [変更履歴](CHANGELOG.md)
+[English](README.md) | [Deutsch](README_de.md) | [Español](README_es.md) | [简体中文](README_zh.md) | **日本語** | [Русский](README_ru.md) | [Français](README_fr.md) | [हिन्दी](README_hi.md) | [العربية](README_ar.md) | [বাংলা](README_bn.md) | [Português](README_pt.md) | [プライバシー](PRIVACY_POLICY.md) | [コントリビューション](CONTRIBUTING.md) | [変更履歴](CHANGELOG.md)
 
 ![MediaBrain のメインウィンドウ](README/screenshots/main.png)
 
@@ -31,6 +32,11 @@
 | 简体中文 | [README_zh.md](README_zh.md) |
 | 日本語 | [README_ja.md](README_ja.md) |
 | Русский | [README_ru.md](README_ru.md) |
+| Français | [README_fr.md](README_fr.md) |
+| हिन्दी | [README_hi.md](README_hi.md) |
+| العربية | [README_ar.md](README_ar.md) |
+| বাংলা | [README_bn.md](README_bn.md) |
+| Português | [README_pt.md](README_pt.md) |
 
 この一覧は README の文書版のみを示します。アプリの実行時の言語対応を示すものではありません。
 

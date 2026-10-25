@@ -1,3 +1,4 @@
+<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="Баннер MediaBrain">
 
 # MediaBrain
@@ -17,7 +18,7 @@
 > [!NOTE]
 > **Контекст для ИИ и агентов**: машиночитаемая архитектура репозитория, индексы файлов, поисковые фразы и границы системы описаны в [llms.txt](llms.txt).
 
-[English](README.md) | [Deutsch](README_de.md) | **Русский** | [Конфиденциальность](PRIVACY_POLICY.md) | [Участие в проекте](CONTRIBUTING.md) | [История изменений](CHANGELOG.md)
+[English](README.md) | [Deutsch](README_de.md) | [Español](README_es.md) | [简体中文](README_zh.md) | [日本語](README_ja.md) | **Русский** | [Français](README_fr.md) | [हिन्दी](README_hi.md) | [العربية](README_ar.md) | [বাংলা](README_bn.md) | [Português](README_pt.md) | [Конфиденциальность](PRIVACY_POLICY.md) | [Участие в проекте](CONTRIBUTING.md) | [История изменений](CHANGELOG.md)
 
 ![Главное окно MediaBrain](README/screenshots/main.png)
 
@@ -31,6 +32,11 @@
 | 简体中文 | [README_zh.md](README_zh.md) |
 | 日本語 | [README_ja.md](README_ja.md) |
 | Русский | [README_ru.md](README_ru.md) |
+| Français | [README_fr.md](README_fr.md) |
+| हिन्दी | [README_hi.md](README_hi.md) |
+| العربية | [README_ar.md](README_ar.md) |
+| বাংলা | [README_bn.md](README_bn.md) |
+| Português | [README_pt.md](README_pt.md) |
 
 В таблице перечислены только языковые версии документации README. Она не описывает поддержку языков в приложении во время выполнения.
 

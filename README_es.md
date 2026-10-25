@@ -1,3 +1,4 @@
+<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="Banner de MediaBrain">
 
 # MediaBrain
@@ -17,7 +18,7 @@
 > [!NOTE]
 > **Contexto para IA y agentes**: La arquitectura del repositorio, los índices de archivos, las frases de búsqueda y los límites del sistema están documentados en [llms.txt](llms.txt).
 
-[English](README.md) | [Deutsch](README_de.md) | **Español** | [中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Privacidad](PRIVACY_POLICY.md) | [Contribuir](CONTRIBUTING.md) | [Registro de cambios](CHANGELOG.md)
+[English](README.md) | [Deutsch](README_de.md) | **Español** | [简体中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Français](README_fr.md) | [हिन्दी](README_hi.md) | [العربية](README_ar.md) | [বাংলা](README_bn.md) | [Português](README_pt.md) | [Privacidad](PRIVACY_POLICY.md) | [Contribuir](CONTRIBUTING.md) | [Registro de cambios](CHANGELOG.md)
 
 ![Ventana principal de MediaBrain](README/screenshots/main.png)
 
@@ -25,12 +26,17 @@
 
 | Idioma | Documento |
 |---|---|
-| Inglés | [README.md](README.md) |
-| Alemán | [README_de.md](README_de.md) |
+| English | [README.md](README.md) |
+| Deutsch | [README_de.md](README_de.md) |
 | Español | [README_es.md](README_es.md) |
-| Chino simplificado | [README_zh.md](README_zh.md) |
-| Japonés | [README_ja.md](README_ja.md) |
-| Ruso | [README_ru.md](README_ru.md) |
+| 简体中文 | [README_zh.md](README_zh.md) |
+| 日本語 | [README_ja.md](README_ja.md) |
+| Русский | [README_ru.md](README_ru.md) |
+| Français | [README_fr.md](README_fr.md) |
+| हिन्दी | [README_hi.md](README_hi.md) |
+| العربية | [README_ar.md](README_ar.md) |
+| বাংলা | [README_bn.md](README_bn.md) |
+| Português | [README_pt.md](README_pt.md) |
 
 Esta lista se refiere únicamente a las versiones documentales del README.
 
