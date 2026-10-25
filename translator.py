@@ -22,6 +22,39 @@ from typing import Dict, List, Set
 SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru', 'fr', 'hi', 'ar', 'bn', 'pt']
 
 
+_default_translation_system = None
+
+def set_default_translation_system(translator):
+    """Set the app-wide TranslationSystem used by optional GUI integrations."""
+    global _default_translation_system
+    _default_translation_system = translator
+
+
+def translate(key: str, translator=None, **kwargs) -> str:
+    """Translate a UI key while keeping the original text when no system is injected."""
+    system = translator or _default_translation_system
+    if system is not None:
+        return system.t(key, **kwargs)
+    if kwargs:
+        try:
+            return key.format(**kwargs)
+        except (KeyError, IndexError, ValueError):
+            pass
+    return key
+
+
+def resolve_language(*candidates) -> str:
+    """Resolve MEDIABRAIN_LANG/settings values, including regional subtags."""
+    supported = set(SUPPORTED_LANGUAGES)
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        normalized = candidate.strip().replace('_', '-').split('-', 1)[0].lower()
+        if normalized in supported:
+            return normalized
+    return 'de'
+
+
 class TranslationSystem:
     """Multi-Language Support System v1.1"""
 

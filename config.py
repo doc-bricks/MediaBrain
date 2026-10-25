@@ -52,7 +52,8 @@ DEFAULT_SETTINGS = {
         "theme": "light",
         "window_width": 1200,
         "window_height": 800,
-        "system_tray": False
+        "system_tray": False,
+        "language": "de"
     },
     "providers": {
         "netflix": {"preferred_open_method": "browser"},
