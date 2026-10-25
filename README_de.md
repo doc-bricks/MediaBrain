@@ -17,9 +17,19 @@
 > [!NOTE]
 > **KI / Agenten-Kontext**: Maschinenlesbare Architektur, Dateiverzeichnisse, Suchphrasen und Systemgrenzen sind in [llms.txt](llms.txt) dokumentiert.
 
-[English](README.md) | **[Deutsch](README_de.md)** | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+[English](README.md) | **[Deutsch](README_de.md)** | [Español](README_es.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
 ![MediaBrain Hauptfenster](README/screenshots/main.png)
+
+## Dokumentationssprachen
+
+| Sprache | Dokument |
+|---|---|
+| Englisch | [README.md](README.md) |
+| Deutsch | [README_de.md](README_de.md) |
+| Spanisch | [README_es.md](README_es.md) |
+
+Diese Liste beschreibt ausschließlich die Sprachfassungen der README-Dokumentation.
 
 ## Schnellstart
 

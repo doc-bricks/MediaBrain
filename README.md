@@ -17,9 +17,19 @@
 > [!NOTE]
 > **AI / Agent Context**: Machine-readable repo architecture, file indexes, search phrases, and system boundaries are available in [llms.txt](llms.txt).
 
-**[English](README.md)** | [Deutsch](README_de.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+**[English](README.md)** | [Deutsch](README_de.md) | [Español](README_es.md) | [Privacy](PRIVACY_POLICY.md) | [Contributing](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
 ![MediaBrain main window](README/screenshots/main.png)
+
+## Documentation languages
+
+| Language | Document |
+|---|---|
+| English | [README.md](README.md) |
+| German | [README_de.md](README_de.md) |
+| Spanish | [README_es.md](README_es.md) |
+
+This list describes the README documentation languages only.
 
 ## Start Here
 
