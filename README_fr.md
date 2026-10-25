@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "0b04db88ca639d0f9eec7ec88b93d8c526c38c4b6e4dde6d4929df578ec5f980", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="Bannière MediaBrain">
 
 # MediaBrain
@@ -40,7 +40,7 @@
 
 Cette liste présente uniquement les versions documentaires du README. Elle ne décrit pas les langues prises en charge par l’application à l’exécution.
 
-L’application Flutter propose des messages d’interface localisés en allemand, anglais, espagnol, chinois simplifié, japonais, russe, français, hindi, arabe, bengali et portugais. La localisation de la version de bureau et de la CLI reste séparée ; la validation visuelle sur les appareils cibles est encore en attente.
+L’application Flutter, l’interface de bureau et la CLI Python de MediaBrain prennent en charge l’allemand, l’anglais, l’espagnol, le chinois simplifié, le japonais, le russe, le français, l’hindi, l’arabe, le bengali et le portugais. Dans l’application de bureau, choisissez la langue dans Paramètres → Langue. Le choix est enregistré et prend effet après le redémarrage de MediaBrain. La variable d’environnement `MEDIABRAIN_LANG` remplace le choix enregistré, et la CLI accepte aussi `--lang <code>`. Le cadre des boîtes de dialogue natives de Windows suit la localisation fournie par Windows.
 
 ## Pour commencer
 

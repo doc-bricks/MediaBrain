@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "0b04db88ca639d0f9eec7ec88b93d8c526c38c4b6e4dde6d4929df578ec5f980", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="Banner de MediaBrain">
 
 # MediaBrain
@@ -40,7 +40,7 @@
 
 Esta lista se refiere únicamente a las versiones documentales del README.
 
-La aplicación Flutter ofrece mensajes de interfaz localizados en alemán, inglés, español, chino simplificado, japonés, ruso, francés, hindi, árabe, bengalí y portugués. La localización de la aplicación de escritorio y de la CLI sigue siendo independiente; la aceptación visual en los dispositivos de destino aún está pendiente.
+La aplicación Flutter, la GUI de escritorio y la CLI de Python de MediaBrain admiten alemán, inglés, español, chino simplificado, japonés, ruso, francés, hindi, árabe, bengalí y portugués. En la aplicación de escritorio, elige el idioma en Ajustes → Idioma; la selección se guarda y se aplica después de reiniciar MediaBrain. La variable de entorno `MEDIABRAIN_LANG` sustituye el idioma guardado, y la CLI también admite `--lang <code>`. Los marcos de los cuadros de diálogo nativos de Windows siguen la localización proporcionada por Windows.
 
 ## Primeros pasos
 

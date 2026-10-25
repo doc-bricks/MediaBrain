@@ -39,7 +39,7 @@
 
 This list describes the README documentation languages only.
 
-The Flutter app provides localized UI messages in German, English, Spanish, Chinese (Simplified), Japanese, Russian, French, Hindi, Arabic, Bengali, and Portuguese. Desktop/CLI localization remains separate; visual layout acceptance on target devices is still pending.
+The Flutter app, desktop GUI, and Python CLI support German, English, Spanish, Simplified Chinese, Japanese, Russian, French, Hindi, Arabic, Bengali, and Portuguese. In the desktop app, choose a language under Settings → Language; the selection is saved and takes effect after restarting MediaBrain. The `MEDIABRAIN_LANG` environment variable overrides the saved selection, and the CLI also accepts `--lang <code>`. Native Windows file-dialog frames follow the localization provided by Windows.
 
 ## Start Here
 

@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "0b04db88ca639d0f9eec7ec88b93d8c526c38c4b6e4dde6d4929df578ec5f980", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain 横幅">
 
 # MediaBrain
@@ -40,7 +40,7 @@
 
 此列表仅说明 README 文档版本，不代表应用运行时支持的语言。
 
-Flutter 应用提供德语、英语、西班牙语、简体中文、日语、俄语、法语、印地语、阿拉伯语、孟加拉语和葡萄牙语的本地化界面消息。桌面版和 CLI 的本地化仍需单独完成；目标设备上的视觉布局验收尚未完成。
+MediaBrain 的 Flutter 应用、桌面 GUI 和 Python CLI 支持德语、英语、西班牙语、简体中文、日语、俄语、法语、印地语、阿拉伯语、孟加拉语和葡萄牙语。在桌面应用中，可通过“设置 → 语言”选择语言；选择会保存，并在重启 MediaBrain 后生效。环境变量 `MEDIABRAIN_LANG` 可以覆盖已保存的语言，CLI 还支持 `--lang <code>`。Windows 原生文件对话框的窗口框架仍按 Windows 提供的本地化语言显示。
 
 ## 从这里开始
 

@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "0b04db88ca639d0f9eec7ec88b93d8c526c38c4b6e4dde6d4929df578ec5f980", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain バナー">
 
 # MediaBrain
@@ -40,7 +40,7 @@
 
 この一覧は README の文書版のみを示します。アプリの実行時の言語対応を示すものではありません。
 
-Flutter アプリは、ドイツ語、英語、スペイン語、簡体字中国語、日本語、ロシア語、フランス語、ヒンディー語、アラビア語、ベンガル語、ポルトガル語のUIメッセージを提供します。デスクトップ版とCLIのローカライズは別途対応が必要で、対象デバイスでの視覚的なレイアウト確認は未完了です。
+MediaBrain の Flutter アプリ、デスクトップ GUI、Python CLI は、ドイツ語、英語、スペイン語、簡体字中国語、日本語、ロシア語、フランス語、ヒンディー語、アラビア語、ベンガル語、ポルトガル語に対応しています。デスクトップアプリでは「設定 → 言語」で選択します。選択は保存され、MediaBrain を再起動すると反映されます。環境変数 `MEDIABRAIN_LANG` は保存済みの選択を上書きし、CLI では `--lang <code>` も使用できます。Windows のネイティブファイルダイアログのウィンドウ枠は、Windows 側のローカライズに従います。
 
 ## まずはこちら
 
