@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain バナー">
 
 # MediaBrain
@@ -39,6 +39,8 @@
 | Português | [README_pt.md](README_pt.md) |
 
 この一覧は README の文書版のみを示します。アプリの実行時の言語対応を示すものではありません。
+
+Flutter アプリは、ドイツ語、英語、スペイン語、簡体字中国語、日本語、ロシア語、フランス語、ヒンディー語、アラビア語、ベンガル語、ポルトガル語のUIメッセージを提供します。デスクトップ版とCLIのローカライズは別途対応が必要で、対象デバイスでの視覚的なレイアウト確認は未完了です。
 
 ## まずはこちら
 

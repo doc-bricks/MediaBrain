@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain 横幅">
 
 # MediaBrain
@@ -39,6 +39,8 @@
 | Português | [README_pt.md](README_pt.md) |
 
 此列表仅说明 README 文档版本，不代表应用运行时支持的语言。
+
+Flutter 应用提供德语、英语、西班牙语、简体中文、日语、俄语、法语、印地语、阿拉伯语、孟加拉语和葡萄牙语的本地化界面消息。桌面版和 CLI 的本地化仍需单独完成；目标设备上的视觉布局验收尚未完成。
 
 ## 从这里开始
 

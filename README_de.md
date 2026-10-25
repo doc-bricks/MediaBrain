@@ -39,6 +39,8 @@
 
 Diese Liste beschreibt ausschließlich die Sprachfassungen der README-Dokumentation.
 
+Die Flutter-App stellt lokalisierte Meldungen der Benutzeroberfläche auf Deutsch, Englisch, Spanisch, Chinesisch (vereinfacht), Japanisch, Russisch, Französisch, Hindi, Arabisch, Bengalisch und Portugiesisch bereit. Die Lokalisierung von Desktop-App und CLI bleibt davon getrennt; die visuelle Abnahme auf Zielgeräten steht noch aus.
+
 ## Schnellstart
 
 | Bedarf | Einstieg |

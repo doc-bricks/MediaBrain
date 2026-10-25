@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="MediaBrain बैनर">
 
 # MediaBrain
@@ -39,6 +39,8 @@
 | Português | [README_pt.md](README_pt.md) |
 
 यह सूची केवल README के दस्तावेज़ी भाषा संस्करण दिखाती है। यह ऐप के रनटाइम भाषा समर्थन का दावा नहीं करती।
+
+Flutter ऐप जर्मन, अंग्रेज़ी, स्पेनिश, सरलीकृत चीनी, जापानी, रूसी, फ़्रेंच, हिंदी, अरबी, बंगाली और पुर्तगाली में स्थानीयकृत यूज़र-इंटरफ़ेस संदेश प्रदान करता है। डेस्कटॉप ऐप और CLI का स्थानीयकरण अलग कार्य है; लक्षित उपकरणों पर दृश्य लेआउट की स्वीकृति अभी बाकी है।
 
 ## यहाँ से शुरू करें
 

@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="لافتة MediaBrain">
 
 # MediaBrain
@@ -39,6 +39,8 @@
 | Português | [README_pt.md](README_pt.md) |
 
 تعرض هذه القائمة إصدارات README الموثقة فقط، ولا تصف اللغات التي يدعمها التطبيق أثناء التشغيل.
+
+يوفّر تطبيق Flutter رسائل واجهة مستخدم مترجمة إلى الألمانية والإنجليزية والإسبانية والصينية المبسطة واليابانية والروسية والفرنسية والهندية والعربية والبنغالية والبرتغالية. يظل توطين تطبيق سطح المكتب وواجهة CLI عملاً منفصلاً؛ وما زال الاعتماد المرئي للتخطيط على الأجهزة المستهدفة معلقًا.
 
 ## ابدأ من هنا
 

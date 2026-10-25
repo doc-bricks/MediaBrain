@@ -1,4 +1,4 @@
-<!-- worldset: {"translated_from_sha256": "c68d3298c39a37020989bae5d7410a91fa166d01a3120ebc3f91bb37a42bee89", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
+<!-- worldset: {"translated_from_sha256": "1cb001dfda5d5445b4e02c5c1e6761d0c745a53ab12a6a3d2168ccba11482535", "translator": "gpt-6-luna", "original_source_commit": "381af978ab857ac069ab2e272659ddda429e9993"} -->
 <img src="assets/banner.png" width="100%" alt="Banner de MediaBrain">
 
 # MediaBrain
@@ -39,6 +39,8 @@
 | Português | [README_pt.md](README_pt.md) |
 
 Esta lista se refiere únicamente a las versiones documentales del README.
+
+La aplicación Flutter ofrece mensajes de interfaz localizados en alemán, inglés, español, chino simplificado, japonés, ruso, francés, hindi, árabe, bengalí y portugués. La localización de la aplicación de escritorio y de la CLI sigue siendo independiente; la aceptación visual en los dispositivos de destino aún está pendiente.
 
 ## Primeros pasos
 

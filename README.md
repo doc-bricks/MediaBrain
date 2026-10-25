@@ -39,6 +39,8 @@
 
 This list describes the README documentation languages only.
 
+The Flutter app provides localized UI messages in German, English, Spanish, Chinese (Simplified), Japanese, Russian, French, Hindi, Arabic, Bengali, and Portuguese. Desktop/CLI localization remains separate; visual layout acceptance on target devices is still pending.
+
 ## Start Here
 
 | Need | Go to |
