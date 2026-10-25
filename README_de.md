@@ -17,7 +17,7 @@
 > [!NOTE]
 > **KI / Agenten-Kontext**: Maschinenlesbare Architektur, Dateiverzeichnisse, Suchphrasen und Systemgrenzen sind in [llms.txt](llms.txt) dokumentiert.
 
-[English](README.md) | **[Deutsch](README_de.md)** | [Español](README_es.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
+[English](README.md) | **[Deutsch](README_de.md)** | [Español](README_es.md) | [中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Datenschutz](PRIVACY_POLICY.md) | [Mitwirken](CONTRIBUTING.md) | [Changelog](CHANGELOG.md)
 
 ![MediaBrain Hauptfenster](README/screenshots/main.png)
 
@@ -28,6 +28,9 @@
 | Englisch | [README.md](README.md) |
 | Deutsch | [README_de.md](README_de.md) |
 | Spanisch | [README_es.md](README_es.md) |
+| Chinesisch (vereinfacht) | [README_zh.md](README_zh.md) |
+| Japanisch | [README_ja.md](README_ja.md) |
+| Russisch | [README_ru.md](README_ru.md) |
 
 Diese Liste beschreibt ausschließlich die Sprachfassungen der README-Dokumentation.
 

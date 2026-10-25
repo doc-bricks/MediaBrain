@@ -17,7 +17,7 @@
 > [!NOTE]
 > **Contexto para IA y agentes**: La arquitectura del repositorio, los índices de archivos, las frases de búsqueda y los límites del sistema están documentados en [llms.txt](llms.txt).
 
-[English](README.md) | [Deutsch](README_de.md) | **Español** | [Privacidad](PRIVACY_POLICY.md) | [Contribuir](CONTRIBUTING.md) | [Registro de cambios](CHANGELOG.md)
+[English](README.md) | [Deutsch](README_de.md) | **Español** | [中文](README_zh.md) | [日本語](README_ja.md) | [Русский](README_ru.md) | [Privacidad](PRIVACY_POLICY.md) | [Contribuir](CONTRIBUTING.md) | [Registro de cambios](CHANGELOG.md)
 
 ![Ventana principal de MediaBrain](README/screenshots/main.png)
 
@@ -28,6 +28,9 @@
 | Inglés | [README.md](README.md) |
 | Alemán | [README_de.md](README_de.md) |
 | Español | [README_es.md](README_es.md) |
+| Chino simplificado | [README_zh.md](README_zh.md) |
+| Japonés | [README_ja.md](README_ja.md) |
+| Ruso | [README_ru.md](README_ru.md) |
 
 Esta lista se refiere únicamente a las versiones documentales del README.
 
