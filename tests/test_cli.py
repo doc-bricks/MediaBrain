@@ -2,11 +2,14 @@
 
 import argparse
 import io
+import json
+import os
 import sqlite3
 import tempfile
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from unittest.mock import patch
 
 import cli
 
@@ -98,6 +101,88 @@ class TestReadOnlyCli(unittest.TestCase):
         self.assertIn("document", text)
         self.assertNotIn("Hidden", text)
         self.assertNotIn("movie", text)
+
+
+    def test_cli_selects_each_worldset_locale_and_keeps_database_read_only(self):
+        catalog_path = Path(cli.__file__).resolve().parent / 'locales' / 'translations.json'
+        catalog = json.loads(catalog_path.read_text(encoding='utf-8'))
+        before = self.db_path.read_bytes()
+        for lang in ['de', 'en', 'es', 'zh', 'ja', 'ru', 'fr', 'hi', 'ar', 'bn', 'pt']:
+            with self.subTest(lang=lang):
+                output = io.StringIO()
+                with redirect_stdout(output):
+                    result = cli.main([
+                        '--db', str(self.db_path), '--lang', lang, 'show', '1'
+                    ])
+                self.assertEqual(result, 0)
+                self.assertIn(catalog['Titel:'][lang], output.getvalue())
+                self.assertIn('Visible', output.getvalue())
+        self.assertEqual(before, self.db_path.read_bytes())
+
+    def test_cli_language_option_after_subcommand_is_supported(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            result = cli.main([
+                '--db', str(self.db_path), 'show', '1', '--lang', 'fr'
+            ])
+        self.assertEqual(result, 0)
+        self.assertIn('Titre :', output.getvalue())
+
+
+    def test_all_cli_commands_translate_result_messages(self):
+        expected = {
+            'list': 'Entrées : 1 (max. 50)',
+            'search': 'Résultats : 1',
+            'favs': 'Favoris : 1',
+            'recent': 'Ouverts récemment : 1',
+            'types': 'Entrées : 1',
+        }
+        for command, phrase in expected.items():
+            with self.subTest(command=command):
+                output = io.StringIO()
+                argv = ['--lang', 'fr', '--db', str(self.db_path), command]
+                if command == 'search':
+                    argv.append('Visible')
+                with redirect_stdout(output):
+                    result = cli.main(argv)
+                self.assertEqual(result, 0)
+                self.assertIn(phrase, output.getvalue())
+
+    def test_help_uses_selected_language_for_argparse_and_application_text(self):
+        output = io.StringIO()
+        with redirect_stdout(output):
+            with self.assertRaises(SystemExit) as raised:
+                cli.main(['--lang', 'es', '--help'])
+        self.assertEqual(raised.exception.code, 0)
+        self.assertIn('uso: ', output.getvalue())
+        self.assertIn('opciones', output.getvalue())
+        self.assertIn('solo lectura', output.getvalue())
+        self.assertIn('Idioma de la CLI', output.getvalue())
+
+    def test_environment_language_accepts_regional_code(self):
+        output = io.StringIO()
+        with patch.dict(os.environ, {'MEDIABRAIN_LANG': 'pt_BR'}):
+            with redirect_stdout(output):
+                result = cli.main(['--db', str(self.db_path), 'show', '1'])
+        self.assertEqual(result, 0)
+        self.assertIn('Título:', output.getvalue())
+
+    def test_missing_database_keeps_exit_code_and_localizes_error(self):
+        missing = Path(self.temp.name) / 'missing.db'
+        error = io.StringIO()
+        with redirect_stderr(error):
+            with self.assertRaises(SystemExit) as raised:
+                cli.main(['--lang', 'fr', '--db', str(missing), 'list'])
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn('Base de données introuvable', error.getvalue())
+
+    def test_argparse_invalid_locale_keeps_usage_error_exit_code(self):
+        error = io.StringIO()
+        with redirect_stderr(error):
+            with self.assertRaises(SystemExit) as raised:
+                cli.main(['--lang', 'xx', 'list'])
+        self.assertEqual(raised.exception.code, 2)
+        self.assertIn('Ungültige Auswahl', error.getvalue())
 
 
 if __name__ == "__main__":

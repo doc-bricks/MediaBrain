@@ -1,0 +1,221 @@
+{
+  "@@locale": "bn",
+  "appTitle": "MediaBrain",
+  "navLibrary": "লাইব্রেরি",
+  "navScan": "স্ক্যান",
+  "navMore": "আরও",
+  "screenLibrary": "লাইব্রেরি",
+  "fabAdd": "যোগ করুন",
+  "searchHint": "খুঁজুন (শিরোনাম, শিল্পী, চ্যানেল …)",
+  "filterAll": "সব",
+  "filterFavorites": "⭐ পছন্দের",
+  "emptyNoMatch": "আপনার ফিল্টারের সঙ্গে মেলে এমন কিছু পাওয়া যায়নি।",
+  "emptyNoItems": "এখনও খালি।\nমিডিয়া অ্যাপ স্বয়ংক্রিয়ভাবে শনাক্ত করতে স্ক্যান ট্যাবে ট্যাপ করুন।",
+  "screenScan": "স্ক্যান",
+  "scanDescription": "ইনস্টল করা মিডিয়া অ্যাপ (স্ট্রিমিং, সংগীত, পডকাস্ট, নথি) খুঁজে সেগুলো লাইব্রেরিতে যোগ করে। ব্যবহার-ডেটা অ্যাক্সেস চালু থাকলে প্রকৃত ব্যবহারের সময়ও পাওয়া যাবে।",
+  "btnAppScan": "অ্যাপ স্ক্যান (সমষ্টিগত ব্যবহার)",
+  "bgScanTitle": "ব্যাকগ্রাউন্ড স্ক্যান",
+  "bgScanNow": "এখন একবার ব্যাকগ্রাউন্ডে চালান",
+  "bgScanNowSubtitle": "Android-এ একবারের জন্য একটি কাজ পাঠায়। ১–২ মিনিট পরে ফলাফল দেখা যাবে।",
+  "bgScanQueued": "ব্যাকগ্রাউন্ড স্ক্যান সারিতে আছে — প্রায় ১ মিনিটে ফলাফল দেখা যাবে",
+  "scanAndroidOnly": "স্ক্যান শুধু Android-এ উপলভ্য।",
+  "scanPermissionMissing": "ব্যবহার-ডেটা অ্যাক্সেস নেই। MediaBrain-এর জন্য সিস্টেম সেটিংসে এটি চালু করুন:\n\nসেটিংস → অ্যাপস → বিশেষ অ্যাপ অ্যাক্সেস → ব্যবহার-ডেটা অ্যাক্সেস → MediaBrain।",
+  "detectedTitle": "📡 কী শনাক্ত হয়?",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian এবং আরও।",
+  "appScanTitle": "🔍 অ্যাপ স্ক্যান",
+  "appScanDescription": "অ্যাপ স্ক্যান: প্রতিটি মিডিয়া অ্যাপের জন্য একটি এন্ট্রি, যেখানে সাম্প্রতিক দিনগুলোর মোট ব্যবহার দেখানো হয় (Android ব্যবহারের পরিসংখ্যান থেকে)।",
+  "neverText": "কখনও নয়",
+  "screenSettings": "সেটিংস",
+  "sectionDataStatus": "ডেটার অবস্থা",
+  "sectionFileSync": "ফাইল সিঙ্ক",
+  "sectionServerSync": "সার্ভার সিঙ্ক (Mac Studio)",
+  "sectionActions": "কাজ",
+  "settingsTotalEntries": "মোট এন্ট্রি",
+  "settingsLastScan": "শেষ স্ক্যান",
+  "exportTitle": "শেয়ার দিয়ে রপ্তানি",
+  "exportSubtitle": "ইমেল, OneDrive বা Telegram দিয়ে নিজের কাছে JSON পাঠান …",
+  "importTitle": "আমদানি ফাইল বেছে নিন",
+  "importSubtitle": "স্থানীয় ডেটা মুছে প্রতিস্থাপন করে",
+  "noServerConfigured": "কোনো সার্ভার কনফিগার করা নেই",
+  "actionPush": "পুশ",
+  "actionPull": "পুল",
+  "refreshData": "ডেটা রিফ্রেশ করুন",
+  "deleteAllData": "লাইব্রেরির সব ডেটা মুছুন",
+  "deleteAllTitle": "লাইব্রেরির সব ডেটা মুছবেন?",
+  "deleteAllContent": "স্থানীয় MediaBrain থেকে সব এন্ট্রি সরিয়ে দেয়।",
+  "cancel": "বাতিল",
+  "delete": "মুছুন",
+  "save": "সংরক্ষণ",
+  "libraryCleared": "লাইব্রেরি খালি করা হয়েছে।",
+  "cancelled": "বাতিল হয়েছে।",
+  "serverConfigTitle": "সার্ভার সিঙ্ক কনফিগার করুন",
+  "fieldServerUrl": "সার্ভার URL",
+  "fieldServerUrlHint": "যেমন: macstudvonlukas:8082",
+  "fieldBearerToken": "Bearer টোকেন",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "স্বতন্ত্র Flutter অ্যাপ। ইনস্টল করা মিডিয়া অ্যাপ শনাক্ত করে, হাতে যোগ করা এন্ট্রি রাখে এবং ফাইল বা সার্ভারের মাধ্যমে সিঙ্ক করে।",
+  "detailDescription": "বিবরণ",
+  "detailDetails": "বিস্তারিত",
+  "detailTags": "ট্যাগ",
+  "fieldArtist": "শিল্পী",
+  "fieldAlbum": "অ্যালবাম",
+  "fieldChannel": "চ্যানেল",
+  "fieldSeasonEpisodeLabel": "সিজন/পর্ব",
+  "fieldLength": "সময়কাল",
+  "fieldLastOpened": "শেষ খোলা",
+  "fieldUsage": "ব্যবহার",
+  "fieldProviderId": "প্রোভাইডার ID",
+  "fieldLocalPath": "স্থানীয় পথ",
+  "openPlayStore": "Play Store-এ খুলুন",
+  "openBrowser": "ব্রাউজারে খুলুন",
+  "linkError": "লিংক খোলা যায়নি।",
+  "dialogTitleNew": "নতুন এন্ট্রি",
+  "dialogTitleEdit": "এন্ট্রি সম্পাদনা করুন",
+  "fieldTitle": "শিরোনাম",
+  "categoryLabel": "বিভাগ",
+  "fieldArtistOptional": "শিল্পী / পরিচালক (ঐচ্ছিক)",
+  "fieldAlbumOptional": "অ্যালবাম / সিরিজ (ঐচ্ছিক)",
+  "fieldChannelOptional": "চ্যানেল / উৎস (ঐচ্ছিক)",
+  "fieldDescriptionOptional": "বিবরণ (ঐচ্ছিক)",
+  "fieldTags": "ট্যাগ (কমা দিয়ে আলাদা)",
+  "fieldTagsHint": "যেমন: প্রামাণ্যচিত্র, ছুটির দিন",
+  "markAsFavorite": "পছন্দের হিসেবে চিহ্নিত করুন",
+  "error": "ত্রুটি: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "মোট {minutes} মিনিট",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "অ্যাপ বন্ধ থাকলেও প্রতি ~{hours} ঘণ্টায় স্ক্যান করুন।",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "শেষ চালানো: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "অ্যাপ স্ক্যান: {matched}টি মিডিয়া অ্যাপ পাওয়া গেছে, {persisted}টি এন্ট্রি যোগ হয়েছে।",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "রপ্তানি: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "আমদানি: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "পুশ: {push} · পুল: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "S{s} E{e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} মিনিট",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "প্লেলিস্ট",
+  "screenPlaylists": "প্লেলিস্ট ও সংগ্রহ",
+  "playlistTypeManual": "ম্যানুয়াল",
+  "playlistTypeSmart": "স্মার্ট (ডায়নামিক ফিল্টার)",
+  "dialogNewPlaylist": "নতুন প্লেলিস্ট",
+  "dialogEditPlaylist": "প্লেলিস্ট সম্পাদনা করুন",
+  "fieldPlaylistName": "প্লেলিস্টের নাম",
+  "fieldPlaylistDescription": "বিবরণ (ঐচ্ছিক)",
+  "fieldPlaylistType": "প্লেলিস্টের ধরন",
+  "smartFilterCriteria": "স্মার্ট ফিল্টারের মানদণ্ড",
+  "smartFilterCategory": "বিভাগ",
+  "smartFilterTag": "ট্যাগ / কীওয়ার্ড",
+  "smartFilterFavoritesOnly": "শুধু পছন্দের",
+  "smartFilterMinMinutes": "সর্বনিম্ন ব্যবহারের সময় (মিনিট)",
+  "smartFilterSearch": "অনুসন্ধানের শব্দ",
+  "emptyPlaylists": "এখনও কোনো প্লেলিস্ট তৈরি হয়নি।\nম্যানুয়াল সংগ্রহ বা ডায়নামিক স্মার্ট প্লেলিস্ট তৈরি করুন।",
+  "emptyPlaylistItems": "এই প্লেলিস্টে এখনও কোনো মিডিয়া নেই।",
+  "deletePlaylistTitle": "প্লেলিস্ট মুছবেন?",
+  "deletePlaylistContent": "আপনি কি সত্যিই এই প্লেলিস্টটি মুছতে চান? এর মিডিয়া লাইব্রেরিতে থেকে যাবে।",
+  "addToPlaylist": "প্লেলিস্টে যোগ করুন",
+  "removeFromPlaylist": "প্লেলিস্ট থেকে সরান",
+  "addedToPlaylist": "প্লেলিস্টে যোগ করা হয়েছে।",
+  "removedFromPlaylist": "প্লেলিস্ট থেকে সরানো হয়েছে।",
+  "filterByTag": "ট্যাগ ফিল্টার",
+  "allTags": "সব ট্যাগ",
+  "addTag": "ট্যাগ যোগ করুন",
+  "removeTag": "ট্যাগ সরান",
+  "noPlaylistsFound": "কোনো প্লেলিস্ট নেই।",
+  "playlistItemCount": "{count, plural, one {{count}টি আইটেম} other {{count}টি আইটেম}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

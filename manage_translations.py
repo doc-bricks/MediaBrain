@@ -12,6 +12,8 @@ import re
 import os
 import sys
 
+from translator import SUPPORTED_LANGUAGES
+
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8")
@@ -19,7 +21,6 @@ if hasattr(sys.stdout, "reconfigure"):
         pass
 
 TRANSLATION_FILE = "locales/translations.json"
-SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru']
 
 STRING_PATTERNS = [
     re.compile(r'text\s*=\s*"([^"]+)"'),

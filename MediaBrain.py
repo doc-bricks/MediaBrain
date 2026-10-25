@@ -7,8 +7,9 @@ import queue
 import os
 import socket as _socket
 import sys
+from pathlib import Path
 from PySide6.QtWidgets import QApplication, QMessageBox
-from PySide6.QtCore import QTimer # Import nach oben verschoben
+from PySide6.QtCore import QTimer, Qt # Import nach oben verschoben
 from PySide6.QtGui import QIcon
 
 # Projektordner zum Pfad hinzufügen
@@ -20,6 +21,21 @@ from playlists import PlaylistManager
 import background
 import config
 from logger_system import logger
+from translator import TranslationSystem, resolve_language, set_default_translation_system, translate as _t
+
+
+def _create_translation_system():
+    language = resolve_language(
+        os.environ.get("MEDIABRAIN_LANG"),
+        config.config.get("ui.language", "de"),
+    )
+    translator = TranslationSystem(
+        language,
+        app_dir=Path(__file__).resolve().parent,
+        auto_register_missing=False,
+    )
+    set_default_translation_system(translator)
+    return translator
 
 APP_ICON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MediaBrain.ico")
 
@@ -59,11 +75,15 @@ class AppController:
         # 3. GUI starten
         existing_app = QApplication.instance()
         self.app = existing_app if existing_app is not None else QApplication(sys.argv)
+        self.translator = _create_translation_system()
+        direction = Qt.LayoutDirection.RightToLeft if self.translator.get_language() == "ar" else Qt.LayoutDirection.LeftToRight
+        self.app.setLayoutDirection(direction)
         self.app_icon = QIcon(APP_ICON_PATH) if os.path.exists(APP_ICON_PATH) else None
         if self.app_icon is not None:
             self.app.setWindowIcon(self.app_icon)
         self.window = MainWindow(self.media_manager, self.blacklist_manager,
-                                 self.tag_manager, self.playlist_manager)
+                                 self.tag_manager, self.playlist_manager,
+                                 translator=self.translator)
         if self.app_icon is not None:
             self.window.setWindowIcon(self.app_icon)
 
@@ -148,12 +168,22 @@ controller = None
 if __name__ == "__main__":
     if not _acquire_single_instance():
         _app = QApplication(sys.argv)
-        QMessageBox.information(
-            None,
-            "MediaBrain",
-            "MediaBrain läuft bereits im Hintergrund.\n"
-            "Tray-Icon doppelklicken um das Fenster zu öffnen.",
+        _translator = _create_translation_system()
+        _app.setLayoutDirection(
+            Qt.LayoutDirection.RightToLeft
+            if _translator.get_language() == "ar"
+            else Qt.LayoutDirection.LeftToRight
         )
+        _box = QMessageBox(
+            QMessageBox.Icon.Information,
+            "MediaBrain",
+            _t("MediaBrain läuft bereits im Hintergrund.\nTray-Icon doppelklicken um das Fenster zu öffnen."),
+            QMessageBox.StandardButton.Ok,
+        )
+        _ok = _box.button(QMessageBox.StandardButton.Ok)
+        if _ok is not None:
+            _ok.setText(_t("OK"))
+        _box.exec()
         sys.exit(0)
     controller = AppController()
     controller.run()

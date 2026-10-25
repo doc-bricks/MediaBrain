@@ -81,23 +81,141 @@
   "fieldTagsHint": "z.B. Dokumentation, Wochenende",
   "markAsFavorite": "Als Favorit markieren",
   "error": "Fehler: {msg}",
-  "@error": { "placeholders": { "msg": { "type": "String" } } },
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "foregroundMinutesLabel": "{minutes} Min insgesamt",
-  "@foregroundMinutesLabel": { "placeholders": { "minutes": { "type": "int" } } },
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "bgScanSubtitle": "Alle ~{hours} h scannen, auch wenn die App geschlossen ist.",
-  "@bgScanSubtitle": { "placeholders": { "hours": { "type": "int" } } },
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
   "lastRun": "Letzter Lauf: {time}",
-  "@lastRun": { "placeholders": { "time": { "type": "String" } } },
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "scanResult": "Apps-Scan: {matched} Medien-Apps gefunden, {persisted} Einträge übernommen.",
-  "@scanResult": { "placeholders": { "matched": { "type": "int" }, "persisted": { "type": "int" } } },
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
   "exportResult": "Export: {msg}",
-  "@exportResult": { "placeholders": { "msg": { "type": "String" } } },
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "importResult": "Import: {msg}",
-  "@importResult": { "placeholders": { "msg": { "type": "String" } } },
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "pushPullStatus": "Push: {push} · Pull: {pull}",
-  "@pushPullStatus": { "placeholders": { "push": { "type": "String" }, "pull": { "type": "String" } } },
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
   "seasonEpisode": "S{s} E{e}",
-  "@seasonEpisode": { "placeholders": { "s": { "type": "int" }, "e": { "type": "int" } } },
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
   "usageMinutes": "{n} Minuten",
-  "@usageMinutes": { "placeholders": { "n": { "type": "int" } } }
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "Playlists",
+  "screenPlaylists": "Playlists & Sammlungen",
+  "playlistTypeManual": "Manuell",
+  "playlistTypeSmart": "Smart (Dynamischer Filter)",
+  "dialogNewPlaylist": "Neue Playlist",
+  "dialogEditPlaylist": "Playlist bearbeiten",
+  "fieldPlaylistName": "Name der Playlist",
+  "fieldPlaylistDescription": "Beschreibung (optional)",
+  "fieldPlaylistType": "Playlist-Typ",
+  "smartFilterCriteria": "Smarte Filterkriterien",
+  "smartFilterCategory": "Kategorie",
+  "smartFilterTag": "Tag / Stichwort",
+  "smartFilterFavoritesOnly": "Nur Favoriten",
+  "smartFilterMinMinutes": "Minimale Nutzungszeit (Min.)",
+  "smartFilterSearch": "Suchbegriff",
+  "emptyPlaylists": "Noch keine Playlists angelegt.\nErstelle manuelle Sammlungen oder dynamische Smart-Playlists.",
+  "emptyPlaylistItems": "Diese Playlist enthält noch keine Medien.",
+  "deletePlaylistTitle": "Playlist löschen?",
+  "deletePlaylistContent": "Möchtest du diese Playlist wirklich löschen? Die enthaltenen Medien bleiben in der Bibliothek erhalten.",
+  "addToPlaylist": "Zu Playlist hinzufügen",
+  "removeFromPlaylist": "Aus Playlist entfernen",
+  "addedToPlaylist": "Zur Playlist hinzugefügt.",
+  "removedFromPlaylist": "Aus Playlist entfernt.",
+  "filterByTag": "Tag-Filter",
+  "allTags": "Alle Tags",
+  "addTag": "Tag hinzufügen",
+  "removeTag": "Tag entfernen",
+  "noPlaylistsFound": "Keine Playlists vorhanden.",
+  "playlistItemCount": "{count, plural, one {{count} Eintrag} other {{count} Einträge}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Anzahl der Einträge in einer Playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag und Anzahl der passenden Einträge.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -1,0 +1,221 @@
+{
+  "@@locale": "ar",
+  "appTitle": "MediaBrain",
+  "navLibrary": "المكتبة",
+  "navScan": "فحص",
+  "navMore": "المزيد",
+  "screenLibrary": "المكتبة",
+  "fabAdd": "إضافة",
+  "searchHint": "بحث (العنوان، الفنان، القناة …)",
+  "filterAll": "الكل",
+  "filterFavorites": "⭐ المفضلة",
+  "emptyNoMatch": "لا توجد نتائج تطابق عوامل التصفية.",
+  "emptyNoItems": "لا توجد عناصر بعد.\nاضغط علامة تبويب الفحص لاكتشاف تطبيقات الوسائط تلقائيًا.",
+  "screenScan": "فحص",
+  "scanDescription": "يبحث عن تطبيقات الوسائط المثبتة (البث والموسيقى والبودكاست والمستندات) ويضيفها إلى مكتبتك. عند تفعيل الوصول إلى بيانات الاستخدام، ستحصل أيضًا على مدة الاستخدام الفعلية.",
+  "btnAppScan": "فحص التطبيقات (إجمالي الاستخدام)",
+  "bgScanTitle": "الفحص في الخلفية",
+  "bgScanNow": "التشغيل مرة واحدة في الخلفية الآن",
+  "bgScanNowSubtitle": "يرسل مهمة لمرة واحدة إلى Android. ستظهر النتيجة بعد دقيقة أو دقيقتين.",
+  "bgScanQueued": "وُضع الفحص في الخلفية في قائمة الانتظار — ستظهر النتيجة خلال دقيقة تقريبًا",
+  "scanAndroidOnly": "الفحص متاح على Android فقط.",
+  "scanPermissionMissing": "إذن الوصول إلى بيانات الاستخدام غير متاح. فعّله في إعدادات النظام لتطبيق MediaBrain:\n\nالإعدادات → التطبيقات → الوصول الخاص للتطبيقات → الوصول إلى بيانات الاستخدام → MediaBrain.",
+  "detectedTitle": "📡 ما الذي يتم اكتشافه؟",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian وغيرها.",
+  "appScanTitle": "🔍 فحص التطبيقات",
+  "appScanDescription": "فحص التطبيقات: سجل واحد لكل تطبيق وسائط مع إجمالي الاستخدام خلال الأيام الماضية (وفق إحصاءات استخدام Android).",
+  "neverText": "أبدًا",
+  "screenSettings": "الإعدادات",
+  "sectionDataStatus": "حالة البيانات",
+  "sectionFileSync": "مزامنة الملفات",
+  "sectionServerSync": "مزامنة الخادم (Mac Studio)",
+  "sectionActions": "الإجراءات",
+  "settingsTotalEntries": "إجمالي السجلات",
+  "settingsLastScan": "آخر فحص",
+  "exportTitle": "تصدير عبر المشاركة",
+  "exportSubtitle": "إرسال JSON إلى نفسك عبر البريد أو OneDrive أو Telegram …",
+  "importTitle": "اختيار ملف للاستيراد",
+  "importSubtitle": "يستبدل البيانات المحلية",
+  "noServerConfigured": "لا يوجد خادم مهيأ",
+  "actionPush": "إرسال",
+  "actionPull": "استقبال",
+  "refreshData": "تحديث البيانات",
+  "deleteAllData": "حذف جميع بيانات المكتبة",
+  "deleteAllTitle": "حذف جميع بيانات المكتبة؟",
+  "deleteAllContent": "يحذف جميع السجلات من MediaBrain المحلي.",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "save": "حفظ",
+  "libraryCleared": "تم إفراغ المكتبة.",
+  "cancelled": "تم الإلغاء.",
+  "serverConfigTitle": "تهيئة مزامنة الخادم",
+  "fieldServerUrl": "عنوان الخادم",
+  "fieldServerUrlHint": "مثال: macstudvonlukas:8082",
+  "fieldBearerToken": "رمز Bearer",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "تطبيق Flutter مستقل. يكتشف تطبيقات الوسائط المثبتة، ويتتبع الإدخالات اليدوية، ويزامن عبر ملف أو خادم.",
+  "detailDescription": "الوصف",
+  "detailDetails": "التفاصيل",
+  "detailTags": "الوسوم",
+  "fieldArtist": "الفنان",
+  "fieldAlbum": "الألبوم",
+  "fieldChannel": "القناة",
+  "fieldSeasonEpisodeLabel": "الموسم/الحلقة",
+  "fieldLength": "المدة",
+  "fieldLastOpened": "آخر فتح",
+  "fieldUsage": "الاستخدام",
+  "fieldProviderId": "معرّف المزوّد",
+  "fieldLocalPath": "المسار المحلي",
+  "openPlayStore": "فتح في Play Store",
+  "openBrowser": "فتح في المتصفح",
+  "linkError": "تعذر فتح الرابط.",
+  "dialogTitleNew": "إدخال جديد",
+  "dialogTitleEdit": "تعديل الإدخال",
+  "fieldTitle": "العنوان",
+  "categoryLabel": "الفئة",
+  "fieldArtistOptional": "الفنان / المخرج (اختياري)",
+  "fieldAlbumOptional": "الألبوم / المسلسل (اختياري)",
+  "fieldChannelOptional": "القناة / المصدر (اختياري)",
+  "fieldDescriptionOptional": "الوصف (اختياري)",
+  "fieldTags": "الوسوم (مفصولة بفواصل)",
+  "fieldTagsHint": "مثال: وثائقي، عطلة نهاية الأسبوع",
+  "markAsFavorite": "وضع علامة في المفضلة",
+  "error": "خطأ: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "الإجمالي {minutes} دقيقة",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "افحص كل نحو {hours} ساعات، حتى عندما يكون التطبيق مغلقًا.",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "آخر تشغيل: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "فحص التطبيقات: تم العثور على {matched} من تطبيقات الوسائط وإضافة {persisted} من السجلات.",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "تصدير: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "استيراد: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "إرسال: {push} · استقبال: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "الموسم {s} الحلقة {e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} دقيقة",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "قوائم التشغيل",
+  "screenPlaylists": "قوائم التشغيل والمجموعات",
+  "playlistTypeManual": "يدوية",
+  "playlistTypeSmart": "ذكية (تصفية ديناميكية)",
+  "dialogNewPlaylist": "قائمة تشغيل جديدة",
+  "dialogEditPlaylist": "تعديل قائمة التشغيل",
+  "fieldPlaylistName": "اسم قائمة التشغيل",
+  "fieldPlaylistDescription": "الوصف (اختياري)",
+  "fieldPlaylistType": "نوع قائمة التشغيل",
+  "smartFilterCriteria": "معايير التصفية الذكية",
+  "smartFilterCategory": "الفئة",
+  "smartFilterTag": "وسم / كلمة مفتاحية",
+  "smartFilterFavoritesOnly": "المفضلة فقط",
+  "smartFilterMinMinutes": "الحد الأدنى لوقت الاستخدام (دقيقة)",
+  "smartFilterSearch": "مصطلح البحث",
+  "emptyPlaylists": "لم تُنشأ قوائم تشغيل بعد.\nأنشئ مجموعات يدوية أو قوائم تشغيل ذكية ديناميكية.",
+  "emptyPlaylistItems": "لا تحتوي قائمة التشغيل هذه على وسائط بعد.",
+  "deletePlaylistTitle": "حذف قائمة التشغيل؟",
+  "deletePlaylistContent": "هل تريد حقًا حذف قائمة التشغيل هذه؟ ستبقى عناصر الوسائط فيها في مكتبتك.",
+  "addToPlaylist": "إضافة إلى قائمة التشغيل",
+  "removeFromPlaylist": "إزالة من قائمة التشغيل",
+  "addedToPlaylist": "تمت الإضافة إلى قائمة التشغيل.",
+  "removedFromPlaylist": "تمت الإزالة من قائمة التشغيل.",
+  "filterByTag": "تصفية حسب الوسم",
+  "allTags": "كل الوسوم",
+  "addTag": "إضافة وسم",
+  "removeTag": "إزالة الوسم",
+  "noPlaylistsFound": "لا توجد قوائم تشغيل متاحة.",
+  "playlistItemCount": "{count, plural, zero {{count} عنصر} one {{count} عنصر} two {{count} عنصران} few {{count} عناصر} many {{count} عنصرًا} other {{count} عنصر}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
