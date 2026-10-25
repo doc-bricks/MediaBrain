@@ -1,0 +1,221 @@
+{
+  "@@locale": "zh",
+  "appTitle": "MediaBrain",
+  "navLibrary": "媒体库",
+  "navScan": "扫描",
+  "navMore": "更多",
+  "screenLibrary": "媒体库",
+  "fabAdd": "添加",
+  "searchHint": "搜索（标题、艺术家、频道……）",
+  "filterAll": "全部",
+  "filterFavorites": "⭐ 收藏",
+  "emptyNoMatch": "没有符合筛选条件的结果。",
+  "emptyNoItems": "内容为空。\n点击“扫描”标签页，自动检测媒体应用。",
+  "screenScan": "扫描",
+  "scanDescription": "搜索已安装的媒体应用（流媒体、音乐、播客、文档），并将其添加到媒体库。启用使用数据访问权限后，还可以获取实际使用时长。",
+  "btnAppScan": "应用扫描（汇总使用情况）",
+  "bgScanTitle": "后台扫描",
+  "bgScanNow": "立即在后台运行一次",
+  "bgScanNowSubtitle": "向 Android 发送一次性任务。结果将在 1–2 分钟后显示。",
+  "bgScanQueued": "后台扫描已排队 — 约 1 分钟后可查看结果",
+  "scanAndroidOnly": "扫描仅适用于 Android。",
+  "scanPermissionMissing": "缺少使用数据访问权限。请在 MediaBrain 的系统设置中启用：\n\n设置 → 应用 → 特殊应用访问权限 → 使用情况访问权限 → MediaBrain。",
+  "detectedTitle": "📡 可以检测什么？",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian 等。",
+  "appScanTitle": "🔍 应用扫描",
+  "appScanDescription": "应用扫描：每个媒体应用生成一个条目，显示最近几天的总使用情况（通过 Android 使用情况统计）。",
+  "neverText": "从不",
+  "screenSettings": "设置",
+  "sectionDataStatus": "数据状态",
+  "sectionFileSync": "文件同步",
+  "sectionServerSync": "服务器同步（Mac Studio）",
+  "sectionActions": "操作",
+  "settingsTotalEntries": "条目总数",
+  "settingsLastScan": "上次扫描",
+  "exportTitle": "通过分享导出",
+  "exportSubtitle": "通过邮件、OneDrive、Telegram 将 JSON 发给自己 …",
+  "importTitle": "选择导入文件",
+  "importSubtitle": "覆盖本地数据",
+  "noServerConfigured": "未配置服务器",
+  "actionPush": "推送",
+  "actionPull": "拉取",
+  "refreshData": "刷新数据",
+  "deleteAllData": "删除媒体库中的所有数据",
+  "deleteAllTitle": "删除媒体库中的所有数据？",
+  "deleteAllContent": "从本地 MediaBrain 中删除所有条目。",
+  "cancel": "取消",
+  "delete": "删除",
+  "save": "保存",
+  "libraryCleared": "媒体库已清空。",
+  "cancelled": "已取消。",
+  "serverConfigTitle": "配置服务器同步",
+  "fieldServerUrl": "服务器 URL",
+  "fieldServerUrlHint": "例如：macstudvonlukas:8082",
+  "fieldBearerToken": "Bearer 令牌",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "独立的 Flutter 应用。检测已安装的媒体应用、记录手动添加的条目，并通过文件或服务器同步。",
+  "detailDescription": "描述",
+  "detailDetails": "详情",
+  "detailTags": "标签",
+  "fieldArtist": "艺术家",
+  "fieldAlbum": "专辑",
+  "fieldChannel": "频道",
+  "fieldSeasonEpisodeLabel": "季/集",
+  "fieldLength": "时长",
+  "fieldLastOpened": "上次打开",
+  "fieldUsage": "使用情况",
+  "fieldProviderId": "提供方 ID",
+  "fieldLocalPath": "本地路径",
+  "openPlayStore": "在 Play 商店中打开",
+  "openBrowser": "在浏览器中打开",
+  "linkError": "无法打开链接。",
+  "dialogTitleNew": "新建条目",
+  "dialogTitleEdit": "编辑条目",
+  "fieldTitle": "标题",
+  "categoryLabel": "类别",
+  "fieldArtistOptional": "艺术家 / 导演（可选）",
+  "fieldAlbumOptional": "专辑 / 系列（可选）",
+  "fieldChannelOptional": "频道 / 来源（可选）",
+  "fieldDescriptionOptional": "描述（可选）",
+  "fieldTags": "标签（用逗号分隔）",
+  "fieldTagsHint": "例如：纪录片、周末",
+  "markAsFavorite": "标记为收藏",
+  "error": "错误：{msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "共 {minutes} 分钟",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "每隔约 {hours} 小时扫描一次，即使应用已关闭也会扫描。",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "上次运行：{time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "应用扫描：发现 {matched} 个媒体应用，添加了 {persisted} 个条目。",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "导出：{msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "导入：{msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "推送：{push} · 拉取：{pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "第 {s} 季 第 {e} 集",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} 分钟",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "播放列表",
+  "screenPlaylists": "播放列表与收藏集",
+  "playlistTypeManual": "手动",
+  "playlistTypeSmart": "智能（动态筛选）",
+  "dialogNewPlaylist": "新建播放列表",
+  "dialogEditPlaylist": "编辑播放列表",
+  "fieldPlaylistName": "播放列表名称",
+  "fieldPlaylistDescription": "描述（可选）",
+  "fieldPlaylistType": "播放列表类型",
+  "smartFilterCriteria": "智能筛选条件",
+  "smartFilterCategory": "类别",
+  "smartFilterTag": "标签 / 关键词",
+  "smartFilterFavoritesOnly": "仅收藏",
+  "smartFilterMinMinutes": "最短使用时长（分钟）",
+  "smartFilterSearch": "搜索词",
+  "emptyPlaylists": "尚未创建播放列表。\n创建手动收藏集或动态智能播放列表。",
+  "emptyPlaylistItems": "此播放列表中还没有媒体内容。",
+  "deletePlaylistTitle": "删除播放列表？",
+  "deletePlaylistContent": "确定要删除此播放列表吗？其中的媒体项目仍会保留在媒体库中。",
+  "addToPlaylist": "添加到播放列表",
+  "removeFromPlaylist": "从播放列表移除",
+  "addedToPlaylist": "已添加到播放列表。",
+  "removedFromPlaylist": "已从播放列表移除。",
+  "filterByTag": "按标签筛选",
+  "allTags": "所有标签",
+  "addTag": "添加标签",
+  "removeTag": "移除标签",
+  "noPlaylistsFound": "没有可用的播放列表。",
+  "playlistItemCount": "{count, plural, other {{count} 个项目}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

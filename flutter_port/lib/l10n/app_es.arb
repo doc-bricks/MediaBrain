@@ -1,0 +1,221 @@
+{
+  "@@locale": "es",
+  "appTitle": "MediaBrain",
+  "navLibrary": "Biblioteca",
+  "navScan": "Escanear",
+  "navMore": "Más",
+  "screenLibrary": "Biblioteca",
+  "fabAdd": "Añadir",
+  "searchHint": "Buscar (título, artista, canal …)",
+  "filterAll": "Todo",
+  "filterFavorites": "⭐ Favoritos",
+  "emptyNoMatch": "No hay resultados para tus filtros.",
+  "emptyNoItems": "Aún está vacío.\nPulsa la pestaña Escanear para detectar automáticamente tus aplicaciones multimedia.",
+  "screenScan": "Escanear",
+  "scanDescription": "Busca aplicaciones multimedia instaladas (streaming, música, pódcasts y documentos) y las añade a tu biblioteca. Si permites el acceso a los datos de uso, también obtendrás el tiempo de uso real.",
+  "btnAppScan": "Escaneo de aplicaciones (uso agregado)",
+  "bgScanTitle": "Escaneo en segundo plano",
+  "bgScanNow": "Ejecutar ahora una vez en segundo plano",
+  "bgScanNowSubtitle": "Envía una tarea puntual a Android. El resultado aparecerá después de 1–2 minutos.",
+  "bgScanQueued": "Escaneo en cola — el resultado estará visible en ~1 min",
+  "scanAndroidOnly": "El escaneo solo está disponible en Android.",
+  "scanPermissionMissing": "Falta el acceso a los datos de uso. Actívalo en los ajustes del sistema para MediaBrain:\n\nAjustes → Aplicaciones → Acceso especial a aplicaciones → Acceso a datos de uso → MediaBrain.",
+  "detectedTitle": "📡 ¿Qué se detecta?",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian y más.",
+  "appScanTitle": "🔍 Escaneo de aplicaciones",
+  "appScanDescription": "Escaneo de aplicaciones: una entrada por aplicación multimedia con el uso total de los últimos días (mediante las estadísticas de uso de Android).",
+  "neverText": "Nunca",
+  "screenSettings": "Ajustes",
+  "sectionDataStatus": "Estado de datos",
+  "sectionFileSync": "Sincronización de archivos",
+  "sectionServerSync": "Sincronización del servidor (Mac Studio)",
+  "sectionActions": "Acciones",
+  "settingsTotalEntries": "Total de entradas",
+  "settingsLastScan": "Último escaneo",
+  "exportTitle": "Exportar mediante Compartir",
+  "exportSubtitle": "JSON por correo, OneDrive o Telegram a ti mismo …",
+  "importTitle": "Elegir archivo de importación",
+  "importSubtitle": "Sobrescribe los datos locales",
+  "noServerConfigured": "No hay servidor configurado",
+  "actionPush": "Enviar",
+  "actionPull": "Recibir",
+  "refreshData": "Actualizar datos",
+  "deleteAllData": "Eliminar todos los datos de la biblioteca",
+  "deleteAllTitle": "¿Eliminar todos los datos de la biblioteca?",
+  "deleteAllContent": "Elimina todas las entradas del MediaBrain local.",
+  "cancel": "Cancelar",
+  "delete": "Eliminar",
+  "save": "Guardar",
+  "libraryCleared": "Biblioteca vaciada.",
+  "cancelled": "Cancelado.",
+  "serverConfigTitle": "Configurar sincronización del servidor",
+  "fieldServerUrl": "URL del servidor",
+  "fieldServerUrlHint": "p. ej., macstudvonlukas:8082",
+  "fieldBearerToken": "Token de portador",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "Aplicación Flutter independiente. Detecta aplicaciones multimedia instaladas, registra entradas manuales y sincroniza mediante archivo o servidor.",
+  "detailDescription": "Descripción",
+  "detailDetails": "Detalles",
+  "detailTags": "Etiquetas",
+  "fieldArtist": "Artista",
+  "fieldAlbum": "Álbum",
+  "fieldChannel": "Canal",
+  "fieldSeasonEpisodeLabel": "Temporada/Episodio",
+  "fieldLength": "Duración",
+  "fieldLastOpened": "Última apertura",
+  "fieldUsage": "Uso",
+  "fieldProviderId": "ID del proveedor",
+  "fieldLocalPath": "Ruta local",
+  "openPlayStore": "Abrir en Play Store",
+  "openBrowser": "Abrir en el navegador",
+  "linkError": "No se pudo abrir el enlace.",
+  "dialogTitleNew": "Nueva entrada",
+  "dialogTitleEdit": "Editar entrada",
+  "fieldTitle": "Título",
+  "categoryLabel": "Categoría",
+  "fieldArtistOptional": "Artista / director (opcional)",
+  "fieldAlbumOptional": "Álbum / serie (opcional)",
+  "fieldChannelOptional": "Canal / fuente (opcional)",
+  "fieldDescriptionOptional": "Descripción (opcional)",
+  "fieldTags": "Etiquetas (separadas por comas)",
+  "fieldTagsHint": "p. ej., Documental, fin de semana",
+  "markAsFavorite": "Marcar como favorito",
+  "error": "Error: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "Total: {minutes} min",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "Escanear cada ~{hours} h, incluso cuando la aplicación esté cerrada.",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "Última ejecución: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "Escaneo de aplicaciones: se encontraron {matched} aplicaciones multimedia y se añadieron {persisted} entradas.",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "Exportación: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "Importación: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "Enviar: {push} · Recibir: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "T{s} E{e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} minutos",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "Listas de reproducción",
+  "screenPlaylists": "Listas y colecciones",
+  "playlistTypeManual": "Manual",
+  "playlistTypeSmart": "Inteligente (filtro dinámico)",
+  "dialogNewPlaylist": "Nueva lista de reproducción",
+  "dialogEditPlaylist": "Editar lista de reproducción",
+  "fieldPlaylistName": "Nombre de la lista de reproducción",
+  "fieldPlaylistDescription": "Descripción (opcional)",
+  "fieldPlaylistType": "Tipo de lista de reproducción",
+  "smartFilterCriteria": "Criterios de filtro inteligente",
+  "smartFilterCategory": "Categoría",
+  "smartFilterTag": "Etiqueta / palabra clave",
+  "smartFilterFavoritesOnly": "Solo favoritos",
+  "smartFilterMinMinutes": "Tiempo mínimo de uso (min)",
+  "smartFilterSearch": "Término de búsqueda",
+  "emptyPlaylists": "Todavía no hay listas de reproducción.\nCrea colecciones manuales o listas inteligentes dinámicas.",
+  "emptyPlaylistItems": "Esta lista todavía no contiene contenido multimedia.",
+  "deletePlaylistTitle": "¿Eliminar lista de reproducción?",
+  "deletePlaylistContent": "¿De verdad quieres eliminar esta lista de reproducción? Los medios incluidos permanecerán en tu biblioteca.",
+  "addToPlaylist": "Añadir a la lista de reproducción",
+  "removeFromPlaylist": "Quitar de la lista de reproducción",
+  "addedToPlaylist": "Añadido a la lista de reproducción.",
+  "removedFromPlaylist": "Quitado de la lista de reproducción.",
+  "filterByTag": "Filtro de etiquetas",
+  "allTags": "Todas las etiquetas",
+  "addTag": "Añadir etiqueta",
+  "removeTag": "Quitar etiqueta",
+  "noPlaylistsFound": "No hay listas de reproducción disponibles.",
+  "playlistItemCount": "{count, plural, one {{count} elemento} other {{count} elementos}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

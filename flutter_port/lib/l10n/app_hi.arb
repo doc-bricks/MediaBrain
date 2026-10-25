@@ -1,0 +1,221 @@
+{
+  "@@locale": "hi",
+  "appTitle": "MediaBrain",
+  "navLibrary": "लाइब्रेरी",
+  "navScan": "स्कैन",
+  "navMore": "और",
+  "screenLibrary": "लाइब्रेरी",
+  "fabAdd": "जोड़ें",
+  "searchHint": "खोजें (शीर्षक, कलाकार, चैनल …)",
+  "filterAll": "सभी",
+  "filterFavorites": "⭐ पसंदीदा",
+  "emptyNoMatch": "आपके फ़िल्टर से कोई परिणाम नहीं मिला।",
+  "emptyNoItems": "अभी खाली है।\nअपने मीडिया ऐप अपने-आप पहचानने के लिए स्कैन टैब पर टैप करें।",
+  "screenScan": "स्कैन",
+  "scanDescription": "इंस्टॉल किए गए मीडिया ऐप (स्ट्रीमिंग, संगीत, पॉडकास्ट, दस्तावेज़) खोजता है और उन्हें आपकी लाइब्रेरी में जोड़ता है। उपयोग डेटा की अनुमति चालू होने पर वास्तविक उपयोग समय भी मिलता है।",
+  "btnAppScan": "ऐप स्कैन (कुल उपयोग)",
+  "bgScanTitle": "बैकग्राउंड स्कैन",
+  "bgScanNow": "अभी एक बार बैकग्राउंड में चलाएँ",
+  "bgScanNowSubtitle": "Android को एक बार चलने वाला टास्क भेजता है। परिणाम 1–2 मिनट बाद दिखेगा।",
+  "bgScanQueued": "बैकग्राउंड स्कैन कतार में है — परिणाम लगभग 1 मिनट में दिखेगा",
+  "scanAndroidOnly": "स्कैन केवल Android पर उपलब्ध है।",
+  "scanPermissionMissing": "उपयोग डेटा की अनुमति नहीं है। MediaBrain के लिए सिस्टम सेटिंग में इसे चालू करें:\n\nसेटिंग → ऐप्स → विशेष ऐप एक्सेस → उपयोग डेटा एक्सेस → MediaBrain।",
+  "detectedTitle": "📡 क्या पहचाना जाता है?",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian और अन्य।",
+  "appScanTitle": "🔍 ऐप स्कैन",
+  "appScanDescription": "ऐप स्कैन: हर मीडिया ऐप के लिए एक प्रविष्टि, जिसमें पिछले दिनों का कुल उपयोग दिखता है (Android उपयोग आँकड़ों से)।",
+  "neverText": "कभी नहीं",
+  "screenSettings": "सेटिंग्स",
+  "sectionDataStatus": "डेटा स्थिति",
+  "sectionFileSync": "फ़ाइल सिंक",
+  "sectionServerSync": "सर्वर सिंक (Mac Studio)",
+  "sectionActions": "कार्रवाइयाँ",
+  "settingsTotalEntries": "कुल प्रविष्टियाँ",
+  "settingsLastScan": "अंतिम स्कैन",
+  "exportTitle": "शेयर के ज़रिए निर्यात",
+  "exportSubtitle": "ईमेल, OneDrive या Telegram से खुद को JSON भेजें …",
+  "importTitle": "आयात फ़ाइल चुनें",
+  "importSubtitle": "स्थानीय डेटा को बदल देता है",
+  "noServerConfigured": "कोई सर्वर कॉन्फ़िगर नहीं है",
+  "actionPush": "पुश",
+  "actionPull": "पुल",
+  "refreshData": "डेटा रीफ़्रेश करें",
+  "deleteAllData": "लाइब्रेरी का सारा डेटा हटाएँ",
+  "deleteAllTitle": "लाइब्रेरी का सारा डेटा हटाएँ?",
+  "deleteAllContent": "स्थानीय MediaBrain से सभी प्रविष्टियाँ हटाता है।",
+  "cancel": "रद्द करें",
+  "delete": "हटाएँ",
+  "save": "सहेजें",
+  "libraryCleared": "लाइब्रेरी साफ़ कर दी गई।",
+  "cancelled": "रद्द किया गया।",
+  "serverConfigTitle": "सर्वर सिंक कॉन्फ़िगर करें",
+  "fieldServerUrl": "सर्वर URL",
+  "fieldServerUrlHint": "जैसे, macstudvonlukas:8082",
+  "fieldBearerToken": "Bearer टोकन",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "स्वतंत्र Flutter ऐप। इंस्टॉल किए गए मीडिया ऐप पहचानता है, मैन्युअल प्रविष्टियाँ रखता है और फ़ाइल या सर्वर से सिंक करता है।",
+  "detailDescription": "विवरण",
+  "detailDetails": "जानकारी",
+  "detailTags": "टैग",
+  "fieldArtist": "कलाकार",
+  "fieldAlbum": "एल्बम",
+  "fieldChannel": "चैनल",
+  "fieldSeasonEpisodeLabel": "सीज़न/एपिसोड",
+  "fieldLength": "अवधि",
+  "fieldLastOpened": "अंतिम बार खोला गया",
+  "fieldUsage": "उपयोग",
+  "fieldProviderId": "प्रदाता ID",
+  "fieldLocalPath": "स्थानीय पथ",
+  "openPlayStore": "Play Store में खोलें",
+  "openBrowser": "ब्राउज़र में खोलें",
+  "linkError": "लिंक नहीं खुल सका।",
+  "dialogTitleNew": "नई प्रविष्टि",
+  "dialogTitleEdit": "प्रविष्टि संपादित करें",
+  "fieldTitle": "शीर्षक",
+  "categoryLabel": "श्रेणी",
+  "fieldArtistOptional": "कलाकार / निर्देशक (वैकल्पिक)",
+  "fieldAlbumOptional": "एल्बम / सीरीज़ (वैकल्पिक)",
+  "fieldChannelOptional": "चैनल / स्रोत (वैकल्पिक)",
+  "fieldDescriptionOptional": "विवरण (वैकल्पिक)",
+  "fieldTags": "टैग (अल्पविराम से अलग)",
+  "fieldTagsHint": "जैसे, वृत्तचित्र, सप्ताहांत",
+  "markAsFavorite": "पसंदीदा के रूप में चिह्नित करें",
+  "error": "त्रुटि: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "कुल {minutes} मिनट",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "ऐप बंद होने पर भी हर ~{hours} घंटे में स्कैन करें।",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "अंतिम बार चला: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "ऐप स्कैन: {matched} मीडिया ऐप मिले, {persisted} प्रविष्टियाँ जोड़ी गईं।",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "निर्यात: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "आयात: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "पुश: {push} · पुल: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "S{s} E{e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} मिनट",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "प्लेलिस्ट",
+  "screenPlaylists": "प्लेलिस्ट और संग्रह",
+  "playlistTypeManual": "मैन्युअल",
+  "playlistTypeSmart": "स्मार्ट (डायनेमिक फ़िल्टर)",
+  "dialogNewPlaylist": "नई प्लेलिस्ट",
+  "dialogEditPlaylist": "प्लेलिस्ट संपादित करें",
+  "fieldPlaylistName": "प्लेलिस्ट का नाम",
+  "fieldPlaylistDescription": "विवरण (वैकल्पिक)",
+  "fieldPlaylistType": "प्लेलिस्ट का प्रकार",
+  "smartFilterCriteria": "स्मार्ट फ़िल्टर मानदंड",
+  "smartFilterCategory": "श्रेणी",
+  "smartFilterTag": "टैग / कीवर्ड",
+  "smartFilterFavoritesOnly": "केवल पसंदीदा",
+  "smartFilterMinMinutes": "न्यूनतम उपयोग समय (मिनट)",
+  "smartFilterSearch": "खोज शब्द",
+  "emptyPlaylists": "अभी कोई प्लेलिस्ट नहीं बनाई गई है।\nमैन्युअल संग्रह या डायनेमिक स्मार्ट प्लेलिस्ट बनाएँ।",
+  "emptyPlaylistItems": "इस प्लेलिस्ट में अभी कोई मीडिया नहीं है।",
+  "deletePlaylistTitle": "प्लेलिस्ट हटाएँ?",
+  "deletePlaylistContent": "क्या आप वाकई यह प्लेलिस्ट हटाना चाहते हैं? इसमें मौजूद मीडिया आपकी लाइब्रेरी में रहेगा।",
+  "addToPlaylist": "प्लेलिस्ट में जोड़ें",
+  "removeFromPlaylist": "प्लेलिस्ट से हटाएँ",
+  "addedToPlaylist": "प्लेलिस्ट में जोड़ा गया।",
+  "removedFromPlaylist": "प्लेलिस्ट से हटाया गया।",
+  "filterByTag": "टैग फ़िल्टर",
+  "allTags": "सभी टैग",
+  "addTag": "टैग जोड़ें",
+  "removeTag": "टैग हटाएँ",
+  "noPlaylistsFound": "कोई प्लेलिस्ट उपलब्ध नहीं है।",
+  "playlistItemCount": "{count, plural, one {{count} आइटम} other {{count} आइटम}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

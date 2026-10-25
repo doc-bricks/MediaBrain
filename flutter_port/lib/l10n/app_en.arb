@@ -81,23 +81,141 @@
   "fieldTagsHint": "e.g. Documentary, Weekend",
   "markAsFavorite": "Mark as favorite",
   "error": "Error: {msg}",
-  "@error": { "placeholders": { "msg": { "type": "String" } } },
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "foregroundMinutesLabel": "{minutes} min total",
-  "@foregroundMinutesLabel": { "placeholders": { "minutes": { "type": "int" } } },
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
   "bgScanSubtitle": "Scan every ~{hours} h, even when the app is closed.",
-  "@bgScanSubtitle": { "placeholders": { "hours": { "type": "int" } } },
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
   "lastRun": "Last run: {time}",
-  "@lastRun": { "placeholders": { "time": { "type": "String" } } },
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "scanResult": "App scan: {matched} media apps found, {persisted} entries added.",
-  "@scanResult": { "placeholders": { "matched": { "type": "int" }, "persisted": { "type": "int" } } },
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
   "exportResult": "Export: {msg}",
-  "@exportResult": { "placeholders": { "msg": { "type": "String" } } },
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "importResult": "Import: {msg}",
-  "@importResult": { "placeholders": { "msg": { "type": "String" } } },
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
   "pushPullStatus": "Push: {push} · Pull: {pull}",
-  "@pushPullStatus": { "placeholders": { "push": { "type": "String" }, "pull": { "type": "String" } } },
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
   "seasonEpisode": "S{s} E{e}",
-  "@seasonEpisode": { "placeholders": { "s": { "type": "int" }, "e": { "type": "int" } } },
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
   "usageMinutes": "{n} minutes",
-  "@usageMinutes": { "placeholders": { "n": { "type": "int" } } }
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "Playlists",
+  "screenPlaylists": "Playlists & Collections",
+  "playlistTypeManual": "Manual",
+  "playlistTypeSmart": "Smart (Dynamic Filter)",
+  "dialogNewPlaylist": "New Playlist",
+  "dialogEditPlaylist": "Edit Playlist",
+  "fieldPlaylistName": "Playlist Name",
+  "fieldPlaylistDescription": "Description (optional)",
+  "fieldPlaylistType": "Playlist Type",
+  "smartFilterCriteria": "Smart Filter Criteria",
+  "smartFilterCategory": "Category",
+  "smartFilterTag": "Tag / Keyword",
+  "smartFilterFavoritesOnly": "Favorites only",
+  "smartFilterMinMinutes": "Minimum usage time (min)",
+  "smartFilterSearch": "Search term",
+  "emptyPlaylists": "No playlists created yet.\nCreate manual collections or dynamic smart playlists.",
+  "emptyPlaylistItems": "This playlist does not contain any media yet.",
+  "deletePlaylistTitle": "Delete playlist?",
+  "deletePlaylistContent": "Do you really want to delete this playlist? The media items will remain in your library.",
+  "addToPlaylist": "Add to playlist",
+  "removeFromPlaylist": "Remove from playlist",
+  "addedToPlaylist": "Added to playlist.",
+  "removedFromPlaylist": "Removed from playlist.",
+  "filterByTag": "Tag Filter",
+  "allTags": "All Tags",
+  "addTag": "Add tag",
+  "removeTag": "Remove tag",
+  "noPlaylistsFound": "No playlists available.",
+  "playlistItemCount": "{count, plural, one {{count} item} other {{count} items}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
