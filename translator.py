@@ -19,13 +19,13 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 
-SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru']
+SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru', 'fr', 'hi', 'ar', 'bn', 'pt']
 
 
 class TranslationSystem:
     """Multi-Language Support System v1.1"""
 
-    def __init__(self, default_lang: str = 'de', app_dir: Path = None):
+    def __init__(self, default_lang: str = 'de', app_dir: Path = None, *, auto_register_missing: bool = True):
         """
         Initialisiert Translation-System.
 
@@ -34,6 +34,7 @@ class TranslationSystem:
             app_dir: Verzeichnis der Anwendung (default: aktuelles Verzeichnis)
         """
         self.current_lang = default_lang
+        self.auto_register_missing = auto_register_missing
 
         if app_dir is None:
             app_dir = Path.cwd()
@@ -113,7 +114,7 @@ class TranslationSystem:
                         text = val_de
 
         if text is None:
-            if key not in self.translations and self._is_german(key):
+            if self.auto_register_missing and key not in self.translations and self._is_german(key):
                 entry = {"de": key}
                 for lang in SUPPORTED_LANGUAGES:
                     if lang != "de":

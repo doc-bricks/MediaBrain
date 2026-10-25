@@ -5,7 +5,12 @@
     "es": "Mostrar lista negra",
     "zh": "显示黑名单",
     "ja": "ブラックリストを表示",
-    "ru": "Показать черный список"
+    "ru": "Показать черный список",
+    "fr": "Afficher la liste noire",
+    "hi": "ब्लैकलिस्ट दिखाएँ",
+    "ar": "عرض القائمة السوداء",
+    "bn": "ব্ল্যাকলিস্ট দেখান",
+    "pt": "Mostrar lista de bloqueio"
   },
   "Dauer ändern": {
     "de": "Dauer ändern",
@@ -13,7 +18,12 @@
     "es": "Cambiar duración",
     "zh": "更改时长",
     "ja": "時間を変更",
-    "ru": "Изменить длительность"
+    "ru": "Изменить длительность",
+    "fr": "Modifier la durée",
+    "hi": "अवधि बदलें",
+    "ar": "تغيير المدة",
+    "bn": "সময়কাল পরিবর্তন করুন",
+    "pt": "Alterar duração"
   },
   "Einstellungen": {
     "de": "Einstellungen",
@@ -21,7 +31,12 @@
     "es": "Configuración",
     "zh": "设置",
     "ja": "設定",
-    "ru": "Настройки"
+    "ru": "Настройки",
+    "fr": "Paramètres",
+    "hi": "सेटिंग्स",
+    "ar": "الإعدادات",
+    "bn": "সেটিংস",
+    "pt": "Configurações"
   },
   "Keine Details verfügbar": {
     "de": "Keine Details verfügbar",
@@ -29,7 +44,12 @@
     "es": "No hay detalles disponibles",
     "zh": "无可用详情",
     "ja": "詳細はありません",
-    "ru": "Нет доступных деталей"
+    "ru": "Нет доступных деталей",
+    "fr": "Aucun détail disponible",
+    "hi": "कोई विवरण उपलब्ध नहीं",
+    "ar": "لا توجد تفاصيل متاحة",
+    "bn": "কোনো বিবরণ পাওয়া যায় না",
+    "pt": "Nenhum detalhe disponível"
   },
   "Lokale Daten:": {
     "de": "Lokale Daten:",
@@ -37,7 +57,12 @@
     "es": "Datos locales:",
     "zh": "本地数据:",
     "ja": "ローカルデータ:",
-    "ru": "Локальные данные:"
+    "ru": "Локальные данные:",
+    "fr": "Données locales :",
+    "hi": "स्थानीय डेटा:",
+    "ar": "البيانات المحلية:",
+    "bn": "স্থানীয় ডেটা:",
+    "pt": "Dados locais:"
   },
   "Suche speichern": {
     "de": "Suche speichern",
@@ -45,7 +70,12 @@
     "es": "Guardar búsqueda",
     "zh": "保存搜索",
     "ja": "検索を保存",
-    "ru": "Сохранить поиск"
+    "ru": "Сохранить поиск",
+    "fr": "Enregistrer la recherche",
+    "hi": "खोज सहेजें",
+    "ar": "حفظ البحث",
+    "bn": "অনুসন্ধান সংরক্ষণ করুন",
+    "pt": "Salvar pesquisa"
   },
   "Zurück": {
     "de": "Zurück",
@@ -53,7 +83,12 @@
     "es": "Volver",
     "zh": "返回",
     "ja": "戻る",
-    "ru": "Назад"
+    "ru": "Назад",
+    "fr": "Retour",
+    "hi": "वापस",
+    "ar": "رجوع",
+    "bn": "ফিরে যান",
+    "pt": "Voltar"
   },
   "Öffnen": {
     "de": "Öffnen",
@@ -61,7 +96,12 @@
     "es": "Abrir",
     "zh": "打开",
     "ja": "開く",
-    "ru": "Открыть"
+    "ru": "Открыть",
+    "fr": "Ouvrir",
+    "hi": "खोलें",
+    "ar": "فتح",
+    "bn": "খুলুন",
+    "pt": "Abrir"
   },
   "Übersicht": {
     "de": "Übersicht",
@@ -69,7 +109,12 @@
     "es": "Resumen",
     "zh": "概览",
     "ja": "概要",
-    "ru": "Обзор"
+    "ru": "Обзор",
+    "fr": "Vue d’ensemble",
+    "hi": "अवलोकन",
+    "ar": "نظرة عامة",
+    "bn": "সারসংক্ষেপ",
+    "pt": "Visão geral"
   },
   "🌐 Metadaten aktualisieren": {
     "de": "🌐 Metadaten aktualisieren",
@@ -77,7 +122,12 @@
     "es": "🌐 Actualizar metadatos",
     "zh": "🌐 更新元数据",
     "ja": "🌐 メタデータを更新",
-    "ru": "🌐 Obновить метаданные"
+    "ru": "🌐 Obновить метаданные",
+    "fr": "🌐 Actualiser les métadonnées",
+    "hi": "🌐 मेटाडेटा अपडेट करें",
+    "ar": "🌐 تحديث البيانات الوصفية",
+    "bn": "🌐 মেটাডেটা হালনাগাদ করুন",
+    "pt": "🌐 Atualizar metadados"
   },
   "+ Bedingung hinzufügen": {
     "de": "+ Bedingung hinzufügen",
@@ -85,7 +135,12 @@
     "es": "+ Añadir condición",
     "zh": "+ 添加条件",
     "ja": "+ 条件を追加",
-    "ru": "+ Добавить условие"
+    "ru": "+ Добавить условие",
+    "fr": "+ Ajouter une condition",
+    "hi": "+ शर्त जोड़ें",
+    "ar": "+ إضافة شرط",
+    "bn": "+ শর্ত যোগ করুন",
+    "pt": "+ Adicionar condição"
   },
   "<b>Zuletzt hinzugefügt (Top 5):</b>": {
     "de": "<b>Zuletzt hinzugefügt (Top 5):</b>",
@@ -93,7 +148,12 @@
     "es": "<b>Añadido recientemente (Top 5):</b>",
     "zh": "<b>最近添加 (前 5 个):</b>",
     "ja": "<b>最近追加された項目 (トップ 5):</b>",
-    "ru": "<b>Недавно добавленные (лучшие 5):</b>"
+    "ru": "<b>Недавно добавленные (лучшие 5):</b>",
+    "fr": "<b>Les 5 ajouts les plus récents :</b>",
+    "hi": "<b>हाल के 5 जोड़े गए आइटम:</b>",
+    "ar": "<b>أحدث 5 إضافات:</b>",
+    "bn": "<b>সর্বশেষ যোগ করা ৫টি:</b>",
+    "pt": "<b>5 adições mais recentes:</b>"
   },
   "Bearbeiten": {
     "de": "Bearbeiten",
@@ -101,7 +161,12 @@
     "es": "Editar",
     "zh": "编辑",
     "ja": "編集",
-    "ru": "Редактировать"
+    "ru": "Редактировать",
+    "fr": "Modifier",
+    "hi": "संपादित करें",
+    "ar": "تحرير",
+    "bn": "সম্পাদনা",
+    "pt": "Editar"
   },
   "Export (JSON)": {
     "de": "Export (JSON)",
@@ -109,7 +174,12 @@
     "es": "Exportar (JSON)",
     "zh": "导出 (JSON)",
     "ja": "エクスポート (JSON)",
-    "ru": "Экспорт (JSON)"
+    "ru": "Экспорт (JSON)",
+    "fr": "Exporter (JSON)",
+    "hi": "निर्यात (JSON)",
+    "ar": "تصدير (JSON)",
+    "bn": "এক্সপোর্ট (JSON)",
+    "pt": "Exportar (JSON)"
   },
   "Filter \\u25BC": {
     "de": "Filter \\u25BC",
@@ -117,7 +187,12 @@
     "es": "Filtrar \\u25BC",
     "zh": "筛选 \\u25BC",
     "ja": "フィルター \\u25BC",
-    "ru": "Фильтр \\u25BC"
+    "ru": "Фильтр \\u25BC",
+    "fr": "Filtrer \\u25BC",
+    "hi": "फ़िल्टर \\u25BC",
+    "ar": "تصفية \\u25BC",
+    "bn": "ফিল্টার \\u25BC",
+    "pt": "Filtrar \\u25BC"
   },
   "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst": {
     "de": "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst",
@@ -125,7 +200,12 @@
     "es": "Espacio estimado (local): No se detectaron archivos locales",
     "zh": "估计存储空间 (本地): 未检测到本地文件",
     "ja": "推定容量 (ローカル): ローカルファイルが検出されませんでした",
-    "ru": "Оценочный объем (локальный): локальные файлы не обнаружены"
+    "ru": "Оценочный объем (локальный): локальные файлы не обнаружены",
+    "fr": "Stockage estimé (local) : Aucun fichier local enregistré",
+    "hi": "अनुमानित संग्रहण (स्थानीय): कोई स्थानीय फ़ाइल दर्ज नहीं",
+    "ar": "التخزين المقدّر (محلي): لم تُسجّل ملفات محلية",
+    "bn": "আনুমানিক স্টোরেজ (স্থানীয়): কোনো স্থানীয় ফাইল নথিভুক্ত নেই",
+    "pt": "Armazenamento estimado (local): Nenhum arquivo local registrado"
   },
   "Geschätzter Speicher (lokal): –": {
     "de": "Geschätzter Speicher (lokal): –",
@@ -133,7 +213,12 @@
     "es": "Espacio estimado (local): –",
     "zh": "估计存储空间 (本地): –",
     "ja": "推定容量 (ローカル): –",
-    "ru": "Оценочный объем (локальный): –"
+    "ru": "Оценочный объем (локальный): –",
+    "fr": "Stockage estimé (local) : –",
+    "hi": "अनुमानित संग्रहण (स्थानीय): –",
+    "ar": "التخزين المقدّر (محلي): –",
+    "bn": "আনুমানিক স্টোরেজ (স্থানীয়): –",
+    "pt": "Armazenamento estimado (local): –"
   },
   "Import (JSON)": {
     "de": "Import (JSON)",
@@ -141,7 +226,12 @@
     "es": "Importar (JSON)",
     "zh": "导入 (JSON)",
     "ja": "インポート (JSON)",
-    "ru": "Импорт (JSON)"
+    "ru": "Импорт (JSON)",
+    "fr": "Importer (JSON)",
+    "hi": "आयात (JSON)",
+    "ar": "استيراد (JSON)",
+    "bn": "ইম্পোর্ট (JSON)",
+    "pt": "Importar (JSON)"
   },
   "Keine Playlist ausgewählt.": {
     "de": "Keine Playlist ausgewählt.",
@@ -149,7 +239,12 @@
     "es": "No se ha seleccionado ninguna lista de reproducción.",
     "zh": "未选择播放列表。",
     "ja": "プレイリストが選択されていません。",
-    "ru": "Плейлист не выбран."
+    "ru": "Плейлист не выбран.",
+    "fr": "Aucune playlist sélectionnée.",
+    "hi": "कोई प्लेलिस्ट नहीं चुनी गई है।",
+    "ar": "لم يتم اختيار قائمة تشغيل.",
+    "bn": "কোনো প্লেলিস্ট নির্বাচন করা হয়নি।",
+    "pt": "Nenhuma lista de reprodução selecionada."
   },
   "Löschen": {
     "de": "Löschen",
@@ -157,7 +252,12 @@
     "es": "Eliminar",
     "zh": "删除",
     "ja": "削除",
-    "ru": "Удалить"
+    "ru": "Удалить",
+    "fr": "Supprimer",
+    "hi": "हटाएँ",
+    "ar": "حذف",
+    "bn": "মুছে ফেলুন",
+    "pt": "Excluir"
   },
   "Metadaten neu laden": {
     "de": "Metadaten neu laden",
@@ -165,7 +265,12 @@
     "es": "Recargar metadatos",
     "zh": "重新加载元数据",
     "ja": "メタデータを再読み込み",
-    "ru": "Перезагрузить метаданные"
+    "ru": "Перезагрузить метаданные",
+    "fr": "Recharger les métadonnées",
+    "hi": "मेटाडेटा फिर से लोड करें",
+    "ar": "إعادة تحميل البيانات الوصفية",
+    "bn": "মেটাডেটা পুনরায় লোড করুন",
+    "pt": "Recarregar metadados"
   },
   "Noch keine Aktivitäten.": {
     "de": "Noch keine Aktivitäten.",
@@ -173,7 +278,12 @@
     "es": "Aún no hay actividad.",
     "zh": "尚无活动。",
     "ja": "アクティビティはまだありません。",
-    "ru": "Активностей пока нет."
+    "ru": "Активностей пока нет.",
+    "fr": "Aucune activité pour le moment.",
+    "hi": "अभी तक कोई गतिविधि नहीं।",
+    "ar": "لا توجد أنشطة بعد.",
+    "bn": "এখনও কোনো কার্যকলাপ নেই।",
+    "pt": "Ainda não há atividades."
   },
   "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.": {
     "de": "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.",
@@ -181,7 +291,12 @@
     "es": "Se encontraron metadatos en línea, pero no hay campos para mostrar.",
     "zh": "找到在线元数据，但没有可显示的字段。",
     "ja": "オンラインメタデータが見つかりましたが、表示する項目がありません。",
-    "ru": "Найдены онлайн-метаданные, но нет полей для отображения."
+    "ru": "Найдены онлайн-метаданные, но нет полей для отображения.",
+    "fr": "Métadonnées en ligne trouvées, mais aucun champ à afficher.",
+    "hi": "ऑनलाइन मेटाडेटा मिला, लेकिन दिखाने के लिए कोई फ़ील्ड नहीं है।",
+    "ar": "عُثر على بيانات وصفية عبر الإنترنت، لكن لا توجد حقول لعرضها.",
+    "bn": "অনলাইন মেটাডেটা পাওয়া গেছে, কিন্তু দেখানোর মতো কোনো ক্ষেত্র নেই।",
+    "pt": "Metadados online encontrados, mas não há campos para exibir."
   },
   "Tag-Filter:": {
     "de": "Tag-Filter:",
@@ -189,7 +304,12 @@
     "es": "Filtro de etiquetas:",
     "zh": "标签筛选:",
     "ja": "タグフィルター:",
-    "ru": "Фильтр тегов:"
+    "ru": "Фильтр тегов:",
+    "fr": "Filtre de tags :",
+    "hi": "टैग फ़िल्टर:",
+    "ar": "تصفية الوسوم:",
+    "bn": "ট্যাগ ফিল্টার:",
+    "pt": "Filtro de tags:"
   },
   "Zuletzt geöffnet": {
     "de": "Zuletzt geöffnet",
@@ -197,7 +317,12 @@
     "es": "Abierto recientemente",
     "zh": "最近打开",
     "ja": "最近開いた項目",
-    "ru": "Недавно открытые"
+    "ru": "Недавно открытые",
+    "fr": "Ouverts récemment",
+    "hi": "हाल ही में खोले गए",
+    "ar": "العناصر المفتوحة مؤخرًا",
+    "bn": "সম্প্রতি খোলা",
+    "pt": "Abertos recentemente"
   },
   "Zurücksetzen": {
     "de": "Zurücksetzen",
@@ -205,7 +330,12 @@
     "es": "Restablecer",
     "zh": "重置",
     "ja": "リセット",
-    "ru": "Сбросить"
+    "ru": "Сбросить",
+    "fr": "Réinitialiser",
+    "hi": "रीसेट करें",
+    "ar": "إعادة ضبط",
+    "bn": "পুনরায় সেট করুন",
+    "pt": "Redefinir"
   },
   "\\u25B6 öffnen": {
     "de": "\\u25B6 öffnen",
@@ -213,7 +343,12 @@
     "es": "\\u25B6 abrir",
     "zh": "\\u25B6 打开",
     "ja": "\\u25B6 開く",
-    "ru": "\\u25B6 открыть"
+    "ru": "\\u25B6 открыть",
+    "fr": "\\u25B6 ouvrir",
+    "hi": "\\u25B6 खोलें",
+    "ar": "\\u25B6 فتح",
+    "bn": "\\u25B6 খুলুন",
+    "pt": "\\u25B6 abrir"
   },
   "öffnen": {
     "de": "öffnen",
@@ -221,7 +356,12 @@
     "es": "abrir",
     "zh": "打开",
     "ja": "開く",
-    "ru": "открыть"
+    "ru": "открыть",
+    "fr": "ouvrir",
+    "hi": "खोलें",
+    "ar": "فتح",
+    "bn": "খুলুন",
+    "pt": "abrir"
   },
   "🔄 Aktualisieren": {
     "de": "🔄 Aktualisieren",
@@ -229,6 +369,687 @@
     "es": "🔄 Actualizar",
     "zh": "🔄 更新",
     "ja": "🔄 更新",
-    "ru": "🔄 Обновить"
+    "ru": "🔄 Обновить",
+    "fr": "🔄 Actualiser",
+    "hi": "🔄 अपडेट करें",
+    "ar": "🔄 تحديث",
+    "bn": "🔄 হালনাগাদ করুন",
+    "pt": "🔄 Atualizar"
+  },
+  "[FEHLER] Datenbank nicht gefunden: {db_path}": {
+    "de": "[FEHLER] Datenbank nicht gefunden: {db_path}",
+    "en": "[ERROR] Database not found: {db_path}",
+    "es": "[ERROR] No se encontró la base de datos: {db_path}",
+    "zh": "[错误] 找不到数据库：{db_path}",
+    "ja": "[エラー] データベースが見つかりません: {db_path}",
+    "ru": "[ОШИБКА] База данных не найдена: {db_path}",
+    "fr": "[ERREUR] Base de données introuvable : {db_path}",
+    "hi": "[त्रुटि] डेटाबेस नहीं मिला: {db_path}",
+    "ar": "[خطأ] لم يُعثر على قاعدة البيانات: {db_path}",
+    "bn": "[ত্রুটি] ডেটাবেস পাওয়া যায়নি: {db_path}",
+    "pt": "[ERRO] Banco de dados não encontrado: {db_path}"
+  },
+  "(kein Titel)": {
+    "de": "(kein Titel)",
+    "en": "(untitled)",
+    "es": "(sin título)",
+    "zh": "（无标题）",
+    "ja": "（無題）",
+    "ru": "(без названия)",
+    "fr": "(sans titre)",
+    "hi": "(बिना शीर्षक)",
+    "ar": "(بلا عنوان)",
+    "bn": "(শিরোনামহীন)",
+    "pt": "(sem título)"
+  },
+  "Künstler:": {
+    "de": "Künstler:",
+    "en": "Artist:",
+    "es": "Artista:",
+    "zh": "艺术家：",
+    "ja": "アーティスト:",
+    "ru": "Исполнитель:",
+    "fr": "Artiste :",
+    "hi": "कलाकार:",
+    "ar": "الفنان:",
+    "bn": "শিল্পী:",
+    "pt": "Artista:"
+  },
+  "Keine Einträge gefunden.": {
+    "de": "Keine Einträge gefunden.",
+    "en": "No entries found.",
+    "es": "No se encontraron entradas.",
+    "zh": "未找到条目。",
+    "ja": "項目が見つかりません。",
+    "ru": "Записи не найдены.",
+    "fr": "Aucune entrée trouvée.",
+    "hi": "कोई प्रविष्टि नहीं मिली।",
+    "ar": "لم يتم العثور على عناصر.",
+    "bn": "কোনো এন্ট্রি পাওয়া যায়নি।",
+    "pt": "Nenhuma entrada encontrada."
+  },
+  "{count} Einträge (max. {limit})": {
+    "de": "Einträge: {count} (max. {limit})",
+    "en": "Entries: {count} (max. {limit})",
+    "es": "Entradas: {count} (máx. {limit})",
+    "zh": "条目数：{count}（最多 {limit}）",
+    "ja": "項目数：{count}（上限 {limit}）",
+    "ru": "Записей: {count} (макс. {limit})",
+    "fr": "Entrées : {count} (max. {limit})",
+    "hi": "प्रविष्टियाँ: {count} (अधिकतम {limit})",
+    "ar": "عدد العناصر: {count} (الحد الأقصى {limit})",
+    "bn": "এন্ট্রি: {count} (সর্বোচ্চ {limit})",
+    "pt": "Entradas: {count} (máx. {limit})"
+  },
+  "Keine Treffer für '{term}'.": {
+    "de": "Keine Treffer für '{term}'.",
+    "en": "No matches for '{term}'.",
+    "es": "No hay coincidencias para '{term}'.",
+    "zh": "没有匹配项：'{term}'。",
+    "ja": "'{term}' に一致する項目はありません。",
+    "ru": "Совпадений для «{term}» не найдено.",
+    "fr": "Aucun résultat pour « {term} ».",
+    "hi": "'{term}' के लिए कोई मिलान नहीं मिला।",
+    "ar": "لا توجد نتائج مطابقة لـ '{term}'.",
+    "bn": "'{term}'-এর সঙ্গে কোনো মিল নেই।",
+    "pt": "Nenhum resultado para '{term}'."
+  },
+  "{count} Treffer": {
+    "de": "Treffer: {count}",
+    "en": "Matches: {count}",
+    "es": "Coincidencias: {count}",
+    "zh": "匹配项：{count}",
+    "ja": "一致件数：{count}",
+    "ru": "Совпадений: {count}",
+    "fr": "Résultats : {count}",
+    "hi": "मिलान: {count}",
+    "ar": "النتائج المطابقة: {count}",
+    "bn": "মিল: {count}",
+    "pt": "Correspondências: {count}"
+  },
+  "Keine Favoriten.": {
+    "de": "Keine Favoriten.",
+    "en": "No favorites.",
+    "es": "No hay favoritos.",
+    "zh": "没有收藏项。",
+    "ja": "お気に入りはありません。",
+    "ru": "Избранного нет.",
+    "fr": "Aucun favori.",
+    "hi": "कोई पसंदीदा नहीं है।",
+    "ar": "لا توجد عناصر مفضلة.",
+    "bn": "কোনো পছন্দের আইটেম নেই।",
+    "pt": "Não há favoritos."
+  },
+  "Noch keine geöffneten Medien.": {
+    "de": "Noch keine geöffneten Medien.",
+    "en": "No media opened yet.",
+    "es": "Aún no se ha abierto ningún medio.",
+    "zh": "尚未打开任何媒体。",
+    "ja": "まだメディアを開いていません。",
+    "ru": "Медиа ещё не открывались.",
+    "fr": "Aucun média ouvert pour le moment.",
+    "hi": "अभी तक कोई मीडिया नहीं खोला गया है।",
+    "ar": "لم يتم فتح أي وسائط بعد.",
+    "bn": "এখনও কোনো মিডিয়া খোলা হয়নি।",
+    "pt": "Nenhuma mídia foi aberta ainda."
+  },
+  "{count} zuletzt geöffnet": {
+    "de": "Zuletzt geöffnet: {count}",
+    "en": "Recently opened: {count}",
+    "es": "Abiertos recientemente: {count}",
+    "zh": "最近打开：{count}",
+    "ja": "最近開いた項目：{count}",
+    "ru": "Недавно открыто: {count}",
+    "fr": "Ouverts récemment : {count}",
+    "hi": "हाल ही में खोले गए: {count}",
+    "ar": "مفتوح مؤخرًا: {count}",
+    "bn": "সম্প্রতি খোলা: {count}",
+    "pt": "Abertos recentemente: {count}"
+  },
+  "Kein Eintrag für '{term}'.": {
+    "de": "Kein Eintrag für '{term}'.",
+    "en": "No item for '{term}'.",
+    "es": "No hay ninguna entrada para '{term}'.",
+    "zh": "没有找到条目：'{term}'。",
+    "ja": "'{term}' の項目は見つかりません。",
+    "ru": "Запись «{term}» не найдена.",
+    "fr": "Aucune entrée pour « {term} ».",
+    "hi": "'{term}' के लिए कोई प्रविष्टि नहीं मिली।",
+    "ar": "لا يوجد عنصر باسم '{term}'.",
+    "bn": "'{term}'-এর জন্য কোনো এন্ট্রি নেই。",
+    "pt": "Nenhuma entrada para '{term}'."
+  },
+  "ID:": {
+    "de": "ID:",
+    "en": "ID:",
+    "es": "ID:",
+    "zh": "ID：",
+    "ja": "ID:",
+    "ru": "ID:",
+    "fr": "ID :",
+    "hi": "ID:",
+    "ar": "المعرّف:",
+    "bn": "আইডি:",
+    "pt": "ID:"
+  },
+  "Titel:": {
+    "de": "Titel:",
+    "en": "Title:",
+    "es": "Título:",
+    "zh": "标题：",
+    "ja": "タイトル:",
+    "ru": "Название:",
+    "fr": "Titre :",
+    "hi": "शीर्षक:",
+    "ar": "العنوان:",
+    "bn": "শিরোনাম:",
+    "pt": "Título:"
+  },
+  "Typ:": {
+    "de": "Typ:",
+    "en": "Type:",
+    "es": "Tipo:",
+    "zh": "类型：",
+    "ja": "種類:",
+    "ru": "Тип:",
+    "fr": "Type :",
+    "hi": "प्रकार:",
+    "ar": "النوع:",
+    "bn": "ধরন:",
+    "pt": "Tipo:"
+  },
+  "Quelle:": {
+    "de": "Quelle:",
+    "en": "Source:",
+    "es": "Fuente:",
+    "zh": "来源：",
+    "ja": "ソース:",
+    "ru": "Источник:",
+    "fr": "Source :",
+    "hi": "स्रोत:",
+    "ar": "المصدر:",
+    "bn": "উৎস:",
+    "pt": "Fonte:"
+  },
+  "Dauer:": {
+    "de": "Dauer:",
+    "en": "Duration:",
+    "es": "Duración:",
+    "zh": "时长：",
+    "ja": "長さ:",
+    "ru": "Длительность:",
+    "fr": "Durée :",
+    "hi": "अवधि:",
+    "ar": "المدة:",
+    "bn": "সময়কাল:",
+    "pt": "Duração:"
+  },
+  "Favorit:": {
+    "de": "Favorit:",
+    "en": "Favorite:",
+    "es": "Favorito:",
+    "zh": "收藏：",
+    "ja": "お気に入り:",
+    "ru": "Избранное:",
+    "fr": "Favori :",
+    "hi": "पसंदीदा:",
+    "ar": "المفضلة:",
+    "bn": "পছন্দের:",
+    "pt": "Favorito:"
+  },
+  "ja": {
+    "de": "ja",
+    "en": "yes",
+    "es": "sí",
+    "zh": "是",
+    "ja": "はい",
+    "ru": "да",
+    "fr": "oui",
+    "hi": "हाँ",
+    "ar": "نعم",
+    "bn": "হ্যাঁ",
+    "pt": "sim"
+  },
+  "nein": {
+    "de": "nein",
+    "en": "no",
+    "es": "no",
+    "zh": "否",
+    "ja": "いいえ",
+    "ru": "нет",
+    "fr": "non",
+    "hi": "नहीं",
+    "ar": "لا",
+    "bn": "না",
+    "pt": "não"
+  },
+  "Zuletzt offen:": {
+    "de": "Zuletzt offen:",
+    "en": "Last opened:",
+    "es": "Última apertura:",
+    "zh": "上次打开：",
+    "ja": "最終閲覧:",
+    "ru": "Последнее открытие:",
+    "fr": "Dernière ouverture :",
+    "hi": "अंतिम बार खोला गया:",
+    "ar": "آخر فتح:",
+    "bn": "সর্বশেষ খোলা:",
+    "pt": "Última abertura:"
+  },
+  "Kanal:": {
+    "de": "Kanal:",
+    "en": "Channel:",
+    "es": "Canal:",
+    "zh": "频道：",
+    "ja": "チャンネル:",
+    "ru": "Канал:",
+    "fr": "Chaîne :",
+    "hi": "चैनल:",
+    "ar": "القناة:",
+    "bn": "চ্যানেল:",
+    "pt": "Canal:"
+  },
+  "Beschreibung:": {
+    "de": "Beschreibung:",
+    "en": "Description:",
+    "es": "Descripción:",
+    "zh": "描述：",
+    "ja": "説明:",
+    "ru": "Описание:",
+    "fr": "Description :",
+    "hi": "विवरण:",
+    "ar": "الوصف:",
+    "bn": "বিবরণ:",
+    "pt": "Descrição:"
+  },
+  "Keine Medientypen gefunden.": {
+    "de": "Keine Medientypen gefunden.",
+    "en": "No media types found.",
+    "es": "No se encontraron tipos de medios.",
+    "zh": "未找到媒体类型。",
+    "ja": "メディアの種類が見つかりません。",
+    "ru": "Типы медиа не найдены.",
+    "fr": "Aucun type de média trouvé.",
+    "hi": "कोई मीडिया प्रकार नहीं मिला।",
+    "ar": "لم يتم العثور على أنواع وسائط.",
+    "bn": "কোনো মিডিয়ার ধরন পাওয়া যায়নি।",
+    "pt": "Nenhum tipo de mídia encontrado."
+  },
+  "{count} Einträge": {
+    "de": "Einträge: {count}",
+    "en": "Entries: {count}",
+    "es": "Entradas: {count}",
+    "zh": "条目：{count}",
+    "ja": "項目：{count}",
+    "ru": "Записей: {count}",
+    "fr": "Entrées : {count}",
+    "hi": "प्रविष्टियाँ: {count}",
+    "ar": "العناصر: {count}",
+    "bn": "এন্ট্রি: {count}",
+    "pt": "Entradas: {count}"
+  },
+  "MediaBrain — rein lesende Kommandozeile": {
+    "de": "MediaBrain — schreibgeschützte Kommandozeile",
+    "en": "MediaBrain — read-only command line",
+    "es": "MediaBrain — línea de comandos de solo lectura",
+    "zh": "MediaBrain — 只读命令行",
+    "ja": "MediaBrain — 読み取り専用コマンドライン",
+    "ru": "MediaBrain — командная строка только для чтения",
+    "fr": "MediaBrain — ligne de commande en lecture seule",
+    "hi": "MediaBrain — केवल-पठन कमांड लाइन",
+    "ar": "MediaBrain — سطر أوامر للقراءة فقط",
+    "bn": "MediaBrain — শুধুমাত্র-পঠন কমান্ড লাইন",
+    "pt": "MediaBrain — linha de comando somente leitura"
+  },
+  "Pfad zur media_brain.db": {
+    "de": "Pfad zur media_brain.db",
+    "en": "Path to media_brain.db",
+    "es": "Ruta a media_brain.db",
+    "zh": "media_brain.db 的路径",
+    "ja": "media_brain.db へのパス",
+    "ru": "Путь к media_brain.db",
+    "fr": "Chemin vers media_brain.db",
+    "hi": "media_brain.db का पथ",
+    "ar": "مسار media_brain.db",
+    "bn": "media_brain.db-এর পথ",
+    "pt": "Caminho para media_brain.db"
+  },
+  "Medien auflisten": {
+    "de": "Medien auflisten",
+    "en": "List media",
+    "es": "Listar medios",
+    "zh": "列出媒体",
+    "ja": "メディアを一覧表示",
+    "ru": "Список медиа",
+    "fr": "Lister les médias",
+    "hi": "मीडिया सूची दिखाएँ",
+    "ar": "عرض الوسائط",
+    "bn": "মিডিয়া তালিকাভুক্ত করুন",
+    "pt": "Listar mídias"
+  },
+  "Filter: Medientyp": {
+    "de": "Filter: Medientyp",
+    "en": "Filter: media type",
+    "es": "Filtrar por tipo de medio",
+    "zh": "筛选：媒体类型",
+    "ja": "フィルター: メディアの種類",
+    "ru": "Фильтр: тип медиа",
+    "fr": "Filtrer par type de média",
+    "hi": "फ़िल्टर: मीडिया प्रकार",
+    "ar": "تصفية حسب نوع الوسائط",
+    "bn": "ফিল্টার: মিডিয়ার ধরন",
+    "pt": "Filtrar por tipo de mídia"
+  },
+  "Medien suchen": {
+    "de": "Medien suchen",
+    "en": "Search media",
+    "es": "Buscar medios",
+    "zh": "搜索媒体",
+    "ja": "メディアを検索",
+    "ru": "Поиск медиа",
+    "fr": "Rechercher des médias",
+    "hi": "मीडिया खोजें",
+    "ar": "البحث عن وسائط",
+    "bn": "মিডিয়া খুঁজুন",
+    "pt": "Buscar mídias"
+  },
+  "Suchbegriff": {
+    "de": "Suchbegriff",
+    "en": "Search term",
+    "es": "Término de búsqueda",
+    "zh": "搜索词",
+    "ja": "検索語句",
+    "ru": "Поисковый запрос",
+    "fr": "Terme de recherche",
+    "hi": "खोज शब्द",
+    "ar": "عبارة البحث",
+    "bn": "অনুসন্ধানের শব্দ",
+    "pt": "Termo de busca"
+  },
+  "Favoriten": {
+    "de": "Favoriten",
+    "en": "Favorites",
+    "es": "Favoritos",
+    "zh": "收藏项",
+    "ja": "お気に入り",
+    "ru": "Избранное",
+    "fr": "Favoris",
+    "hi": "पसंदीदा",
+    "ar": "المفضلة",
+    "bn": "পছন্দের তালিকা",
+    "pt": "Favoritos"
+  },
+  "Zuletzt geoeffnet": {
+    "de": "Zuletzt geöffnet",
+    "en": "Recently opened",
+    "es": "Abiertos recientemente",
+    "zh": "最近打开",
+    "ja": "最近開いた項目",
+    "ru": "Недавно открытые",
+    "fr": "Ouverts récemment",
+    "hi": "हाल ही में खोले गए",
+    "ar": "مفتوح مؤخرًا",
+    "bn": "সম্প্রতি খোলা",
+    "pt": "Abertos recentemente"
+  },
+  "Details zu einem Medium": {
+    "de": "Details zu einem Medium",
+    "en": "Details for a media item",
+    "es": "Detalles de un medio",
+    "zh": "媒体详情",
+    "ja": "メディアの詳細",
+    "ru": "Сведения о медиа",
+    "fr": "Détails d’un média",
+    "hi": "मीडिया का विवरण",
+    "ar": "تفاصيل الوسائط",
+    "bn": "মিডিয়ার বিবরণ",
+    "pt": "Detalhes de uma mídia"
+  },
+  "ID oder Titel (Teilstring)": {
+    "de": "ID oder Titel (Teilstring)",
+    "en": "ID or title (substring)",
+    "es": "ID o título (coincidencia parcial)",
+    "zh": "ID 或标题（部分匹配）",
+    "ja": "ID またはタイトル（一部一致）",
+    "ru": "ID или название (частичное совпадение)",
+    "fr": "ID ou titre (correspondance partielle)",
+    "hi": "ID या शीर्षक (आंशिक मिलान)",
+    "ar": "المعرّف أو العنوان (مطابقة جزئية)",
+    "bn": "আইডি বা শিরোনাম (আংশিক মিল)",
+    "pt": "ID ou título (correspondência parcial)"
+  },
+  "Alle Medientypen mit Anzahl": {
+    "de": "Alle Medientypen mit Anzahl",
+    "en": "All media types with counts",
+    "es": "Todos los tipos de medios con recuento",
+    "zh": "所有媒体类型及数量",
+    "ja": "すべてのメディア種類と件数",
+    "ru": "Все типы медиа с количеством",
+    "fr": "Tous les types de média avec leur nombre",
+    "hi": "सभी मीडिया प्रकार और उनकी संख्या",
+    "ar": "جميع أنواع الوسائط مع الأعداد",
+    "bn": "সব মিডিয়ার ধরন ও সংখ্যা",
+    "pt": "Todos os tipos de mídia com contagens"
+  },
+  "PFAD": {
+    "de": "PFAD",
+    "en": "PATH",
+    "es": "RUTA",
+    "zh": "路径",
+    "ja": "パス",
+    "ru": "ПУТЬ",
+    "fr": "CHEMIN",
+    "hi": "पथ",
+    "ar": "المسار",
+    "bn": "পথ",
+    "pt": "CAMINHO"
+  },
+  "usage: ": {
+    "de": "Verwendung: ",
+    "en": "usage: ",
+    "es": "uso: ",
+    "zh": "用法：",
+    "ja": "使用法: ",
+    "ru": "использование: ",
+    "fr": "utilisation : ",
+    "hi": "उपयोग: ",
+    "ar": "الاستخدام: ",
+    "bn": "ব্যবহার: ",
+    "pt": "uso: "
+  },
+  "positional arguments": {
+    "de": "Positionsargumente",
+    "en": "positional arguments",
+    "es": "argumentos posicionales",
+    "zh": "位置参数",
+    "ja": "位置引数",
+    "ru": "позиционные аргументы",
+    "fr": "arguments positionnels",
+    "hi": "स्थितिगत तर्क",
+    "ar": "وسائط موضعية",
+    "bn": "অবস্থানগত আর্গুমেন্ট",
+    "pt": "argumentos posicionais"
+  },
+  "options": {
+    "de": "Optionen",
+    "en": "options",
+    "es": "opciones",
+    "zh": "选项",
+    "ja": "オプション",
+    "ru": "параметры",
+    "fr": "options",
+    "hi": "विकल्प",
+    "ar": "خيارات",
+    "bn": "বিকল্পসমূহ",
+    "pt": "opções"
+  },
+  "optional arguments": {
+    "de": "Optionale Argumente",
+    "en": "optional arguments",
+    "es": "argumentos opcionales",
+    "zh": "可选参数",
+    "ja": "省略可能な引数",
+    "ru": "необязательные аргументы",
+    "fr": "arguments facultatifs",
+    "hi": "वैकल्पिक तर्क",
+    "ar": "وسائط اختيارية",
+    "bn": "ঐচ্ছিক আর্গুমেন্ট",
+    "pt": "argumentos opcionais"
+  },
+  "subcommands": {
+    "de": "Unterbefehle",
+    "en": "subcommands",
+    "es": "subcomandos",
+    "zh": "子命令",
+    "ja": "サブコマンド",
+    "ru": "подкоманды",
+    "fr": "sous-commandes",
+    "hi": "उपकमांड",
+    "ar": "أوامر فرعية",
+    "bn": "সাবকমান্ড",
+    "pt": "subcomandos"
+  },
+  "%(heading)s:": {
+    "de": "%(heading)s:",
+    "en": "%(heading)s:",
+    "es": "%(heading)s:",
+    "zh": "%(heading)s：",
+    "ja": "%(heading)s:",
+    "ru": "%(heading)s:",
+    "fr": "%(heading)s :",
+    "hi": "%(heading)s:",
+    "ar": "%(heading)s:",
+    "bn": "%(heading)s:",
+    "pt": "%(heading)s:"
+  },
+  "show this help message and exit": {
+    "de": "Diese Hilfe anzeigen und beenden",
+    "en": "show this help message and exit",
+    "es": "mostrar esta ayuda y salir",
+    "zh": "显示此帮助信息并退出",
+    "ja": "このヘルプを表示して終了",
+    "ru": "показать эту справку и выйти",
+    "fr": "afficher cette aide puis quitter",
+    "hi": "यह सहायता दिखाएँ और बाहर निकलें",
+    "ar": "عرض هذه المساعدة ثم الخروج",
+    "bn": "এই সহায়তা দেখিয়ে প্রস্থান করুন",
+    "pt": "mostrar esta ajuda e sair"
+  },
+  "unrecognized arguments: %s": {
+    "de": "Unbekannte Argumente: %s",
+    "en": "unrecognized arguments: %s",
+    "es": "argumentos no reconocidos: %s",
+    "zh": "无法识别的参数：%s",
+    "ja": "認識できない引数: %s",
+    "ru": "неизвестные аргументы: %s",
+    "fr": "arguments non reconnus : %s",
+    "hi": "अज्ञात तर्क: %s",
+    "ar": "وسائط غير معروفة: %s",
+    "bn": "অচেনা আর্গুমেন্ট: %s",
+    "pt": "argumentos não reconhecidos: %s"
+  },
+  "the following arguments are required: %s": {
+    "de": "Folgende Argumente sind erforderlich: %s",
+    "en": "the following arguments are required: %s",
+    "es": "se requieren los siguientes argumentos: %s",
+    "zh": "以下参数为必填项：%s",
+    "ja": "次の引数が必要です: %s",
+    "ru": "требуются следующие аргументы: %s",
+    "fr": "les arguments suivants sont requis : %s",
+    "hi": "निम्नलिखित तर्क आवश्यक हैं: %s",
+    "ar": "الوسائط التالية مطلوبة: %s",
+    "bn": "নিচের আর্গুমেন্টগুলো আবশ্যক: %s",
+    "pt": "os seguintes argumentos são obrigatórios: %s"
+  },
+  "expected one argument": {
+    "de": "Ein Argument erwartet",
+    "en": "expected one argument",
+    "es": "se esperaba un argumento",
+    "zh": "需要一个参数",
+    "ja": "引数を1つ指定してください",
+    "ru": "ожидается один аргумент",
+    "fr": "un argument attendu",
+    "hi": "एक तर्क अपेक्षित था",
+    "ar": "يُتوقع وسيط واحد",
+    "bn": "একটি আর্গুমেন্ট প্রত্যাশিত",
+    "pt": "esperado um argumento"
+  },
+  "invalid %(type)s value: %(value)r": {
+    "de": "Ungültiger %(type)s-Wert: %(value)r",
+    "en": "invalid %(type)s value: %(value)r",
+    "es": "valor %(type)s no válido: %(value)r",
+    "zh": "无效的 %(type)s 值：%(value)r",
+    "ja": "無効な%(type)s値: %(value)r",
+    "ru": "недопустимое значение %(type)s: %(value)r",
+    "fr": "valeur %(type)s invalide : %(value)r",
+    "hi": "अमान्य %(type)s मान: %(value)r",
+    "ar": "قيمة %(type)s غير صالحة: %(value)r",
+    "bn": "অবৈধ %(type)s মান: %(value)r",
+    "pt": "valor %(type)s inválido: %(value)r"
+  },
+  "invalid choice: %(value)r (choose from %(choices)s)": {
+    "de": "Ungültige Auswahl: %(value)r (wähle aus %(choices)s)",
+    "en": "invalid choice: %(value)r (choose from %(choices)s)",
+    "es": "opción no válida: %(value)r (elige entre %(choices)s)",
+    "zh": "无效选项：%(value)r（可选值：%(choices)s）",
+    "ja": "無効な選択: %(value)r（選択肢: %(choices)s）",
+    "ru": "недопустимый выбор: %(value)r (выберите из %(choices)s)",
+    "fr": "choix invalide : %(value)r (choisissez parmi %(choices)s)",
+    "hi": "अमान्य विकल्प: %(value)r (इनमें से चुनें: %(choices)s)",
+    "ar": "اختيار غير صالح: %(value)r (اختر من %(choices)s)",
+    "bn": "অবৈধ পছন্দ: %(value)r (এখান থেকে বেছে নিন: %(choices)s)",
+    "pt": "opção inválida: %(value)r (escolha entre %(choices)s)"
+  },
+  "argument %(argument_name)s: %(message)s": {
+    "de": "Argument %(argument_name)s: %(message)s",
+    "en": "argument %(argument_name)s: %(message)s",
+    "es": "argumento %(argument_name)s: %(message)s",
+    "zh": "参数 %(argument_name)s：%(message)s",
+    "ja": "引数 %(argument_name)s: %(message)s",
+    "ru": "аргумент %(argument_name)s: %(message)s",
+    "fr": "argument %(argument_name)s : %(message)s",
+    "hi": "तर्क %(argument_name)s: %(message)s",
+    "ar": "الوسيط %(argument_name)s: %(message)s",
+    "bn": "আর্গুমেন্ট %(argument_name)s: %(message)s",
+    "pt": "argumento %(argument_name)s: %(message)s"
+  },
+  "%(prog)s: error: %(message)s\n": {
+    "de": "%(prog)s: Fehler: %(message)s\n",
+    "en": "%(prog)s: error: %(message)s\n",
+    "es": "%(prog)s: error: %(message)s\n",
+    "zh": "%(prog)s：错误：%(message)s\n",
+    "ja": "%(prog)s: エラー: %(message)s\n",
+    "ru": "%(prog)s: ошибка: %(message)s\n",
+    "fr": "%(prog)s : erreur : %(message)s\n",
+    "hi": "%(prog)s: त्रुटि: %(message)s\n",
+    "ar": "%(prog)s: خطأ: %(message)s\n",
+    "bn": "%(prog)s: ত্রুটি: %(message)s\n",
+    "pt": "%(prog)s: erro: %(message)s\n"
+  },
+  "{count} Favoriten": {
+    "de": "Favoriten: {count}",
+    "en": "Favorites: {count}",
+    "es": "Favoritos: {count}",
+    "zh": "收藏项：{count}",
+    "ja": "お気に入り：{count}",
+    "ru": "Избранное: {count}",
+    "fr": "Favoris : {count}",
+    "hi": "पसंदीदा: {count}",
+    "ar": "المفضلة: {count}",
+    "bn": "পছন্দের: {count}",
+    "pt": "Favoritos: {count}"
+  },
+  "Sprache für die CLI": {
+    "de": "Sprache für die CLI",
+    "en": "CLI language",
+    "es": "Idioma de la CLI",
+    "zh": "CLI 语言",
+    "ja": "CLI の言語",
+    "ru": "Язык CLI",
+    "fr": "Langue de la CLI",
+    "hi": "CLI की भाषा",
+    "ar": "لغة سطر الأوامر",
+    "bn": "CLI-এর ভাষা",
+    "pt": "Idioma da CLI"
   }
 }
