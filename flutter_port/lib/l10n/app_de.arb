@@ -161,7 +161,7 @@
       }
     }
   },
-  "usageMinutes": "{n} Minuten",
+  "usageMinutes": "{n, plural, one {{n} Minute} other {{n} Minuten}}",
   "@usageMinutes": {
     "placeholders": {
       "n": {

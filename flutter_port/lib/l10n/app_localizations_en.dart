@@ -305,7 +305,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String usageMinutes(int n) {
-    return '$n minutes';
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n minutes',
+      one: '$n minute',
+    );
+    return '$_temp0';
   }
 
   @override
