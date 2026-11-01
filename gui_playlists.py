@@ -26,8 +26,47 @@ from PySide6.QtWidgets import (
 
 from playlists import Playlist, PlaylistManager
 from query_builder import FilterCondition, QueryBuilder
+from translator import translate as _t, set_default_translation_system
 
 logger = logging.getLogger("MediaBrain.GUIPlaylists")
+
+
+def _set_dialog_buttons(box):
+    for standard, label in (
+        (QDialogButtonBox.StandardButton.Ok, "OK"),
+        (QDialogButtonBox.StandardButton.Cancel, "Abbrechen"),
+        (QDialogButtonBox.StandardButton.Save, "Speichern"),
+    ):
+        button = box.button(standard)
+        if button is not None:
+            button.setText(_t(label))
+
+
+def _show_message(icon, parent, title, text, *args):
+    buttons = args[0] if args else (
+        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        if icon == QMessageBox.Icon.Question else QMessageBox.StandardButton.Ok
+    )
+    box = QMessageBox(icon, title, text, buttons, parent)
+    for standard, label in ((QMessageBox.StandardButton.Ok, "OK"),
+                            (QMessageBox.StandardButton.Cancel, "Abbrechen"),
+                            (QMessageBox.StandardButton.Yes, "Ja"),
+                            (QMessageBox.StandardButton.No, "Nein")):
+        button = box.button(standard)
+        if button is not None:
+            button.setText(_t(label))
+    if len(args) > 1 and args[1] != QMessageBox.StandardButton.NoButton:
+        box.setDefaultButton(args[1])
+    elif icon == QMessageBox.Icon.Question:
+        box.setDefaultButton(QMessageBox.StandardButton.No)
+    return box.exec()
+
+
+def _display_field_value(value):
+    labels = {"movie": "Filme", "series": "Serien", "music": "Musik",
+              "clip": "Clips", "podcast": "Podcasts",
+              "audiobook": "Hörbücher", "document": "Dokumente"}
+    return _t(labels[value]) if value in labels else str(value)
 
 
 # ============================================================
@@ -87,8 +126,11 @@ _ORDER_FIELDS = [(key, label) for key, label, *_ in FIELD_DEFS
 class ConditionRow(QFrame):
     """A single editable filter condition."""
 
-    def __init__(self, on_remove=None, parent=None):
+    def __init__(self, on_remove=None, parent=None, translator=None):
         super().__init__(parent)
+        self.translator = translator
+        if translator is not None:
+            set_default_translation_system(translator)
         self.setObjectName("ConditionRow")
         self.setFrameShape(QFrame.Shape.NoFrame)
         self._on_remove = on_remove
@@ -99,18 +141,19 @@ class ConditionRow(QFrame):
         self.setLayout(layout)
 
         self.conjunction_combo = QComboBox()
-        self.conjunction_combo.addItems(["AND", "OR"])
+        self.conjunction_combo.addItem(_t("AND"), "AND")
+        self.conjunction_combo.addItem(_t("OR"), "OR")
         self.conjunction_combo.setFixedWidth(60)
         layout.addWidget(self.conjunction_combo)
 
         self.field_combo = QComboBox()
         for key, label, *_ in FIELD_DEFS:
-            self.field_combo.addItem(label, key)
+            self.field_combo.addItem(_t(label), key)
         self.field_combo.currentIndexChanged.connect(self._on_field_changed)
         layout.addWidget(self.field_combo, stretch=2)
 
         self.operator_combo = QComboBox()
-        self.operator_combo.currentTextChanged.connect(self._on_operator_changed)
+        self.operator_combo.currentIndexChanged.connect(lambda _index: self._on_operator_changed(self.operator_combo.currentData()))
         layout.addWidget(self.operator_combo, stretch=2)
 
         # Value placeholder, replaced when field/operator changes.
@@ -118,10 +161,10 @@ class ConditionRow(QFrame):
         layout.addWidget(self.value_widget, stretch=3)
 
         self.remove_btn = QPushButton("✕")
-        self.remove_btn.setToolTip("Bedingung entfernen")
-        self.remove_btn.setAccessibleName("Bedingung entfernen")
+        self.remove_btn.setToolTip(_t("Bedingung entfernen"))
+        self.remove_btn.setAccessibleName(_t("Bedingung entfernen"))
         self.remove_btn.setAccessibleDescription(
-            "Entfernt diese Filterbedingung aus der Smart-Playlist."
+            _t("Entfernt diese Filterbedingung aus der Smart-Playlist.")
         )
         self.remove_btn.setFixedWidth(28)
         self.remove_btn.clicked.connect(self._handle_remove)
@@ -141,16 +184,15 @@ class ConditionRow(QFrame):
             return
         _, _, ops, _kind, _presets = defn
 
-        prev = self.operator_combo.currentText()
+        prev = self.operator_combo.currentData()
         self.operator_combo.blockSignals(True)
         self.operator_combo.clear()
-        self.operator_combo.addItems(ops)
-        if prev in ops:
-            self.operator_combo.setCurrentText(prev)
-        else:
-            self.operator_combo.setCurrentIndex(0)
+        for operator in ops:
+            self.operator_combo.addItem(_t(operator), operator)
+        previous_index = self.operator_combo.findData(prev)
+        self.operator_combo.setCurrentIndex(previous_index if previous_index >= 0 else 0)
         self.operator_combo.blockSignals(False)
-        self._on_operator_changed(self.operator_combo.currentText())
+        self._on_operator_changed(self.operator_combo.currentData())
 
     def _on_operator_changed(self, op):
         self._rebuild_value_widget(op)
@@ -169,12 +211,12 @@ class ConditionRow(QFrame):
         presets = defn[4] if defn else None
 
         if op in ("is_empty", "is_not_empty"):
-            widget = QLabel("(kein Wert)")
+            widget = QLabel(_t("(kein Wert)"))
             widget.setEnabled(False)
         elif kind == "bool":
             widget = QComboBox()
-            widget.addItem("Ja", True)
-            widget.addItem("Nein", False)
+            widget.addItem(_t("Ja"), True)
+            widget.addItem(_t("Nein"), False)
         elif kind == "number":
             widget = QSpinBox()
             widget.setRange(-1_000_000, 1_000_000_000)
@@ -182,7 +224,14 @@ class ConditionRow(QFrame):
         elif kind == "combo" and presets:
             widget = QComboBox()
             widget.setEditable(True)
-            widget.addItems(presets)
+            media_labels = {
+                "movie": "Filme", "series": "Serien", "music": "Musik",
+                "clip": "Clips", "podcast": "Podcasts",
+                "audiobook": "Hörbücher", "document": "Dokumente",
+            }
+            for preset in presets:
+                label = _t(media_labels[preset]) if preset in media_labels else _t(preset)
+                widget.addItem(label, preset)
         else:
             widget = QLineEdit()
 
@@ -198,8 +247,8 @@ class ConditionRow(QFrame):
 
     def to_condition(self) -> FilterCondition:
         field = self.field_combo.currentData()
-        op = self.operator_combo.currentText()
-        conjunction = self.conjunction_combo.currentText()
+        op = self.operator_combo.currentData()
+        conjunction = self.conjunction_combo.currentData()
         value = self._value()
         return FilterCondition(field=field, operator=op, value=value,
                                conjunction=conjunction)
@@ -211,6 +260,11 @@ class ConditionRow(QFrame):
         if isinstance(widget, QSpinBox):
             return widget.value()
         if isinstance(widget, QComboBox):
+            if widget.isEditable():
+                index = widget.currentIndex()
+                if index >= 0 and widget.currentText() == widget.itemText(index):
+                    return widget.itemData(index)
+                return widget.currentText()
             data = widget.currentData()
             if data is not None:
                 return data
@@ -219,7 +273,7 @@ class ConditionRow(QFrame):
 
     def load_condition(self, condition: FilterCondition):
         # Conjunction
-        idx = self.conjunction_combo.findText(condition.conjunction or "AND")
+        idx = self.conjunction_combo.findData(condition.conjunction or "AND")
         if idx >= 0:
             self.conjunction_combo.setCurrentIndex(idx)
 
@@ -233,12 +287,12 @@ class ConditionRow(QFrame):
             self._on_field_changed(idx)
 
         # Operator
-        idx = self.operator_combo.findText(condition.operator)
+        idx = self.operator_combo.findData(condition.operator)
         if idx >= 0:
             self.operator_combo.blockSignals(True)
             self.operator_combo.setCurrentIndex(idx)
             self.operator_combo.blockSignals(False)
-            self._rebuild_value_widget(condition.operator)
+            self._rebuild_value_widget(self.operator_combo.currentData())
 
         # Value
         widget = self.value_widget
@@ -254,7 +308,7 @@ class ConditionRow(QFrame):
             if isinstance(value, bool):
                 widget.setCurrentIndex(0 if value else 1)
             else:
-                idx = widget.findText(str(value))
+                idx = widget.findData(value)
                 if idx >= 0:
                     widget.setCurrentIndex(idx)
                 elif widget.isEditable():
@@ -275,9 +329,12 @@ class SmartPlaylistDialog(QDialog):
     """
 
     def __init__(self, parent=None, *, name: str = "", description: str = "",
-                 smart_query_json: str = ""):
+                 smart_query_json: str = "", translator=None):
         super().__init__(parent)
-        self.setWindowTitle("Smart-Playlist")
+        self.translator = translator
+        if translator is not None:
+            set_default_translation_system(translator)
+        self.setWindowTitle(_t("Smart-Playlist"))
         self.resize(720, 480)
 
         outer = QVBoxLayout()
@@ -285,16 +342,16 @@ class SmartPlaylistDialog(QDialog):
 
         form = QFormLayout()
         self.name_edit = QLineEdit(name)
-        self.name_edit.setPlaceholderText("Name der Playlist")
-        form.addRow("Name", self.name_edit)
+        self.name_edit.setPlaceholderText(_t("Name der Playlist"))
+        form.addRow(_t("Name"), self.name_edit)
 
         self.desc_edit = QLineEdit(description)
-        self.desc_edit.setPlaceholderText("Optionale Beschreibung")
-        form.addRow("Beschreibung", self.desc_edit)
+        self.desc_edit.setPlaceholderText(_t("Optionale Beschreibung"))
+        form.addRow(_t("Beschreibung"), self.desc_edit)
         outer.addLayout(form)
 
         # Conditions list inside a scroll area.
-        outer.addWidget(QLabel("Bedingungen:"))
+        outer.addWidget(QLabel(_t("Bedingungen:")))
         self.conditions_container = QWidget()
         self.conditions_layout = QVBoxLayout()
         self.conditions_layout.setContentsMargins(0, 0, 0, 0)
@@ -306,28 +363,28 @@ class SmartPlaylistDialog(QDialog):
         scroll.setWidget(self.conditions_container)
         outer.addWidget(scroll, stretch=1)
 
-        add_row_btn = QPushButton("+ Bedingung hinzufügen")
+        add_row_btn = QPushButton(_t("+ Bedingung hinzufügen"))
         add_row_btn.clicked.connect(self._add_condition_row)
         outer.addWidget(add_row_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         # Order + limit row.
         order_form = QFormLayout()
         self.order_combo = QComboBox()
-        self.order_combo.addItem("(keine Sortierung)", "")
+        self.order_combo.addItem(_t("(keine Sortierung)"), "")
         for key, label in _ORDER_FIELDS:
-            self.order_combo.addItem(label, key)
-        order_form.addRow("Sortieren nach", self.order_combo)
+            self.order_combo.addItem(_t(label), key)
+        order_form.addRow(_t("Sortieren nach"), self.order_combo)
 
         self.order_dir_combo = QComboBox()
-        self.order_dir_combo.addItem("Aufsteigend", "ASC")
-        self.order_dir_combo.addItem("Absteigend", "DESC")
-        order_form.addRow("Richtung", self.order_dir_combo)
+        self.order_dir_combo.addItem(_t("Aufsteigend"), "ASC")
+        self.order_dir_combo.addItem(_t("Absteigend"), "DESC")
+        order_form.addRow(_t("Richtung"), self.order_dir_combo)
 
         self.limit_spin = QSpinBox()
         self.limit_spin.setRange(0, 100_000)
         self.limit_spin.setSpecialValueText("(unbegrenzt)")
         self.limit_spin.setValue(0)
-        order_form.addRow("Limit", self.limit_spin)
+        order_form.addRow(_t("Limit"), self.limit_spin)
         outer.addLayout(order_form)
 
         # OK / Cancel buttons.
@@ -335,6 +392,7 @@ class SmartPlaylistDialog(QDialog):
             QDialogButtonBox.StandardButton.Ok |
             QDialogButtonBox.StandardButton.Cancel
         )
+        _set_dialog_buttons(buttons)
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
         outer.addWidget(buttons)
@@ -383,7 +441,7 @@ class SmartPlaylistDialog(QDialog):
                               ConditionRow)]
 
     def _add_condition_row(self, condition: Optional[FilterCondition] = None):
-        row = ConditionRow(on_remove=self._remove_condition_row)
+        row = ConditionRow(on_remove=self._remove_condition_row, translator=self.translator)
         if condition:
             row.load_condition(condition)
         # First row never starts with "OR" - hide the conjunction combo.
@@ -446,22 +504,22 @@ class SmartPlaylistDialog(QDialog):
 
     def _on_accept(self):
         if not self.name():
-            QMessageBox.warning(self, "Name fehlt",
-                                "Bitte einen Namen für die Playlist angeben.")
+            _show_message(QMessageBox.Icon.Warning, self, _t("Name fehlt"),
+                                _t("Bitte einen Namen für die Playlist angeben."))
             return
         # Validate by serializing - if no conditions are valid the JSON is
         # still well formed but we warn the user explicitly.
         try:
             payload = json.loads(self.smart_query_json())
         except json.JSONDecodeError:
-            QMessageBox.warning(self, "Ungültige Bedingungen",
-                                "Die Smart-Query konnte nicht erzeugt werden.")
+            _show_message(QMessageBox.Icon.Warning, self, _t("Ungültige Bedingungen"),
+                                _t("Die Smart-Query konnte nicht erzeugt werden."))
             return
         if not payload.get("conditions"):
-            answer = QMessageBox.question(
-                self, "Keine Bedingungen",
-                "Diese Smart-Playlist enthält keine Bedingungen und liefert "
-                "alle Medien zurück. Trotzdem speichern?",
+            answer = _show_message(
+                QMessageBox.Icon.Question, self, _t("Keine Bedingungen"),
+                _t("Diese Smart-Playlist enthält keine Bedingungen und liefert "
+                "alle Medien zurück. Trotzdem speichern?"),
             )
             if answer != QMessageBox.StandardButton.Yes:
                 return
@@ -475,26 +533,30 @@ class SmartPlaylistDialog(QDialog):
 class ManualPlaylistDialog(QDialog):
     """Tiny dialog that captures name + description for a manual playlist."""
 
-    def __init__(self, parent=None, *, name: str = "", description: str = ""):
+    def __init__(self, parent=None, *, name: str = "", description: str = "", translator=None):
         super().__init__(parent)
-        self.setWindowTitle("Playlist")
+        self.translator = translator
+        if translator is not None:
+            set_default_translation_system(translator)
+        self.setWindowTitle(_t("Playlist"))
         layout = QVBoxLayout()
         self.setLayout(layout)
 
         form = QFormLayout()
         self.name_edit = QLineEdit(name)
-        self.name_edit.setPlaceholderText("Name der Playlist")
-        form.addRow("Name", self.name_edit)
+        self.name_edit.setPlaceholderText(_t("Name der Playlist"))
+        form.addRow(_t("Name"), self.name_edit)
 
         self.desc_edit = QTextEdit(description)
         self.desc_edit.setFixedHeight(80)
-        form.addRow("Beschreibung", self.desc_edit)
+        form.addRow(_t("Beschreibung"), self.desc_edit)
         layout.addLayout(form)
 
         buttons = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok |
             QDialogButtonBox.StandardButton.Cancel
         )
+        _set_dialog_buttons(buttons)
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
@@ -507,8 +569,8 @@ class ManualPlaylistDialog(QDialog):
 
     def _on_accept(self):
         if not self.name():
-            QMessageBox.warning(self, "Name fehlt",
-                                "Bitte einen Namen für die Playlist angeben.")
+            _show_message(QMessageBox.Icon.Warning, self, _t("Name fehlt"),
+                                _t("Bitte einen Namen für die Playlist angeben."))
             return
         self.accept()
 
@@ -537,8 +599,9 @@ class _PlaylistListModel(QAbstractListModel):
             return None
         playlist: Playlist = self._playlists[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
-            kind = "Smart" if playlist.playlist_type == "smart" else "Manuell"
-            return f"{playlist.name} ({kind}, {playlist.item_count})"
+            kind = _t("Smart") if playlist.playlist_type == "smart" else _t("Manuell")
+            return _t("{name} ({kind}, {count})", name=playlist.name,
+                      kind=kind, count=playlist.item_count)
         if role == self.NameRole:
             return playlist.name
         if role == self.PlaylistRole:
@@ -571,8 +634,11 @@ class PlaylistsView(QWidget):
     """
 
     def __init__(self, playlist_manager: PlaylistManager,
-                 media_manager=None, parent=None):
+                 media_manager=None, parent=None, translator=None):
         super().__init__(parent)
+        self.translator = translator
+        if translator is not None:
+            set_default_translation_system(translator)
         self.playlist_manager = playlist_manager
         self.media_manager = media_manager
         self._needs_refresh = False
@@ -581,26 +647,26 @@ class PlaylistsView(QWidget):
         outer = QVBoxLayout()
         self.setLayout(outer)
 
-        title = QLabel("Playlists")
+        title = QLabel(_t("Playlists"))
         title.setObjectName("pageTitle")
         outer.addWidget(title)
 
         # Toolbar
         toolbar = QHBoxLayout()
-        new_manual_btn = QPushButton("Neue Playlist")
+        new_manual_btn = QPushButton(_t("Neue Playlist"))
         new_manual_btn.clicked.connect(self._on_new_manual)
         toolbar.addWidget(new_manual_btn)
 
-        new_smart_btn = QPushButton("Neue Smart-Playlist")
+        new_smart_btn = QPushButton(_t("Neue Smart-Playlist"))
         new_smart_btn.clicked.connect(self._on_new_smart)
         toolbar.addWidget(new_smart_btn)
 
-        edit_btn = QPushButton("Bearbeiten")
+        edit_btn = QPushButton(_t("Bearbeiten"))
         edit_btn.clicked.connect(self._on_edit)
         toolbar.addWidget(edit_btn)
         self._edit_btn = edit_btn
 
-        delete_btn = QPushButton("Löschen")
+        delete_btn = QPushButton(_t("Löschen"))
         delete_btn.clicked.connect(self._on_delete)
         toolbar.addWidget(delete_btn)
         self._delete_btn = delete_btn
@@ -626,7 +692,7 @@ class PlaylistsView(QWidget):
         right = QWidget()
         right_layout = QVBoxLayout()
         right.setLayout(right_layout)
-        self.detail_label = QLabel("Keine Playlist ausgewählt.")
+        self.detail_label = QLabel(_t("Keine Playlist ausgewählt."))
         right_layout.addWidget(self.detail_label)
         self.items_list = QListWidget()
         right_layout.addWidget(self.items_list, stretch=1)
@@ -673,29 +739,30 @@ class PlaylistsView(QWidget):
     def _populate_items(self, playlist: Optional[Playlist]):
         self.items_list.clear()
         if playlist is None:
-            self.detail_label.setText("Keine Playlist ausgewählt.")
+            self.detail_label.setText(_t("Keine Playlist ausgewählt."))
             return
-        kind = "Smart" if playlist.playlist_type == "smart" else "Manuell"
+        kind = _t("Smart") if playlist.playlist_type == "smart" else _t("Manuell")
         desc = playlist.description or "(keine Beschreibung)"
         self.detail_label.setText(
-            f"{playlist.name} | {kind} | {playlist.item_count} Einträge\n{desc}"
+            _t('{name} | {kind} | {count} Einträge\n{description}', name=(playlist.name), kind=(kind), count=(playlist.item_count), description=(desc))
         )
         try:
             rows = self.playlist_manager.get_media_rows(playlist.id)
         except Exception as exc:
             logger.error("Konnte Playlist-Items nicht laden: %s", exc)
-            self.items_list.addItem(f"Fehler: {exc}")
+            self.items_list.addItem(_t('Fehler: {error}', error=(exc)))
             return
 
         if not rows:
-            self.items_list.addItem("(keine Treffer)")
+            self.items_list.addItem(_t("(keine Treffer)"))
             return
 
         for row in rows:
             title = self._row_value(row, "title", default="(ohne Titel)")
             mtype = self._row_value(row, "type", default="?")
             source = self._row_value(row, "source", default="?")
-            self.items_list.addItem(f"{title}    [{mtype} | {source}]")
+            self.items_list.addItem(_t("  {title}    [{mtype} | {source}]", title=title,
+                                       mtype=_display_field_value(mtype), source=source))
 
     @staticmethod
     def _row_value(row, key, default=None):
@@ -708,19 +775,19 @@ class PlaylistsView(QWidget):
     # --- Toolbar actions -----------------------------------------------
 
     def _on_new_manual(self):
-        dialog = ManualPlaylistDialog(self)
+        dialog = ManualPlaylistDialog(self, translator=self.translator)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             try:
                 self.playlist_manager.create_playlist(
                     dialog.name(), dialog.description(), playlist_type="manual"
                 )
             except Exception as exc:
-                QMessageBox.warning(self, "Fehler", str(exc))
+                _show_message(QMessageBox.Icon.Warning, self, _t("Fehler"), str(exc))
                 return
             self.refresh()
 
     def _on_new_smart(self):
-        dialog = SmartPlaylistDialog(self)
+        dialog = SmartPlaylistDialog(self, translator=self.translator)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             try:
                 self.playlist_manager.create_smart_playlist(
@@ -729,7 +796,7 @@ class PlaylistsView(QWidget):
                     description=dialog.description(),
                 )
             except Exception as exc:
-                QMessageBox.warning(self, "Fehler", str(exc))
+                _show_message(QMessageBox.Icon.Warning, self, _t("Fehler"), str(exc))
                 return
             self.refresh()
 
@@ -744,7 +811,8 @@ class PlaylistsView(QWidget):
 
     def _edit_manual(self, playlist: Playlist):
         dialog = ManualPlaylistDialog(
-            self, name=playlist.name, description=playlist.description
+            self, name=playlist.name, description=playlist.description,
+            translator=self.translator
         )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
@@ -769,6 +837,7 @@ class PlaylistsView(QWidget):
             name=playlist.name,
             description=playlist.description,
             smart_query_json=playlist.smart_query,
+            translator=self.translator,
         )
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
@@ -791,18 +860,16 @@ class PlaylistsView(QWidget):
         playlist = self._selected_playlist()
         if not playlist:
             return
-        answer = QMessageBox.question(
-            self, "Playlist löschen",
-            f"Playlist '{playlist.name}' wirklich löschen?\n"
-            "Manuelle Einträge werden ebenfalls entfernt; die Mediendateien "
-            "bleiben unangetastet."
+        answer = _show_message(
+            QMessageBox.Icon.Question, self, _t("Playlist löschen"),
+            _t("Playlist '{name}' wirklich löschen?\nManuelle Einträge werden ebenfalls entfernt; die Mediendateien bleiben unangetastet.", name=(playlist.name))
         )
         if answer != QMessageBox.StandardButton.Yes:
             return
         try:
             self.playlist_manager.delete_playlist(playlist.id)
         except Exception as exc:
-            QMessageBox.warning(self, "Fehler", str(exc))
+            _show_message(QMessageBox.Icon.Warning, self, _t("Fehler"), str(exc))
             return
         self._current_playlist_id = None
         self.refresh()
@@ -816,8 +883,8 @@ class PlaylistsView(QWidget):
         if not playlist:
             return
         menu = QMenu(self)
-        menu.addAction(QAction("Bearbeiten", self,
+        menu.addAction(QAction(_t("Bearbeiten"), self,
                                triggered=lambda: self._on_edit()))
-        menu.addAction(QAction("Löschen", self,
+        menu.addAction(QAction(_t("Löschen"), self,
                                triggered=lambda: self._on_delete()))
         menu.exec(self.playlists_list.viewport().mapToGlobal(pos))

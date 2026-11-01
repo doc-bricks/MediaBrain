@@ -1,0 +1,221 @@
+{
+  "@@locale": "ru",
+  "appTitle": "MediaBrain",
+  "navLibrary": "Библиотека",
+  "navScan": "Сканирование",
+  "navMore": "Ещё",
+  "screenLibrary": "Библиотека",
+  "fabAdd": "Добавить",
+  "searchHint": "Поиск (название, исполнитель, канал …)",
+  "filterAll": "Все",
+  "filterFavorites": "⭐ Избранное",
+  "emptyNoMatch": "По заданным фильтрам ничего не найдено.",
+  "emptyNoItems": "Пока пусто.\nНажмите вкладку «Сканирование», чтобы автоматически обнаружить медиаприложения.",
+  "screenScan": "Сканирование",
+  "scanDescription": "Ищет установленные медиаприложения (стриминг, музыка, подкасты, документы) и добавляет их в библиотеку. При включённом доступе к данным об использовании также будет доступно фактическое время использования.",
+  "btnAppScan": "Сканирование приложений (сводное использование)",
+  "bgScanTitle": "Фоновое сканирование",
+  "bgScanNow": "Запустить один раз в фоне",
+  "bgScanNowSubtitle": "Отправляет разовое задание в Android. Результат появится через 1–2 минуты.",
+  "bgScanQueued": "Фоновое сканирование поставлено в очередь — результат будет примерно через минуту",
+  "scanAndroidOnly": "Сканирование доступно только в Android.",
+  "scanPermissionMissing": "Нет доступа к данным об использовании. Включите его в системных настройках MediaBrain:\n\nНастройки → Приложения → Специальный доступ приложений → Доступ к данным об использовании → MediaBrain.",
+  "detectedTitle": "📡 Что обнаруживается?",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian и другие.",
+  "appScanTitle": "🔍 Сканирование приложений",
+  "appScanDescription": "Сканирование приложений: отдельная запись для каждого медиаприложения с общим временем использования за последние дни (по статистике использования Android).",
+  "neverText": "никогда",
+  "screenSettings": "Настройки",
+  "sectionDataStatus": "Состояние данных",
+  "sectionFileSync": "Синхронизация файлов",
+  "sectionServerSync": "Синхронизация с сервером (Mac Studio)",
+  "sectionActions": "Действия",
+  "settingsTotalEntries": "Всего записей",
+  "settingsLastScan": "Последнее сканирование",
+  "exportTitle": "Экспорт через «Поделиться»",
+  "exportSubtitle": "Отправить JSON себе по почте, через OneDrive или Telegram …",
+  "importTitle": "Выбрать файл для импорта",
+  "importSubtitle": "Перезаписывает локальные данные",
+  "noServerConfigured": "Сервер не настроен",
+  "actionPush": "Отправить",
+  "actionPull": "Получить",
+  "refreshData": "Обновить данные",
+  "deleteAllData": "Удалить все данные библиотеки",
+  "deleteAllTitle": "Удалить все данные библиотеки?",
+  "deleteAllContent": "Удаляет все записи из локального MediaBrain.",
+  "cancel": "Отмена",
+  "delete": "Удалить",
+  "save": "Сохранить",
+  "libraryCleared": "Библиотека очищена.",
+  "cancelled": "Отменено.",
+  "serverConfigTitle": "Настроить синхронизацию с сервером",
+  "fieldServerUrl": "URL сервера",
+  "fieldServerUrlHint": "например, macstudvonlukas:8082",
+  "fieldBearerToken": "Токен Bearer",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "Автономное приложение Flutter. Обнаруживает установленные медиаприложения, учитывает записи, добавленные вручную, и синхронизирует данные через файл или сервер.",
+  "detailDescription": "Описание",
+  "detailDetails": "Сведения",
+  "detailTags": "Теги",
+  "fieldArtist": "Исполнитель",
+  "fieldAlbum": "Альбом",
+  "fieldChannel": "Канал",
+  "fieldSeasonEpisodeLabel": "Сезон/серия",
+  "fieldLength": "Длительность",
+  "fieldLastOpened": "Последнее открытие",
+  "fieldUsage": "Использование",
+  "fieldProviderId": "ID провайдера",
+  "fieldLocalPath": "Локальный путь",
+  "openPlayStore": "Открыть в Play Store",
+  "openBrowser": "Открыть в браузере",
+  "linkError": "Не удалось открыть ссылку.",
+  "dialogTitleNew": "Новая запись",
+  "dialogTitleEdit": "Изменить запись",
+  "fieldTitle": "Название",
+  "categoryLabel": "Категория",
+  "fieldArtistOptional": "Исполнитель / режиссёр (необязательно)",
+  "fieldAlbumOptional": "Альбом / сериал (необязательно)",
+  "fieldChannelOptional": "Канал / источник (необязательно)",
+  "fieldDescriptionOptional": "Описание (необязательно)",
+  "fieldTags": "Теги (через запятую)",
+  "fieldTagsHint": "например, документальный фильм, выходные",
+  "markAsFavorite": "Добавить в избранное",
+  "error": "Ошибка: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "Всего: {minutes} мин",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "Сканировать каждые ~{hours} ч, даже если приложение закрыто.",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "Последний запуск: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "Сканирование приложений: найдено медиаприложений — {matched}, добавлено записей — {persisted}.",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "Экспорт: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "Импорт: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "Отправка: {push} · Получение: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "S{s} E{e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} мин",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "Плейлисты",
+  "screenPlaylists": "Плейлисты и коллекции",
+  "playlistTypeManual": "Вручную",
+  "playlistTypeSmart": "Умный (динамический фильтр)",
+  "dialogNewPlaylist": "Новый плейлист",
+  "dialogEditPlaylist": "Изменить плейлист",
+  "fieldPlaylistName": "Название плейлиста",
+  "fieldPlaylistDescription": "Описание (необязательно)",
+  "fieldPlaylistType": "Тип плейлиста",
+  "smartFilterCriteria": "Условия умного фильтра",
+  "smartFilterCategory": "Категория",
+  "smartFilterTag": "Тег / ключевое слово",
+  "smartFilterFavoritesOnly": "Только избранное",
+  "smartFilterMinMinutes": "Минимальное время использования (мин)",
+  "smartFilterSearch": "Поисковый запрос",
+  "emptyPlaylists": "Плейлисты ещё не созданы.\nСоздайте ручные коллекции или динамические умные плейлисты.",
+  "emptyPlaylistItems": "В этом плейлисте пока нет медиа.",
+  "deletePlaylistTitle": "Удалить плейлист?",
+  "deletePlaylistContent": "Действительно удалить этот плейлист? Медиа останутся в библиотеке.",
+  "addToPlaylist": "Добавить в плейлист",
+  "removeFromPlaylist": "Удалить из плейлиста",
+  "addedToPlaylist": "Добавлено в плейлист.",
+  "removedFromPlaylist": "Удалено из плейлиста.",
+  "filterByTag": "Фильтр по тегам",
+  "allTags": "Все теги",
+  "addTag": "Добавить тег",
+  "removeTag": "Удалить тег",
+  "noPlaylistsFound": "Нет доступных плейлистов.",
+  "playlistItemCount": "{count, plural, one {{count} элемент} few {{count} элемента} many {{count} элементов} other {{count} элемента}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

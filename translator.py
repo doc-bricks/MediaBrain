@@ -19,13 +19,46 @@ from pathlib import Path
 from typing import Dict, List, Set
 
 
-SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru']
+SUPPORTED_LANGUAGES = ['de', 'en', 'es', 'zh', 'ja', 'ru', 'fr', 'hi', 'ar', 'bn', 'pt']
+
+
+_default_translation_system = None
+
+def set_default_translation_system(translator):
+    """Set the app-wide TranslationSystem used by optional GUI integrations."""
+    global _default_translation_system
+    _default_translation_system = translator
+
+
+def translate(key: str, translator=None, **kwargs) -> str:
+    """Translate a UI key while keeping the original text when no system is injected."""
+    system = translator or _default_translation_system
+    if system is not None:
+        return system.t(key, **kwargs)
+    if kwargs:
+        try:
+            return key.format(**kwargs)
+        except (KeyError, IndexError, ValueError):
+            pass
+    return key
+
+
+def resolve_language(*candidates) -> str:
+    """Resolve MEDIABRAIN_LANG/settings values, including regional subtags."""
+    supported = set(SUPPORTED_LANGUAGES)
+    for candidate in candidates:
+        if not isinstance(candidate, str):
+            continue
+        normalized = candidate.strip().replace('_', '-').split('-', 1)[0].lower()
+        if normalized in supported:
+            return normalized
+    return 'de'
 
 
 class TranslationSystem:
     """Multi-Language Support System v1.1"""
 
-    def __init__(self, default_lang: str = 'de', app_dir: Path = None):
+    def __init__(self, default_lang: str = 'de', app_dir: Path = None, *, auto_register_missing: bool = True):
         """
         Initialisiert Translation-System.
 
@@ -34,6 +67,7 @@ class TranslationSystem:
             app_dir: Verzeichnis der Anwendung (default: aktuelles Verzeichnis)
         """
         self.current_lang = default_lang
+        self.auto_register_missing = auto_register_missing
 
         if app_dir is None:
             app_dir = Path.cwd()
@@ -113,7 +147,7 @@ class TranslationSystem:
                         text = val_de
 
         if text is None:
-            if key not in self.translations and self._is_german(key):
+            if self.auto_register_missing and key not in self.translations and self._is_german(key):
                 entry = {"de": key}
                 for lang in SUPPORTED_LANGUAGES:
                     if lang != "de":

@@ -10,9 +10,7 @@ Widget _app({Locale locale = const Locale('de')}) {
     locale: locale,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    home: Builder(
-      builder: (ctx) => Text(AppLocalizations.of(ctx).appTitle),
-    ),
+    home: Builder(builder: (ctx) => Text(AppLocalizations.of(ctx).appTitle)),
   );
 }
 
@@ -88,5 +86,98 @@ void main() {
     await tester.pump();
     final loc = _loc(tester);
     expect(loc.seasonEpisode(2, 5), 'S2 E5');
+  });
+
+  testWidgets('all 11 generated locales resolve into their own bundle', (
+    tester,
+  ) async {
+    const locales = <Locale>[
+      Locale('de'),
+      Locale('en'),
+      Locale('es'),
+      Locale('zh'),
+      Locale('ja'),
+      Locale('ru'),
+      Locale('fr'),
+      Locale('hi'),
+      Locale('ar'),
+      Locale('bn'),
+      Locale('pt'),
+    ];
+    for (final locale in locales) {
+      await tester.pumpWidget(_app(locale: locale));
+      await tester.pump();
+      final context = tester.element(find.byType(Text).first);
+      expect(
+        Localizations.localeOf(context).languageCode,
+        locale.languageCode,
+        reason: 'The requested ${locale.languageCode} ARB should resolve.',
+      );
+      final label = _loc(tester).navLibrary;
+      expect(label, isNotEmpty);
+      final countLabel = _loc(tester).playlistItemCount(7);
+      expect(countLabel, contains('7'));
+      expect(countLabel, isNot(contains('#')));
+      if (locale.languageCode != 'en') {
+        expect(
+          label,
+          isNot('Library'),
+          reason: '${locale.languageCode} must not silently use English.',
+        );
+      }
+    }
+  });
+
+  testWidgets(
+    'regional locales match language bundles and unknown locale falls back to German',
+    (tester) async {
+      await tester.pumpWidget(_app(locale: const Locale('es', 'MX')));
+      await tester.pump();
+      var context = tester.element(find.byType(Text).first);
+      expect(Localizations.localeOf(context), const Locale('es'));
+      expect(_loc(tester).navLibrary, 'Biblioteca');
+
+      await tester.pumpWidget(_app(locale: const Locale('zz')));
+      await tester.pump();
+      context = tester.element(find.byType(Text).first);
+      expect(Localizations.localeOf(context), const Locale('de'));
+      expect(_loc(tester).navLibrary, 'Bibliothek');
+    },
+  );
+
+  testWidgets('generated placeholders and ICU plurals preserve call behavior', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    var loc = _loc(tester);
+    expect(loc.error('offline'), 'Error: offline');
+    expect(loc.tagCount('sci-fi', 3), '#sci-fi (3)');
+    expect(loc.playlistItemCount(1), contains('elemento'));
+    expect(loc.playlistItemCount(2), contains('elementos'));
+
+    await tester.pumpWidget(_app(locale: const Locale('ru')));
+    await tester.pump();
+    loc = _loc(tester);
+    expect(loc.playlistItemCount(1), contains('элемент'));
+    expect(loc.playlistItemCount(2), contains('элемента'));
+    expect(loc.playlistItemCount(5), contains('элементов'));
+
+    await tester.pumpWidget(_app(locale: const Locale('ar')));
+    await tester.pump();
+    loc = _loc(tester);
+    expect(loc.playlistItemCount(0), contains('عنصر'));
+    expect(loc.playlistItemCount(2), contains('عنصران'));
+    expect(loc.playlistItemCount(3), contains('عناصر'));
+    expect(loc.playlistItemCount(11), contains('عنصرًا'));
+  });
+
+  testWidgets('Arabic locale supplies right-to-left text direction', (
+    tester,
+  ) async {
+    await tester.pumpWidget(_app(locale: const Locale('ar')));
+    await tester.pump();
+    final context = tester.element(find.byType(Text).first);
+    expect(Directionality.of(context), TextDirection.rtl);
   });
 }

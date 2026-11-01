@@ -47,8 +47,8 @@ class TestEnglishDesktopCatalog(unittest.TestCase):
         )
 
 
-class TestMultiLanguageTier2Catalog(unittest.TestCase):
-    """Tier-2 multi-language contract tests (DE, EN, ES, ZH, JA, RU)."""
+class TestWorldSetCatalog(unittest.TestCase):
+    """World-set catalog contract tests for all eleven supported locales."""
 
     def setUp(self):
         self.catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
@@ -57,7 +57,7 @@ class TestMultiLanguageTier2Catalog(unittest.TestCase):
     def test_supported_languages_list(self):
         self.assertEqual(
             self.translator.get_supported_languages(),
-            ['de', 'en', 'es', 'zh', 'ja', 'ru'],
+            ['de', 'en', 'es', 'zh', 'ja', 'ru', 'fr', 'hi', 'ar', 'bn', 'pt'],
         )
 
     def test_every_committed_key_has_a_nonempty_value_in_all_languages(self):
@@ -166,6 +166,14 @@ class TestTranslationFallbackAndInterpolation(unittest.TestCase):
         # Missing 'count' kwarg should not raise KeyError
         res = self.translator.t("TemplateKey")
         self.assertEqual(res, "Encontrado: {count} elementos")
+
+    def test_cli_can_disable_unknown_german_key_autoregistration(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            translator = TranslationSystem('fr', app_dir=root, auto_register_missing=False)
+
+            self.assertEqual(translator.t('Unbekannter Fehler'), 'Unbekannter Fehler')
+            self.assertFalse((root / 'locales' / 'translations.json').exists())
 
 
 if __name__ == "__main__":

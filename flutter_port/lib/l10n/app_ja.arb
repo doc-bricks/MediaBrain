@@ -1,0 +1,221 @@
+{
+  "@@locale": "ja",
+  "appTitle": "MediaBrain",
+  "navLibrary": "ライブラリ",
+  "navScan": "スキャン",
+  "navMore": "その他",
+  "screenLibrary": "ライブラリ",
+  "fabAdd": "追加",
+  "searchHint": "検索（タイトル、アーティスト、チャンネル…）",
+  "filterAll": "すべて",
+  "filterFavorites": "⭐ お気に入り",
+  "emptyNoMatch": "指定したフィルターに一致する結果はありません。",
+  "emptyNoItems": "まだ空です。\n「スキャン」タブをタップすると、メディアアプリを自動検出します。",
+  "screenScan": "スキャン",
+  "scanDescription": "インストール済みのメディアアプリ（ストリーミング、音楽、ポッドキャスト、ドキュメント）を検索し、ライブラリに項目として追加します。使用状況データへのアクセスを有効にすると、実際の使用時間も取得できます。",
+  "btnAppScan": "アプリスキャン（集計使用量）",
+  "bgScanTitle": "バックグラウンドスキャン",
+  "bgScanNow": "今すぐバックグラウンドで1回実行",
+  "bgScanNowSubtitle": "Android に単発タスクを送信します。結果は1～2分後に表示されます。",
+  "bgScanQueued": "バックグラウンドスキャンをキューに追加しました — 約1分後に結果を確認できます",
+  "scanAndroidOnly": "スキャンは Android でのみ利用できます。",
+  "scanPermissionMissing": "使用状況データへのアクセスがありません。MediaBrain のシステム設定で有効にしてください：\n\n設定 → アプリ → 特別なアプリアクセス → 使用状況へのアクセス → MediaBrain。",
+  "detectedTitle": "📡 検出されるもの",
+  "detectedApps": "Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · Audible · Kindle · Pocket Casts · Google Podcasts · Adobe Acrobat · Google Docs · Notion · Obsidian など。",
+  "appScanTitle": "🔍 アプリスキャン",
+  "appScanDescription": "アプリスキャン：メディアアプリごとに1件作成し、直近数日間の合計使用量を表示します（Android の使用状況統計を利用）。",
+  "neverText": "一度もない",
+  "screenSettings": "設定",
+  "sectionDataStatus": "データの状態",
+  "sectionFileSync": "ファイル同期",
+  "sectionServerSync": "サーバー同期（Mac Studio）",
+  "sectionActions": "操作",
+  "settingsTotalEntries": "登録数",
+  "settingsLastScan": "最終スキャン",
+  "exportTitle": "共有からエクスポート",
+  "exportSubtitle": "メール、OneDrive、Telegram で自分宛てに JSON を送信 …",
+  "importTitle": "インポートするファイルを選択",
+  "importSubtitle": "ローカルデータを上書きします",
+  "noServerConfigured": "サーバーが設定されていません",
+  "actionPush": "送信",
+  "actionPull": "取得",
+  "refreshData": "データを更新",
+  "deleteAllData": "ライブラリのデータをすべて削除",
+  "deleteAllTitle": "ライブラリのデータをすべて削除しますか？",
+  "deleteAllContent": "ローカル MediaBrain のすべての項目を削除します。",
+  "cancel": "キャンセル",
+  "delete": "削除",
+  "save": "保存",
+  "libraryCleared": "ライブラリを消去しました。",
+  "cancelled": "キャンセルしました。",
+  "serverConfigTitle": "サーバー同期を設定",
+  "fieldServerUrl": "サーバー URL",
+  "fieldServerUrlHint": "例: macstudvonlukas:8082",
+  "fieldBearerToken": "Bearer トークン",
+  "aboutTitle": "MediaBrain Mobile",
+  "aboutSubtitle": "単体で動作する Flutter アプリです。インストール済みのメディアアプリを検出し、手動項目を記録して、ファイルまたはサーバー経由で同期します。",
+  "detailDescription": "説明",
+  "detailDetails": "詳細",
+  "detailTags": "タグ",
+  "fieldArtist": "アーティスト",
+  "fieldAlbum": "アルバム",
+  "fieldChannel": "チャンネル",
+  "fieldSeasonEpisodeLabel": "シーズン/エピソード",
+  "fieldLength": "長さ",
+  "fieldLastOpened": "最終オープン",
+  "fieldUsage": "使用状況",
+  "fieldProviderId": "プロバイダー ID",
+  "fieldLocalPath": "ローカルパス",
+  "openPlayStore": "Play ストアで開く",
+  "openBrowser": "ブラウザーで開く",
+  "linkError": "リンクを開けませんでした。",
+  "dialogTitleNew": "新しい項目",
+  "dialogTitleEdit": "項目を編集",
+  "fieldTitle": "タイトル",
+  "categoryLabel": "カテゴリ",
+  "fieldArtistOptional": "アーティスト / 監督（任意）",
+  "fieldAlbumOptional": "アルバム / シリーズ（任意）",
+  "fieldChannelOptional": "チャンネル / ソース（任意）",
+  "fieldDescriptionOptional": "説明（任意）",
+  "fieldTags": "タグ（カンマ区切り）",
+  "fieldTagsHint": "例: ドキュメンタリー、週末",
+  "markAsFavorite": "お気に入りにする",
+  "error": "エラー: {msg}",
+  "@error": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "foregroundMinutesLabel": "合計 {minutes} 分",
+  "@foregroundMinutesLabel": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "bgScanSubtitle": "アプリが閉じていても、約 {hours} 時間ごとにスキャンします。",
+  "@bgScanSubtitle": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "lastRun": "最終実行: {time}",
+  "@lastRun": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scanResult": "アプリスキャン: メディアアプリを {matched} 件検出し、{persisted} 件の項目を追加しました。",
+  "@scanResult": {
+    "placeholders": {
+      "matched": {
+        "type": "int"
+      },
+      "persisted": {
+        "type": "int"
+      }
+    }
+  },
+  "exportResult": "エクスポート: {msg}",
+  "@exportResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "importResult": "インポート: {msg}",
+  "@importResult": {
+    "placeholders": {
+      "msg": {
+        "type": "String"
+      }
+    }
+  },
+  "pushPullStatus": "送信: {push} · 取得: {pull}",
+  "@pushPullStatus": {
+    "placeholders": {
+      "push": {
+        "type": "String"
+      },
+      "pull": {
+        "type": "String"
+      }
+    }
+  },
+  "seasonEpisode": "シーズン{s} エピソード{e}",
+  "@seasonEpisode": {
+    "placeholders": {
+      "s": {
+        "type": "int"
+      },
+      "e": {
+        "type": "int"
+      }
+    }
+  },
+  "usageMinutes": "{n} 分",
+  "@usageMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "navPlaylists": "プレイリスト",
+  "screenPlaylists": "プレイリストとコレクション",
+  "playlistTypeManual": "手動",
+  "playlistTypeSmart": "スマート（動的フィルター）",
+  "dialogNewPlaylist": "新しいプレイリスト",
+  "dialogEditPlaylist": "プレイリストを編集",
+  "fieldPlaylistName": "プレイリスト名",
+  "fieldPlaylistDescription": "説明（任意）",
+  "fieldPlaylistType": "プレイリストの種類",
+  "smartFilterCriteria": "スマートフィルターの条件",
+  "smartFilterCategory": "カテゴリ",
+  "smartFilterTag": "タグ / キーワード",
+  "smartFilterFavoritesOnly": "お気に入りのみ",
+  "smartFilterMinMinutes": "最小使用時間（分）",
+  "smartFilterSearch": "検索語",
+  "emptyPlaylists": "プレイリストはまだありません。\n手動コレクションまたは動的なスマートプレイリストを作成してください。",
+  "emptyPlaylistItems": "このプレイリストにはまだメディアがありません。",
+  "deletePlaylistTitle": "プレイリストを削除しますか？",
+  "deletePlaylistContent": "このプレイリストを本当に削除しますか？含まれるメディアはライブラリに残ります。",
+  "addToPlaylist": "プレイリストに追加",
+  "removeFromPlaylist": "プレイリストから削除",
+  "addedToPlaylist": "プレイリストに追加しました。",
+  "removedFromPlaylist": "プレイリストから削除しました。",
+  "filterByTag": "タグで絞り込む",
+  "allTags": "すべてのタグ",
+  "addTag": "タグを追加",
+  "removeTag": "タグを削除",
+  "noPlaylistsFound": "利用できるプレイリストはありません。",
+  "playlistItemCount": "{count, plural, other {{count} 件}}",
+  "tagCount": "#{tag} ({count})",
+  "@playlistItemCount": {
+    "description": "Number of items in a playlist.",
+    "placeholders": {
+      "count": {
+        "type": "num"
+      }
+    }
+  },
+  "@tagCount": {
+    "description": "Tag and number of matching entries.",
+    "placeholders": {
+      "tag": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}
