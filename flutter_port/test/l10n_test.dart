@@ -89,4 +89,46 @@ void main() {
     final loc = _loc(tester);
     expect(loc.seasonEpisode(2, 5), 'S2 E5');
   });
+
+  testWidgets('ES nav labels', (tester) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    final loc = _loc(tester);
+    expect(loc.navLibrary, 'Biblioteca');
+    expect(loc.navScan, 'Escanear');
+    expect(loc.navMore, 'Más');
+    expect(loc.neverText, 'nunca');
+  });
+
+  testWidgets('ES scanResult parametrized', (tester) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    final loc = _loc(tester);
+    expect(
+      loc.scanResult(5, 3),
+      'Escaneo de apps: 5 apps encontradas, 3 entradas añadidas.',
+    );
+  });
+
+  testWidgets('ES usageMinutes', (tester) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    final loc = _loc(tester);
+    expect(loc.usageMinutes(42), '42 minutos');
+    expect(loc.foregroundMinutesLabel(10), '10 min en total');
+  });
+
+  testWidgets('ES pushPullStatus', (tester) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    final loc = _loc(tester);
+    expect(loc.pushPullStatus('nunca', 'nunca'), 'Push: nunca · Pull: nunca');
+  });
+
+  testWidgets('ES seasonEpisode', (tester) async {
+    await tester.pumpWidget(_app(locale: const Locale('es')));
+    await tester.pump();
+    final loc = _loc(tester);
+    expect(loc.seasonEpisode(2, 5), 'T2 E5');
+  });
 }

@@ -39,18 +39,7 @@ class SyncService {
   // ─── Datei-Export / -Import ─────────────────────────────────────
 
   Future<Map<String, dynamic>> _buildPayload() async {
-    final items = await DatabaseService.instance.listItems(limit: 100000);
-    return {
-      'schema': _exportSchema,
-      'schema_version': 1,
-      'exported_at': DateTime.now().toUtc().toIso8601String(),
-      'source': {
-        'app_name': 'MediaBrain Mobile',
-        'platform': Platform.operatingSystem,
-      },
-      'item_count': items.length,
-      'items': items.map((m) => m.toMap()).toList(),
-    };
+    return DatabaseService.instance.buildExportPayload();
   }
 
   Future<File> _writeExport() async {
@@ -97,33 +86,19 @@ class SyncService {
   }
 
   Future<SyncSummary> _applyPayload(Map<String, dynamic> json) async {
-    final schema = json['schema'] as String?;
-    if (schema != _exportSchema) {
-      throw _SyncException(
-        "Schema '$schema' wird nicht unterstützt — erwartet '$_exportSchema'.",
-      );
-    }
-    final list = (json['items'] as List?) ?? const [];
-    final db = await DatabaseService.instance.database;
-    int count = 0;
-    await db.transaction((txn) async {
-      await txn.delete('media_items');
-      for (final raw in list) {
-        if (raw is! Map) continue;
-        final mm = raw.cast<String, dynamic>();
-        // Fehlerhafte Eintraege (fehlende/null id oder title) ueberspringen, statt
-        // den gesamten Import an einem einzigen Datensatz abbrechen zu lassen.
-        if (mm['id'] is! String || mm['title'] is! String) continue;
-        final m = MediaItem.fromMap(mm);
-        await txn.insert(
-          'media_items',
-          m.toMap(),
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
-        count++;
+    // Fehlerhafte Eintraege (fehlende/null id oder title) ueberspringen, statt
+    // den gesamten Import an einem einzigen Datensatz abbrechen zu lassen:
+    // mm['id'] is! String || mm['title'] is! String
+    try {
+      final res = await DatabaseService.instance.importLibraryBundle(json);
+      String? msg;
+      if (res.playlistsImported > 0) {
+        msg = '${res.playlistsImported} Playlists';
       }
-    });
-    return SyncSummary(items: count);
+      return SyncSummary(items: res.imported, message: msg);
+    } on ImportException catch (e) {
+      throw _SyncException(e.toString());
+    }
   }
 
   // ─── Server-Sync ────────────────────────────────────────────────

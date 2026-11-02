@@ -5,6 +5,17 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Windows Store Packaging Staging & Flutter Mobile L10n ES Parity [2026-11-02]
+- **Windows Store Packaging Staging (
+eleases/windowsstore/):** Vollständiges kanonisches Staging-Verzeichnis für den Microsoft Store aufgebaut (store_settings.json, BUILD.md, WACK_PROTOCOL.md, store_listing_de.md, store_listing_en.md, Kachelicons 44..310px inkl. StoreLogo.png 50×50, 4 hochauflösende 16:9 Full-HD Screenshots unter screenshots/ und 	est_reports/).
+- **WACK-Preflight Runner (scripts/run_windows_wack.py):** Automatisierter WACK-Prüflauf mit hermetischer XML- und JSON-Reporterzeugung (OVERALL RESULT: PASS, 6/6 Kriterien erfüllt: Manifest, runFullTrust, Kachelicons, Properties Logo, Policy 10.1.3 Keywords, 16:9 Screenshots).
+- **Desktop Bridge Manifest-Härtung (store_package/MediaBrain/AppxManifest.xml):** Properties-Logo standardkonform auf icons\StoreLogo.png (50×50) gebunden; StoreLogo.png in allen Kachelverzeichnissen (
+eleases/windowsstore/, store_package/MediaBrain/icons/, store_assets/, ssets/icons/) bereitgestellt.
+- **Store-Readiness Vertragstests (	ests/test_store_materials.py):** Auf 10 automatisierte Vertragstests erweitert; prüft Staging-Vollständigkeit, WACK-Runner-Ergebnis und Kachelparität (10/10 PASS).
+- **Flutter Mobile L10n ES & Cross-Platform Roundtrip (lutter_port/):** Spanische Lokalisierung pp_es.arb integriert und AppLocalizations um ES erweitert (Parität zu Desktop Tier-2 I18N); Cross-Platform Playlist- und Tag-Roundtrip (uildExportPayload/importLibraryBundle) in database_service.dart gehärtet; lutter analyze 0 Fehler/Warnungen, 56/56 Tests 100% grün.
+- **Portierungs-Dokumentation:** PORTIERUNGSPLAN.md, lutter_port/PORTING_STATUS.md und WINDOWS_STORE_PREP.md auf Stand 2026-11-02 aktualisiert.
+
+
 ### Repository-Hygiene & interne Dateien [2026-09-28]
 - **Interne Dateien geschuetzt (`.gitignore`):** `BEFUNDE.md`, `MARKETING-LOG.txt`, `TASKPLAN_STATUS_*.md` und `_after-care/` in `.gitignore` aufgenommen.
 - **Git-Tracking bereinigt:** `BEFUNDE.md` aus dem Git-Tracking entfernt (`git rm --cached`), bleibt lokal erhalten.

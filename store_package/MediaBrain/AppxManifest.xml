@@ -12,7 +12,7 @@
   <Properties>
     <DisplayName>MediaBrain</DisplayName>
     <PublisherDisplayName>Lukas Geiger</PublisherDisplayName>
-    <Logo>icons\icon_150x150.png</Logo>
+    <Logo>icons\StoreLogo.png</Logo>
     <Description>Lokale, datenschutzfreundliche Medienbibliothek für Videos, Musik, Dokumente und Streaming-Verlauf.</Description>
   </Properties>
 

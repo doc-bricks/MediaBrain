@@ -20,6 +20,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = [
     Locale('de'),
     Locale('en'),
+    Locale('es'),
   ];
 
   String get appTitle;
@@ -151,13 +152,23 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      ['de', 'en'].contains(locale.languageCode);
+      ['de', 'en', 'es'].contains(locale.languageCode);
 
   @override
   Future<AppLocalizations> load(Locale locale) {
-    final AppLocalizations loc = locale.languageCode == 'en'
-        ? _AppLocalizationsEn()
-        : _AppLocalizationsDe();
+    final AppLocalizations loc;
+    switch (locale.languageCode) {
+      case 'en':
+        loc = _AppLocalizationsEn();
+        break;
+      case 'es':
+        loc = _AppLocalizationsEs();
+        break;
+      case 'de':
+      default:
+        loc = _AppLocalizationsDe();
+        break;
+    }
     return SynchronousFuture<AppLocalizations>(loc);
   }
 
@@ -457,5 +468,153 @@ class _AppLocalizationsEn extends AppLocalizations {
   @override String seasonEpisode(int s, int e) => 'S$s E$e';
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'minute' : 'minutes'}';
   @override String playlistItemCount(int count) => '$count ${count == 1 ? 'item' : 'items'}';
+  @override String tagCount(String tag, int count) => '#$tag ($count)';
+}
+
+class _AppLocalizationsEs extends AppLocalizations {
+  @override String get appTitle => 'MediaBrain';
+  @override String get navLibrary => 'Biblioteca';
+  @override String get navScan => 'Escanear';
+  @override String get navMore => 'Más';
+  @override String get screenLibrary => 'Biblioteca';
+  @override String get fabAdd => 'Añadir';
+  @override String get searchHint => 'Buscar (título, artista, canal…)';
+  @override String get filterAll => 'Todo';
+  @override String get filterFavorites => '⭐ Favoritos';
+  @override String get emptyNoMatch => 'No hay resultados para tus filtros.';
+  @override String get emptyNoItems =>
+      'Todavía está vacío.\nToca la pestaña "Escanear" para detectar tus apps de medios automáticamente.';
+  @override String get screenScan => 'Escanear';
+  @override String get scanDescription =>
+      'Busca apps de medios instaladas (streaming, música, podcasts, '
+      'documentos) y las agrega como elementos a tu biblioteca. '
+      'Con el acceso a datos de uso habilitado, también obtienes el '
+      'tiempo de uso real.';
+  @override String get btnAppScan => 'Escaneo de apps (uso agregado)';
+  @override String get bgScanTitle => 'Escaneo en segundo plano';
+  @override String get bgScanNow => 'Ejecutar una vez en segundo plano ahora';
+  @override String get bgScanNowSubtitle =>
+      'Envía una tarea puntual a Android. El resultado aparece tras 1–2 minutos.';
+  @override String get bgScanQueued =>
+      'Escaneo en cola — resultado visible en ~1 min';
+  @override String get scanAndroidOnly => 'El escaneo solo está disponible en Android.';
+  @override String get scanPermissionMissing =>
+      'Falta permiso de datos de uso. Por favor actívalo en los ajustes del sistema para MediaBrain:\n\n'
+      'Ajustes → Aplicaciones → Acceso especial → Acceso a datos de uso → MediaBrain.';
+  @override String get detectedTitle => '📡 ¿Qué se detecta?';
+  @override String get detectedApps =>
+      'Netflix · Disney+ · Prime Video · Apple TV · YouTube · Twitch · '
+      'Spotify · Apple Music · YouTube Music · Tidal · Amazon Music · '
+      'Audible · Kindle · Pocket Casts · Google Podcasts · '
+      'Adobe Acrobat · Google Docs · Notion · Obsidian y más.';
+  @override String get appScanTitle => '🔍 Escaneo de apps';
+  @override String get appScanDescription =>
+      'Escaneo de apps: una entrada por app de medios con uso total '
+      'de los últimos días (vía estadísticas de Android).';
+  @override String get neverText => 'nunca';
+  @override String get screenSettings => 'Ajustes';
+  @override String get sectionDataStatus => 'Estado de datos';
+  @override String get sectionFileSync => 'Sincronización de archivo';
+  @override String get sectionServerSync => 'Sincronización de servidor (Mac Studio)';
+  @override String get sectionActions => 'Acciones';
+  @override String get settingsTotalEntries => 'Total de entradas';
+  @override String get settingsLastScan => 'Último escaneo';
+  @override String get exportTitle => 'Exportar mediante compartir';
+  @override String get exportSubtitle =>
+      'JSON vía correo, OneDrive, Telegram a ti mismo…';
+  @override String get importTitle => 'Seleccionar archivo de importación';
+  @override String get importSubtitle => 'Sobrescribe los datos locales';
+  @override String get noServerConfigured => 'Ningún servidor configurado';
+  @override String get actionPush => 'Push';
+  @override String get actionPull => 'Pull';
+  @override String get refreshData => 'Actualizar datos';
+  @override String get deleteAllData => 'Eliminar todos los datos de la biblioteca';
+  @override String get deleteAllTitle => '¿Eliminar todos los datos?';
+  @override String get deleteAllContent =>
+      'Elimina todas las entradas del MediaBrain local.';
+  @override String get cancel => 'Cancelar';
+  @override String get delete => 'Eliminar';
+  @override String get save => 'Guardar';
+  @override String get libraryCleared => 'Biblioteca eliminada.';
+  @override String get cancelled => 'Cancelado.';
+  @override String get serverConfigTitle => 'Configurar sincronización de servidor';
+  @override String get fieldServerUrl => 'URL del servidor';
+  @override String get fieldServerUrlHint => 'p. ej. macstudvonlukas:8082';
+  @override String get fieldBearerToken => 'Token Bearer';
+  @override String get aboutTitle => 'MediaBrain Mobile';
+  @override String get aboutSubtitle =>
+      'App independiente de Flutter. Detecta apps de medios instaladas, '
+      'registra entradas manuales y sincroniza mediante archivo o servidor.';
+  @override String get detailDescription => 'Descripción';
+  @override String get detailDetails => 'Detalles';
+  @override String get detailTags => 'Etiquetas';
+  @override String get fieldArtist => 'Artista';
+  @override String get fieldAlbum => 'Álbum';
+  @override String get fieldChannel => 'Canal';
+  @override String get fieldSeasonEpisodeLabel => 'Temporada/Episodio';
+  @override String get fieldLength => 'Duración';
+  @override String get fieldLastOpened => 'Abierto por última vez';
+  @override String get fieldUsage => 'Uso';
+  @override String get fieldProviderId => 'ID de proveedor';
+  @override String get fieldLocalPath => 'Ruta local';
+  @override String get openPlayStore => 'Abrir en Play Store';
+  @override String get openBrowser => 'Abrir en navegador';
+  @override String get linkError => 'No se pudo abrir el enlace.';
+  @override String get dialogTitleNew => 'Nueva entrada';
+  @override String get dialogTitleEdit => 'Editar entrada';
+  @override String get fieldTitle => 'Título';
+  @override String get categoryLabel => 'Categoría';
+  @override String get fieldArtistOptional => 'Artista / Director (opcional)';
+  @override String get fieldAlbumOptional => 'Álbum / Serie (opcional)';
+  @override String get fieldChannelOptional => 'Canal / Fuente (opcional)';
+  @override String get fieldDescriptionOptional => 'Descripción (opcional)';
+  @override String get fieldTags => 'Etiquetas (separadas por comas)';
+  @override String get fieldTagsHint => 'p. ej. Documental, Fin de semana';
+  @override String get markAsFavorite => 'Marcar como favorito';
+  @override String get navPlaylists => 'Listas';
+  @override String get screenPlaylists => 'Listas y colecciones';
+  @override String get playlistTypeManual => 'Manual';
+  @override String get playlistTypeSmart => 'Inteligente (filtro dinámico)';
+  @override String get dialogNewPlaylist => 'Nueva lista de reproducción';
+  @override String get dialogEditPlaylist => 'Editar lista de reproducción';
+  @override String get fieldPlaylistName => 'Nombre de la lista';
+  @override String get fieldPlaylistDescription => 'Descripción (opcional)';
+  @override String get fieldPlaylistType => 'Tipo de lista';
+  @override String get smartFilterCriteria => 'Criterios de filtro inteligente';
+  @override String get smartFilterCategory => 'Categoría';
+  @override String get smartFilterTag => 'Etiqueta / Palabra clave';
+  @override String get smartFilterFavoritesOnly => 'Solo favoritos';
+  @override String get smartFilterMinMinutes => 'Tiempo mínimo de uso (min)';
+  @override String get smartFilterSearch => 'Término de búsqueda';
+  @override String get emptyPlaylists =>
+      'Aún no se han creado listas.\nCrea colecciones manuales o listas inteligentes dinámicas.';
+  @override String get emptyPlaylistItems => 'Esta lista no contiene medios todavía.';
+  @override String get deletePlaylistTitle => '¿Eliminar lista de reproducción?';
+  @override String get deletePlaylistContent =>
+      '¿Realmente deseas eliminar esta lista? Los medios se conservarán en tu biblioteca.';
+  @override String get addToPlaylist => 'Añadir a lista';
+  @override String get removeFromPlaylist => 'Eliminar de la lista';
+  @override String get addedToPlaylist => 'Añadido a la lista.';
+  @override String get removedFromPlaylist => 'Eliminado de la lista.';
+  @override String get filterByTag => 'Filtro por etiqueta';
+  @override String get allTags => 'Todas las etiquetas';
+  @override String get addTag => 'Añadir etiqueta';
+  @override String get removeTag => 'Eliminar etiqueta';
+  @override String get noPlaylistsFound => 'No hay listas disponibles.';
+
+  @override String error(String msg) => 'Error: $msg';
+  @override String foregroundMinutesLabel(int minutes) => '$minutes min en total';
+  @override String bgScanSubtitle(int hours) =>
+      'Escanear cada ~$hours h, incluso con la app cerrada.';
+  @override String lastRun(String time) => 'Última ejecución: $time';
+  @override String scanResult(int matched, int persisted) =>
+      'Escaneo de apps: $matched apps encontradas, $persisted entradas añadidas.';
+  @override String exportResult(String msg) => 'Exportación: $msg';
+  @override String importResult(String msg) => 'Importación: $msg';
+  @override String pushPullStatus(String push, String pull) =>
+      'Push: $push · Pull: $pull';
+  @override String seasonEpisode(int s, int e) => 'T$s E$e';
+  @override String usageMinutes(int n) => '$n ${n == 1 ? 'minuto' : 'minutos'}';
+  @override String playlistItemCount(int count) => '$count ${count == 1 ? 'elemento' : 'elementos'}';
   @override String tagCount(String tag, int count) => '#$tag ($count)';
 }

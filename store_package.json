@@ -14,5 +14,15 @@
   "category": "Entertainment",
   "age_rating": "3+",
   "privacy_url": "https://github.com/doc-bricks/MediaBrain/blob/master/PRIVACY_POLICY.md",
-  "support_url": "https://github.com/doc-bricks/MediaBrain/issues"
+  "support_url": "https://github.com/doc-bricks/MediaBrain/issues",
+  "languages": [
+    "de-DE",
+    "en-US",
+    "es-ES",
+    "zh-CN",
+    "ja-JP",
+    "ru-RU"
+  ],
+  "license": "MIT",
+  "msix_name": "MediaBrain.msix"
 }

@@ -114,11 +114,13 @@ def test_tile_icons_present_in_all_store_locations() -> None:
         "icon_150x150.png",
         "icon_310x150.png",
         "icon_310x310.png",
+        "StoreLogo.png",
     )
     for loc in (
         ROOT / "assets" / "icons",
         ROOT / "store_assets",
         ROOT / "store_package" / "MediaBrain" / "icons",
+        ROOT / "releases" / "windowsstore",
     ):
         assert loc.is_dir(), f"Icon folder {loc} must exist"
         for icon_name in required_icons:
@@ -137,3 +139,42 @@ def test_german_umlaut_integrity_in_store_materials() -> None:
     assert any(c in prep for c in "äöüÄÖÜß")
     assert any(c in pkg for c in "äöüÄÖÜß")
 
+
+def test_windows_store_staging_completeness() -> None:
+    staging = ROOT / "releases" / "windowsstore"
+    assert staging.is_dir(), "releases/windowsstore must exist"
+    assert (staging / "store_settings.json").is_file()
+    assert (staging / "BUILD.md").is_file()
+    assert (staging / "WACK_PROTOCOL.md").is_file()
+    assert (staging / "store_listing_de.md").is_file()
+    assert (staging / "store_listing_en.md").is_file()
+    assert (staging / "StoreLogo.png").is_file()
+
+    shots_dir = staging / "screenshots"
+    assert shots_dir.is_dir()
+    expected_shots = [
+        "shot-1-library-overview.png",
+        "shot-2-smart-playlists.png",
+        "shot-3-metadata-tags.png",
+        "shot-4-export-backup.png",
+    ]
+    for s in expected_shots:
+        assert (shots_dir / s).is_file(), f"Screenshot {s} missing in staging"
+
+
+def test_run_windows_wack_preflight_passes() -> None:
+    wack_script = ROOT / "scripts" / "run_windows_wack.py"
+    assert wack_script.is_file(), "run_windows_wack.py must exist"
+
+    result = subprocess.run(
+        [sys.executable, str(wack_script), "--json"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    data = json.loads(result.stdout)
+    assert data["overall_result"] == "PASS"
+    assert data["fail_count"] == 0
+    assert data["pass_count"] >= 6

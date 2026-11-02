@@ -23,6 +23,7 @@ am 2026-07-23 entfernten `web_companion/` (siehe Abschnitt unten)
 | 11. Debug-APK | FERTIG | 2026-06-03 im lokalen Mirror mit Flutter 3.44.0 verifiziert (`flutter analyze`, `flutter test`, `flutter build apk --debug`) |
 | 12. Flutter L10n DE+EN | FERTIG | 2026-06-07 — handgeschriebene `AppLocalizations` (DE+EN), ARB-Referenzdateien, alle Screens/Dialoge lokalisiert. `flutter analyze` 0 Fehler, 8/8 L10n-Tests + widget_test grün. |
 | 14. Smart-Playlists & Tag-System | FERTIG | 2026-08-21 — Datenmodelle (`MediaTag`, `Playlist`, `SmartPlaylistQuery`, `PlaylistType`), SQLite-Schema v2 mit Migration (`playlists`, `playlist_items`), dynamische Query-Matching-Engine, Tag-CRUD & Tag-Filter-Chips in `library_screen.dart`, `playlists_screen.dart`, `playlist_detail_screen.dart`, `playlist_dialog.dart`, `item_detail_screen.dart`, Navigation Bar Integration in `home_screen.dart`, vollständige DE/EN-Lokalisierung sowie Dart- und Python-Contract-Testsuiten (`playlists_and_tags_test.dart`, `test_flutter_playlists_and_tags_contract.py`). |
+| 15. Flutter L10n ES & Cross-Platform Roundtrip | FERTIG | 2026-11-02 — Spanische Übersetzung pp_es.arb integriert, AppLocalizations um ES erweitert, Cross-Platform Playlist- und Tag-Roundtrip (uildExportPayload/importLibraryBundle) auf mediabrain-library-v1 harmonisiert. lutter analyze 0 Fehler/Warnungen, 56/56 Tests 100% grün. |
 
 ## Was die App macht
 

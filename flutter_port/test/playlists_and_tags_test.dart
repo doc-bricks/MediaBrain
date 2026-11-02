@@ -336,5 +336,79 @@ void main() {
       expect(loc.addToPlaylist, 'Add to playlist');
       expect(loc.removeFromPlaylist, 'Remove from playlist');
     });
+
+    testWidgets('ES Playlists und Tags Lokalisierung', (tester) async {
+      await tester.pumpWidget(_app(locale: const Locale('es')));
+      await tester.pump();
+      final loc = _loc(tester);
+
+      expect(loc.navPlaylists, 'Listas');
+      expect(loc.screenPlaylists, 'Listas y colecciones');
+      expect(loc.playlistTypeManual, 'Manual');
+      expect(loc.playlistTypeSmart, 'Inteligente (filtro dinámico)');
+      expect(loc.dialogNewPlaylist, 'Nueva lista de reproducción');
+      expect(loc.dialogEditPlaylist, 'Editar lista de reproducción');
+      expect(loc.playlistItemCount(1), '1 elemento');
+      expect(loc.playlistItemCount(5), '5 elementos');
+      expect(loc.tagCount('sci-fi', 3), '#sci-fi (3)');
+      expect(loc.addToPlaylist, 'Añadir a lista');
+      expect(loc.removeFromPlaylist, 'Eliminar de la lista');
+    });
+  });
+
+  group('Cross-Platform Playlist & Tag Export/Import Roundtrip', () {
+    test('Exportiert und importiert Playlists und Tag-Beziehungen', () async {
+      final svc = DatabaseService.instance;
+
+      final item = MediaItem(
+        id: 'item-xp-1',
+        title: 'Matrix Reloaded',
+        category: MediaCategory.movie,
+        source: 'tmdb',
+        providerId: 'mMatrix',
+        tags: const ['cyberpunk', 'action'],
+      );
+      await svc.upsert(item);
+
+      final now = DateTime.now();
+      final pl = Playlist(
+        id: 'pl-xp-1',
+        name: 'Cyberpunk Classics',
+        description: 'Beste Sci-Fi',
+        type: PlaylistType.manual,
+        createdAt: now,
+        updatedAt: now,
+      );
+      await svc.upsertPlaylist(pl);
+      await svc.addItemToPlaylist('pl-xp-1', 'item-xp-1');
+
+      final exportPayload = await svc.buildExportPayload();
+      expect(exportPayload['capabilities'], isNotNull);
+      expect(exportPayload['capabilities']['playlists'], isTrue);
+      expect(exportPayload['playlists'], isNotEmpty);
+
+      // Clear DB
+      await svc.clearAll();
+      expect(await svc.listItems(), isEmpty);
+      expect(await svc.listPlaylists(), isEmpty);
+
+      // Import bundle
+      final res = await svc.importLibraryBundle(exportPayload);
+      expect(res.imported, 1);
+      expect(res.playlistsImported, 1);
+
+      final items = await svc.listItems();
+      expect(items.length, 1);
+      expect(items.first.title, 'Matrix Reloaded');
+      expect(items.first.tags, containsAll(['cyberpunk', 'action']));
+
+      final playlists = await svc.listPlaylists();
+      expect(playlists.length, 1);
+      expect(playlists.first.name, 'Cyberpunk Classics');
+
+      final plItems = await svc.getPlaylistItems('pl-xp-1');
+      expect(plItems.length, 1);
+      expect(plItems.first.title, 'Matrix Reloaded');
+    });
   });
 }

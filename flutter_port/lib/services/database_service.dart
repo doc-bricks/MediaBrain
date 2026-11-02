@@ -1,6 +1,7 @@
 /// MediaBrain Standalone — SQLite-Persistenz.
 library;
 
+import 'dart:convert';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
@@ -526,7 +527,9 @@ ORDER BY pi.position ASC, pi.added_at ASC
   /// Envelope mirrors MediaBrain Desktop's `build_export_payload()`.
   /// `local_path` is intentionally omitted — device-local, no raw paths in export.
   /// `foreground_minutes` is included (Flutter-specific, desktop drops it silently).
-  Future<Map<String, dynamic>> buildExportPayload() async {
+  Future<Map<String, dynamic>> buildExportPayload({
+    bool includePlaylists = true,
+  }) async {
     final db = await database;
     final rows = await db.query('media_items', orderBy: 'title ASC');
     final items = rows.map((r) {
@@ -553,7 +556,36 @@ ORDER BY pi.position ASC, pi.added_at ASC
         'tags': tagList,
       };
     }).toList();
-    return {
+
+    List<Map<String, dynamic>>? plList;
+    if (includePlaylists) {
+      final playlists = await listPlaylists();
+      plList = [];
+      for (final pl in playlists) {
+        final plItems = await getPlaylistItems(pl.id);
+        plList.add({
+          'id': pl.id,
+          'name': pl.name,
+          'description': pl.description,
+          'playlist_type': pl.isSmart ? 'smart' : 'manual',
+          'type': pl.isSmart ? 'smart' : 'manual',
+          'smart_query': pl.smartQuery?.toMap(),
+          'created_at': pl.createdAt.toIso8601String(),
+          'updated_at': pl.updatedAt.toIso8601String(),
+          'item_count': plItems.length,
+          'item_ids': plItems.map((i) => i.id).toList(),
+          'item_refs': plItems.map((i) => {
+            'source': i.source,
+            'provider_id': i.providerId,
+            'title': i.title,
+            'type': categoryToString(i.category),
+            'category': categoryToString(i.category),
+          }).toList(),
+        });
+      }
+    }
+
+    final payload = <String, dynamic>{
       'schema': librarySchemaName,
       'schema_version': 1,
       'version': '1.0', // legacy compatibility field
@@ -562,10 +594,23 @@ ORDER BY pi.position ASC, pi.added_at ASC
         'app_name': 'MediaBrain Mobile',
         'platform': 'android',
       },
+      'capabilities': {
+        'tags': true,
+        'playlists': includePlaylists,
+        'stable_media_refs': includePlaylists,
+        'legacy_alias_import': true,
+      },
       'exported_at': DateTime.now().toIso8601String(),
       'item_count': items.length,
       'items': items,
     };
+
+    if (plList != null) {
+      payload['playlist_count'] = plList.length;
+      payload['playlists'] = plList;
+    }
+
+    return payload;
   }
 
   /// Imports a library bundle from a [json] map.
@@ -575,7 +620,8 @@ ORDER BY pi.position ASC, pi.added_at ASC
   /// matches an existing item, preserving the existing UUID. Mobile-only usage
   /// fields are preserved when an imported item omits them; explicitly supplied
   /// values still replace the local values.
-  Future<({int imported, int skipped})> importLibraryBundle(
+  /// When present, `playlists` and their member associations are also imported.
+  Future<({int imported, int skipped, int playlistsImported})> importLibraryBundle(
       Map<String, dynamic> json) async {
     final schema = json['schema'];
     if (schema != null && schema != '' && schema != librarySchemaName) {
@@ -595,6 +641,7 @@ ORDER BY pi.position ASC, pi.added_at ASC
 
     int imported = 0;
     int skipped = 0;
+    int playlistsImported = 0;
     final db = await database;
 
     await db.transaction((txn) async {
@@ -693,8 +740,139 @@ ORDER BY pi.position ASC, pi.added_at ASC
         );
         imported++;
       }
+
+      final rawPlaylists = json['playlists'];
+      if (rawPlaylists is List && rawPlaylists.isNotEmpty) {
+        for (final rawPl in rawPlaylists) {
+          if (rawPl is! Map) continue;
+          final plMap = rawPl.cast<String, dynamic>();
+          final name = (plMap['name'] as String?)?.trim() ?? '';
+          if (name.isEmpty) continue;
+
+          final plTypeStr = (plMap['playlist_type'] as String?) ??
+              (plMap['type'] as String?) ??
+              'manual';
+          final isSmart = plTypeStr.toLowerCase() == 'smart';
+
+          String? smartQueryJson;
+          if (isSmart) {
+            final sq = plMap['smart_query'];
+            if (sq is Map) {
+              smartQueryJson = jsonEncode(sq);
+            } else if (sq is String) {
+              smartQueryJson = sq;
+            }
+          }
+
+          final rawId = (plMap['id'] ?? '').toString();
+          final plId = rawId.isNotEmpty ? rawId : const Uuid().v4();
+          final nowStr = DateTime.now().toIso8601String();
+          final createdAt = (plMap['created_at'] as String?) ?? nowStr;
+          final updatedAt = (plMap['updated_at'] as String?) ?? nowStr;
+          final description = (plMap['description'] as String?) ?? '';
+
+          await txn.insert(
+            'playlists',
+            {
+              'id': plId,
+              'name': name,
+              'description': description,
+              'playlist_type': isSmart ? 'smart' : 'manual',
+              'smart_query': smartQueryJson,
+              'created_at': createdAt,
+              'updated_at': updatedAt,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace,
+          );
+
+          if (!isSmart) {
+            await txn.delete(
+              'playlist_items',
+              where: 'playlist_id = ?',
+              whereArgs: [plId],
+            );
+
+            final rawRefs = plMap['item_refs'];
+            final rawIds = plMap['item_ids'];
+            int pos = 0;
+
+            if (rawRefs is List && rawRefs.isNotEmpty) {
+              for (final ref in rawRefs) {
+                if (ref is! Map) continue;
+                final r = ref.cast<String, dynamic>();
+                final rSrc = (r['source'] as String?) ?? '';
+                final rPid = (r['provider_id'] as String?) ?? '';
+                final rTitle = (r['title'] as String?) ?? '';
+
+                String? targetMediaId;
+                if (rSrc.isNotEmpty && rPid.isNotEmpty) {
+                  final found = await txn.query(
+                    'media_items',
+                    columns: ['id'],
+                    where: 'source = ? AND provider_id = ?',
+                    whereArgs: [rSrc, rPid],
+                    limit: 1,
+                  );
+                  if (found.isNotEmpty) {
+                    targetMediaId = found.first['id'] as String?;
+                  }
+                }
+                if (targetMediaId == null && rTitle.isNotEmpty) {
+                  final found = await txn.query(
+                    'media_items',
+                    columns: ['id'],
+                    where: 'title = ?',
+                    whereArgs: [rTitle],
+                    limit: 1,
+                  );
+                  if (found.isNotEmpty) {
+                    targetMediaId = found.first['id'] as String?;
+                  }
+                }
+
+                if (targetMediaId != null) {
+                  await txn.insert(
+                    'playlist_items',
+                    {
+                      'playlist_id': plId,
+                      'media_id': targetMediaId,
+                      'position': pos++,
+                      'added_at': nowStr,
+                    },
+                    conflictAlgorithm: ConflictAlgorithm.ignore,
+                  );
+                }
+              }
+            } else if (rawIds is List && rawIds.isNotEmpty) {
+              for (final rawMid in rawIds) {
+                final midStr = rawMid.toString();
+                final found = await txn.query(
+                  'media_items',
+                  columns: ['id'],
+                  where: 'id = ?',
+                  whereArgs: [midStr],
+                  limit: 1,
+                );
+                if (found.isNotEmpty) {
+                  await txn.insert(
+                    'playlist_items',
+                    {
+                      'playlist_id': plId,
+                      'media_id': midStr,
+                      'position': pos++,
+                      'added_at': nowStr,
+                    },
+                    conflictAlgorithm: ConflictAlgorithm.ignore,
+                  );
+                }
+              }
+            }
+          }
+          playlistsImported++;
+        }
+      }
     });
 
-    return (imported: imported, skipped: skipped);
+    return (imported: imported, skipped: skipped, playlistsImported: playlistsImported);
   }
 }

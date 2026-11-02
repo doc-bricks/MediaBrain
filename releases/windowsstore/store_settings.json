@@ -1,0 +1,55 @@
+{
+  "app_name": "MediaBrain",
+  "publisher": "CN=52596601-BAB4-4F3F-B182-E8F3F273B202",
+  "publisher_display": "Lukas Geiger",
+  "identity_name": "Geiger.MediaBrain",
+  "version": "2.1.0.0",
+  "package_version": "2.1.0.0",
+  "executable": "MediaBrain.exe",
+  "exe_name": "MediaBrain",
+  "msix_name": "MediaBrain.msix",
+  "output_dir": "C:/_Local_DEV/codex_build/mediabrain-store",
+  "makeappx_path": "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/makeappx.exe",
+  "signtool_path": "C:/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe",
+  "pfx_path": "",
+  "pfx_password": "",
+  "timestamp_url": "http://timestamp.digicert.com",
+  "license_files": [
+    "../../LICENSE"
+  ],
+  "license": "MIT",
+  "enable_i18n": true,
+  "languages": [
+    "de-DE",
+    "en-US",
+    "es-ES",
+    "zh-CN",
+    "ja-JP",
+    "ru-RU"
+  ],
+  "capabilities": "runFullTrust, internetClient",
+  "privacy_url": "https://github.com/doc-bricks/MediaBrain/blob/master/PRIVACY_POLICY.md",
+  "support_url": "https://github.com/doc-bricks/MediaBrain/issues",
+  "category": "Entertainment",
+  "age_rating": "3+",
+  "description_de": "Lokale, datenschutzfreundliche Medienbibliothek für Videos, Musik, Dokumente und Streaming-Verlauf.",
+  "description_en": "Local-first, private media library for video, music, documents, and streaming history.",
+  "keywords_de": [
+    "Medienbibliothek",
+    "Streaming-Verlauf",
+    "Wiedergabelisten",
+    "Medienverwaltung",
+    "Smart-Playlists",
+    "Offline-Player",
+    "Metadaten-Manager"
+  ],
+  "keywords_en": [
+    "media library",
+    "streaming history",
+    "playlists",
+    "media manager",
+    "smart playlists",
+    "offline library",
+    "metadata inspector"
+  ]
+}
