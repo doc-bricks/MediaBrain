@@ -19,7 +19,8 @@ from PySide6.QtWidgets import (
     QComboBox, QCheckBox, QSystemTrayIcon, QFileDialog, QMessageBox
 )
 from PySide6.QtCore import Qt, QSize, Signal
-from PySide6.QtGui import QAction, QIcon, QPixmap, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
+from PySide6.QtGui import QAction, QIcon, QPixmap, QKeySequence, QFont as QGuiFont, QColor as QGuiColor, QPainter as QGuiPainter
+from gui_dialogs import ShortcutsDialog, AboutDialog
 
 from core import MediaManager, MediaItem, BlacklistManager, TagManager
 from playlists import PlaylistManager
@@ -1185,6 +1186,12 @@ class SettingsWindow(QWidget):
 
         tabs.addTab(security, "Sicherheit")
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
+            return
+        super().keyPressEvent(event)
+
     def _on_media_type_change(self, media_type, state):
         checked = state == Qt.CheckState.Checked or state == Qt.CheckState.Checked.value
         config.config.set_media_type_enabled(media_type, checked)
@@ -1928,6 +1935,8 @@ class MainWindow(QMainWindow):
         _tag_manager = tag_manager
 
         self.setWindowTitle("MediaBrain")
+        self.setAccessibleName("MediaBrain Hauptfenster")
+        self.setAccessibleDescription("Hauptanwendungsfenster für lokale Medienverwaltung und Streaming-Tracking")
         self.resize(
             config.config.get("ui.window_width", 1200),
             config.config.get("ui.window_height", 800)
@@ -1935,21 +1944,32 @@ class MainWindow(QMainWindow):
 
         # Hauptlayout: Sidebar + Content
         splitter = QSplitter()
+        splitter.setAccessibleName("Hauptbereich Splitter")
         self.setCentralWidget(splitter)
 
         # Sidebar
         sidebar = QWidget()
+        sidebar.setAccessibleName("Seitenleiste Navigation")
+        sidebar.setAccessibleDescription("Hauptnavigation von MediaBrain mit Schnellzugriff auf Bibliotheken und Aktionen")
         sidebar_layout = QVBoxLayout()
         sidebar.setLayout(sidebar_layout)
         sidebar.setObjectName("Sidebar") # Für CSS Styling
 
         btn_dash = QPushButton("Übersicht")
+        btn_dash.setAccessibleName("Übersicht")
+        btn_dash.setAccessibleDescription("Wechselt zum Dashboard und zur Hauptübersicht")
+        btn_dash.setToolTip("Übersicht (Strg+1)")
         btn_dash.clicked.connect(lambda: self._switch_view(self.dashboard))
         sidebar_layout.addWidget(btn_dash)
+        self.btn_dash = btn_dash
 
-        for entry in config.MEDIA_TYPE_DEFINITIONS:
+        for idx, entry in enumerate(config.MEDIA_TYPE_DEFINITIONS, start=2):
             media_type = entry["key"]
             button = QPushButton(entry["label"])
+            button.setAccessibleName(f"{entry['label']} Bibliothek")
+            button.setAccessibleDescription(f"Öffnet die {entry['label']}-Bibliothek")
+            if idx <= 5:
+                button.setToolTip(f"{entry['label']} (Strg+{idx})")
             button.clicked.connect(
                 lambda checked=False, media_type=media_type: self._switch_library_type(media_type)
             )
@@ -1957,33 +1977,62 @@ class MainWindow(QMainWindow):
             sidebar_layout.addWidget(button)
 
         btn_favs = QPushButton("Favoriten")
+        btn_favs.setAccessibleName("Favoriten")
+        btn_favs.setAccessibleDescription("Zeigt alle als Favoriten markierten Medien an")
+        btn_favs.setToolTip("Favoriten (Strg+6)")
         btn_favs.clicked.connect(lambda: self._switch_view(self.favorites))
         sidebar_layout.addWidget(btn_favs)
+        self.btn_favs = btn_favs
 
         btn_blacklist = QPushButton("Blacklist")
+        btn_blacklist.setAccessibleName("Blacklist")
+        btn_blacklist.setAccessibleDescription("Öffnet die Liste ignorierter oder ausgeblendeter Titel")
+        btn_blacklist.setToolTip("Blacklist (Strg+7)")
         btn_blacklist.clicked.connect(lambda: self._switch_view(self.blacklist_view))
         sidebar_layout.addWidget(btn_blacklist)
+        self.btn_blacklist = btn_blacklist
 
         btn_stats = QPushButton("📊 Statistiken")
+        btn_stats.setAccessibleName("Statistiken")
+        btn_stats.setAccessibleDescription("Zeigt Statistiken und Auswertungen zu Medien und Spielzeiten")
+        btn_stats.setToolTip("Statistiken (Strg+8)")
         btn_stats.clicked.connect(lambda: self._switch_view(self.stats_view))
         sidebar_layout.addWidget(btn_stats)
+        self.btn_stats = btn_stats
 
+        self.btn_playlists = None
         if self.playlist_manager is not None:
             btn_playlists = QPushButton("Playlists")
+            btn_playlists.setAccessibleName("Playlists")
+            btn_playlists.setAccessibleDescription("Verwaltet manuelle und intelligente Playlists")
+            btn_playlists.setToolTip("Playlists (Strg+9)")
             btn_playlists.clicked.connect(lambda: self._switch_view(self.playlists_view))
             sidebar_layout.addWidget(btn_playlists)
+            self.btn_playlists = btn_playlists
 
         btn_export = QPushButton("Export (JSON)")
+        btn_export.setAccessibleName("Bibliothek exportieren")
+        btn_export.setAccessibleDescription("Exportiert die Medienbibliothek als JSON-Datei")
+        btn_export.setToolTip("Exportieren (Strg+E)")
         btn_export.clicked.connect(self._export_library_json)
         sidebar_layout.addWidget(btn_export)
+        self.btn_export = btn_export
 
         btn_import = QPushButton("Import (JSON)")
+        btn_import.setAccessibleName("Bibliothek importieren")
+        btn_import.setAccessibleDescription("Importiert Medien und Playlists aus einer JSON-Datei")
+        btn_import.setToolTip("Importieren (Strg+O)")
         btn_import.clicked.connect(self._import_library_json)
         sidebar_layout.addWidget(btn_import)
+        self.btn_import = btn_import
 
         btn_settings = QPushButton("Einstellungen")
+        btn_settings.setAccessibleName("Einstellungen")
+        btn_settings.setAccessibleDescription("Öffnet das Einstellungsfenster")
+        btn_settings.setToolTip("Einstellungen (Strg+,)")
         btn_settings.clicked.connect(self.open_settings)
         sidebar_layout.addWidget(btn_settings)
+        self.btn_settings = btn_settings
 
         sidebar_layout.addStretch()
 
@@ -1991,6 +2040,8 @@ class MainWindow(QMainWindow):
 
         # Content Stack
         self.stack = QStackedWidget()
+        self.stack.setAccessibleName("Hauptinhaltsbereich")
+        self.stack.setAccessibleDescription("Zeigt die aktuell ausgewählte Ansicht oder Bibliothek")
         splitter.addWidget(self.stack)
 
         # --- Views Initialisieren ---
@@ -2051,6 +2102,13 @@ class MainWindow(QMainWindow):
         if config.config.get("ui.system_tray", False):
             self._setup_system_tray()
 
+        # Statusleiste für barrierefreies Screenreader- und Tastatur-Feedback (WCAG 2.1 AA / BITV 2.0)
+        self.statusBar().setAccessibleName("Statusleiste")
+        self.statusBar().showMessage("MediaBrain bereit. Drücken Sie F1 für Tastaturkürzel.", 4000)
+
+        # Menüleiste aufbauen (WCAG 2.1 AA / BITV 2.0)
+        self._create_menu_bar()
+
     def open_detail(self, item):
         # Alte Detail-View entfernen um Memory Leak zu vermeiden
         if self.detail_view is not None:
@@ -2096,10 +2154,201 @@ class MainWindow(QMainWindow):
 
     def _switch_view(self, view):
         """Wechselt zur gewünschten View und refreshed sie, falls sie dirty ist."""
+        if view is None:
+            return
         self.stack.setCurrentWidget(view)
         if getattr(view, '_needs_refresh', False) and hasattr(view, 'refresh'):
             view.refresh()
             view._needs_refresh = False
+
+        view_name = getattr(view, "accessibleName", lambda: "")() or type(view).__name__
+        if self.statusBar():
+            self.statusBar().showMessage(f"Ansicht: {view_name}", 2500)
+
+    def _get_navigable_views(self):
+        """Liefert alle aktuell verfügbaren Ansichten in logischer Navigationsreihenfolge."""
+        views = [self.dashboard]
+        enabled_types = config.config.get_enabled_media_types()
+        for entry in config.MEDIA_TYPE_DEFINITIONS:
+            mtype = entry["key"]
+            if enabled_types.get(mtype, True) and mtype in self.library_views:
+                views.append(self.library_views[mtype])
+        views.append(self.favorites)
+        views.append(self.blacklist_view)
+        views.append(self.stats_view)
+        if self.playlists_view is not None:
+            views.append(self.playlists_view)
+        views.append(self.global_search)
+        return views
+
+    def _next_view(self):
+        """Wechselt zyklisch zur nächsten Ansicht (Ctrl+Tab)."""
+        views = self._get_navigable_views()
+        current = self.stack.currentWidget()
+        if current in views:
+            idx = (views.index(current) + 1) % len(views)
+            self._switch_view(views[idx])
+        elif views:
+            self._switch_view(views[0])
+
+    def _prev_view(self):
+        """Wechselt zyklisch zur vorherigen Ansicht (Ctrl+Shift+Tab)."""
+        views = self._get_navigable_views()
+        current = self.stack.currentWidget()
+        if current in views:
+            idx = (views.index(current) - 1) % len(views)
+            self._switch_view(views[idx])
+        elif views:
+            self._switch_view(views[-1])
+
+    def _focus_or_open_search(self):
+        """Fokussiert die globale Suche (Ctrl+F)."""
+        self._switch_view(self.global_search)
+        if hasattr(self.global_search, "search_input"):
+            self.global_search.search_input.setFocus()
+            self.global_search.search_input.selectAll()
+
+    def open_shortcuts_dialog(self):
+        """Öffnet den barrierefreien Tastaturkürzel-Dialog (F1)."""
+        dlg = ShortcutsDialog(self)
+        dlg.exec()
+
+    def open_about_dialog(self):
+        """Öffnet den barrierefreien Über-MediaBrain-Dialog (Shift+F1)."""
+        dlg = AboutDialog(self)
+        dlg.exec()
+
+    def _create_menu_bar(self):
+        """Erstellt die barrierefreie Hauptmenüleiste mit Tastenkürzeln und Alt-Mnemonics (WCAG 2.1 AA / BITV 2.0)."""
+        mb = self.menuBar()
+        mb.setAccessibleName("Hauptmenü")
+        mb.setAccessibleDescription("Hauptmenüleiste von MediaBrain mit Menüs Datei, Ansicht, Aktionen und Hilfe")
+
+        # --- Menü: Datei (Alt+D) ---
+        self.menu_file = mb.addMenu("&Datei")
+        menu_file = self.menu_file
+
+        act_export = QAction("&Bibliothek exportieren (JSON)...", self)
+        act_export.setShortcut(QKeySequence("Ctrl+E"))
+        act_export.setStatusTip("Exportiert alle Medien und Playlists als JSON-Datei")
+        act_export.triggered.connect(self._export_library_json)
+        act_import = QAction("&Bibliothek importieren (JSON)...", self)
+        act_import.setShortcut(QKeySequence("Ctrl+O"))
+        act_import.setStatusTip("Importiert Medien und Playlists aus einer JSON-Datei")
+        act_import.triggered.connect(self._import_library_json)
+
+        act_settings = QAction("&Einstellungen...", self)
+        act_settings.setShortcut(QKeySequence("Ctrl+,"))
+        act_settings.setStatusTip("Öffnet das Einstellungsfenster")
+        act_settings.triggered.connect(self.open_settings)
+
+        act_quit = QAction("&Beenden", self)
+        act_quit.setShortcut(QKeySequence("Ctrl+Q"))
+        act_quit.setStatusTip("Beendet MediaBrain ordnungsgemäß")
+        act_quit.triggered.connect(self._quit_app)
+
+        menu_file.addActions([act_export, act_import])
+        menu_file.addSeparator()
+        menu_file.addActions([act_settings])
+        menu_file.addSeparator()
+        menu_file.addActions([act_quit])
+
+        # --- Menü: Ansicht (Alt+A) ---
+        self.menu_view = mb.addMenu("&Ansicht")
+        menu_view = self.menu_view
+
+        act_dash = QAction("&Übersicht", self)
+        act_dash.setShortcut(QKeySequence("Ctrl+1"))
+        act_dash.setStatusTip("Wechselt zum Dashboard und zur Hauptübersicht")
+        act_dash.triggered.connect(lambda: self._switch_view(self.dashboard))
+        menu_view.addAction(act_dash)
+
+        media_shortcuts = {
+            "movie": ("&Filme", "Ctrl+2"),
+            "series": ("&Serien", "Ctrl+3"),
+            "music": ("&Musik", "Ctrl+4"),
+            "clip": ("&Clips", "Ctrl+5"),
+        }
+        for mtype, (label, sc) in media_shortcuts.items():
+            if mtype in self.library_views:
+                act_lib = QAction(label, self)
+                act_lib.setShortcut(QKeySequence(sc))
+                act_lib.setStatusTip(f"Öffnet die {label.replace('&', '')}-Bibliothek")
+                act_lib.triggered.connect(lambda checked=False, mt=mtype: self._switch_library_type(mt))
+                menu_view.addAction(act_lib)
+
+        act_favs = QAction("F&avoriten", self)
+        act_favs.setShortcut(QKeySequence("Ctrl+6"))
+        act_favs.setStatusTip("Zeigt alle favorisierten Medien an")
+        act_favs.triggered.connect(lambda: self._switch_view(self.favorites))
+        menu_view.addAction(act_favs)
+
+        act_bl = QAction("&Blacklist", self)
+        act_bl.setShortcut(QKeySequence("Ctrl+7"))
+        act_bl.setStatusTip("Öffnet die Blacklist und Ausschlussverwaltung")
+        act_bl.triggered.connect(lambda: self._switch_view(self.blacklist_view))
+        menu_view.addAction(act_bl)
+
+        act_stats = QAction("S&tatistiken", self)
+        act_stats.setShortcut(QKeySequence("Ctrl+8"))
+        act_stats.setStatusTip("Öffnet die Medien- und Nutzungsstatistiken")
+        act_stats.triggered.connect(lambda: self._switch_view(self.stats_view))
+        menu_view.addAction(act_stats)
+
+        if self.playlists_view is not None:
+            act_pl = QAction("&Playlists", self)
+            act_pl.setShortcut(QKeySequence("Ctrl+9"))
+            act_pl.setStatusTip("Verwaltet manuelle und intelligente Playlists")
+            act_pl.triggered.connect(lambda: self._switch_view(self.playlists_view))
+            menu_view.addAction(act_pl)
+
+        act_search = QAction("&Globale Suche", self)
+        act_search.setShortcut(QKeySequence("Ctrl+F"))
+        act_search.setStatusTip("Öffnet und fokussiert die globale Mediensuche")
+        act_search.triggered.connect(self._focus_or_open_search)
+        menu_view.addAction(act_search)
+
+        menu_view.addSeparator()
+
+        act_next = QAction("&Nächste Ansicht", self)
+        act_next.setShortcut(QKeySequence("Ctrl+Tab"))
+        act_next.setStatusTip("Wechselt zyklisch zur nächsten Ansicht")
+        act_next.triggered.connect(self._next_view)
+        menu_view.addAction(act_next)
+
+        act_prev = QAction("&Vorherige Ansicht", self)
+        act_prev.setShortcut(QKeySequence("Ctrl+Shift+Tab"))
+        act_prev.setStatusTip("Wechselt zyklisch zur vorherigen Ansicht")
+        act_prev.triggered.connect(self._prev_view)
+        menu_view.addAction(act_prev)
+
+        # --- Menü: Aktionen (Alt+K) ---
+        self.menu_actions = mb.addMenu("&Aktionen")
+        menu_actions = self.menu_actions
+
+        act_refresh = QAction("Ansicht &aktualisieren", self)
+        act_refresh.setShortcut(QKeySequence("F5"))
+        act_refresh.setStatusTip("Aktualisiert die aktive Bibliotheksansicht")
+        act_refresh.triggered.connect(self.refresh_all_views)
+        menu_actions.addActions([act_refresh])
+
+        # --- Menü: Hilfe (Alt+H) ---
+        self.menu_help = mb.addMenu("&Hilfe")
+        menu_help = self.menu_help
+
+        act_shortcuts = QAction("&Tastaturkürzel & Barrierefreiheit...", self)
+        act_shortcuts.setShortcut(QKeySequence("F1"))
+        act_shortcuts.setStatusTip("Zeigt alle Tastaturkombinationen und Navigationsbefehle an")
+        act_shortcuts.triggered.connect(self.open_shortcuts_dialog)
+
+        act_about = QAction("&Über MediaBrain...", self)
+        act_about.setShortcut(QKeySequence("Shift+F1"))
+        act_about.setStatusTip("Zeigt Programminformationen, Lizenz und Barrierefreiheitsdeklaration an")
+        act_about.triggered.connect(self.open_about_dialog)
+
+        menu_help.addActions([act_shortcuts])
+        menu_help.addSeparator()
+        menu_help.addActions([act_about])
 
     def _switch_library_type(self, media_type):
         view = self.library_views.get(media_type)
@@ -2255,7 +2504,7 @@ class MainWindow(QMainWindow):
             self.hide()
             self.tray_icon.showMessage(
                 "MediaBrain",
-                "MediaBrain läuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum öffnen.",
+                "MediaBrain läuft im Hintergrund weiter.\nDoppelklick auf das Tray-Icon zum Öffnen.",
                 QSystemTrayIcon.MessageIcon.Information,
                 2000
             )

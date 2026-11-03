@@ -1,15 +1,17 @@
 """
 manage_translations.py - Auto-Scanner für deutsche GUI-Strings
 ================================================================
-Findet deutsche Strings in .py-Dateien und pflegt locales/translations.json.
+Findet deutsche Strings in .py-Dateien und pflegt locales/translations.json
+gemäß P-006 Tier-2 (DE, EN, ES, ZH, JA, RU).
 
 Verwendung:
-    python manage_translations.py [--dir PROJEKTVERZEICHNIS]
+    python manage_translations.py [--dir PROJEKTVERZEICHNIS] [--check]
 """
 
+import argparse
 import json
-import re
 import os
+import re
 import sys
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -65,7 +67,7 @@ def find_german_strings(source_dir):
     return german_strings
 
 
-def manage_translations(source_dir="."):
+def manage_translations(source_dir=".", check_only=False):
     trans_file = os.path.join(source_dir, TRANSLATION_FILE)
 
     if os.path.exists(trans_file):
@@ -80,18 +82,19 @@ def manage_translations(source_dir="."):
     found = find_german_strings(source_dir)
 
     added = []
-    for s in sorted(found):
-        if s not in translations:
-            entry = {"de": s}
-            for lang in SUPPORTED_LANGUAGES:
-                if lang != "de":
-                    entry[lang] = ""
-            translations[s] = entry
-            added.append(s)
+    if not check_only:
+        for s in sorted(found):
+            if s not in translations:
+                entry = {"de": s}
+                for lang in SUPPORTED_LANGUAGES:
+                    if lang != "de":
+                        entry[lang] = ""
+                translations[s] = entry
+                added.append(s)
 
-    os.makedirs(os.path.dirname(trans_file), exist_ok=True)
-    with open(trans_file, "w", encoding="utf-8") as f:
-        json.dump(translations, f, indent=2, ensure_ascii=False)
+        os.makedirs(os.path.dirname(trans_file), exist_ok=True)
+        with open(trans_file, "w", encoding="utf-8") as f:
+            json.dump(translations, f, indent=2, ensure_ascii=False)
 
     if added:
         print(f"[+] {len(added)} neue Eintraege hinzugefuegt:")
@@ -106,12 +109,22 @@ def manage_translations(source_dir="."):
                if any(not v.get(l) or not str(v.get(l)).strip() for l in SUPPORTED_LANGUAGES if l != "de")]
     if missing:
         print(f"\n[!] {len(missing)} Strings mit fehlenden Übersetzungen")
+        if check_only:
+            return 1
     else:
         print("\n[ok] Alle Strings haben Übersetzungen in allen Sprachen.")
 
     print(f"\n[i] Gesamt: {len(translations)} Strings in {trans_file}")
+    return 0
 
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else "."
-    manage_translations(target)
+    parser = argparse.ArgumentParser(description="Translation catalog manager")
+    parser.add_argument("pos_dir", nargs="?", default=None, help="Project directory (positional)")
+    parser.add_argument("--dir", dest="opt_dir", default=None, help="Project directory")
+    parser.add_argument("--check", action="store_true", help="Exit 1 if translations missing")
+    args = parser.parse_args()
+
+    target = args.opt_dir or args.pos_dir or "."
+    code = manage_translations(target, check_only=args.check)
+    sys.exit(code)

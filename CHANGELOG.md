@@ -5,6 +5,18 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### WCAG 2.1 AA & BITV 2.0 Barrierefreiheit, Tastatur-Ergonomie, Menüleiste & Dialoge [2026-11-03]
+- **Menüleiste & Alt-Mnemonics (`gui.py`):** Standardkonforme, voll barrierefreie Hauptmenüleiste (`menuBar()`) mit deklariertem barrierefreiem Namen (`Hauptmenü`) und 4 semantischen Menüs (`&Datei` Alt+D, `&Ansicht` Alt+A, `&Aktionen` Alt+K, `&Hilfe` Alt+H).
+- **Globale Tastaturkürzel (`gui.py`):** Vollständige Tastaturbedienung über Shortcuts implementiert: `Ctrl+E` (Export), `Ctrl+O` (Import), `Ctrl+,` (Einstellungen), `Ctrl+Q` (Beenden), `Ctrl+1`..`Ctrl+9` (Direktsprünge zu Übersicht, Filme, Serien, Musik, Clips, Favoriten, Blacklist, Statistiken, Playlists), `Ctrl+F` (Globale Suche fokussieren), `Ctrl+Tab` / `Ctrl+Shift+Tab` (zyklische Ansichtsnavigation), `F5` (Ansicht aktualisieren), `F1` (Tastaturkürzel-Hilfe) und `Shift+F1` (Über MediaBrain).
+- **Barrierefreie Dialoge (`gui_dialogs.py`):**
+  - Neuer `ShortcutsDialog` nach WCAG 2.1 AA / BITV 2.0 mit strukturierter, hierarchischer Baumansicht in 4 Kategorien (Navigation & Ansichten, Aktionen & Datenverwaltung, Einstellungen & System, Hilfe & Barrierefreiheit), integriertem interaktivem Suchfilter und Escape-Dismiss.
+  - Neuer `AboutDialog` mit App-Metadaten (v2.1.0, GPL-3.0), 100% Local-First / Zero-Egress Reassurance und vollständiger Barrierefreiheitsdeklaration inklusive Escape-Key-Handling.
+- **Tastatur-Ergonomie & Dialog-Härtung (`gui.py`):** `SettingsWindow` um Escape-Key-Schließlogik (`Qt.Key_Escape`) erweitert.
+- **Accessible Names & Tooltips (`gui.py`):** Seitenleiste (`sidebar`), Stack-Widget (`stack`), Statusleiste (`statusBar()`) und alle Navigations- und Aktionsbuttons mit barrierefreien Namen, Beschreibungen und informativen Tastatur-Tooltips ausgestattet; dynamisches Statusleisten-Echo beim Ansichtswechsel integriert.
+- **Deutsche Typografie & Echte Umlaute (`gui_playlists.py`, `gui.py`):** Digraph `"Kuenstler"` in `FIELD_DEFS` zu echtem Umlaut `"Künstler"` bereinigt; Tray-Nachricht `"zum öffnen"` zu `"zum Öffnen"` korrigiert; strikt echte Umlaute (ä, ö, ü, Ä, Ö, Ü, ß) in allen End-User-Texten.
+- **Tier-2 I18N-Erweiterung (`locales/translations.json`, `manage_translations.py`):** Übersetzungskatalog um 8 neue Schlüssel auf 37 Keys ausgebaut mit 100% Parität über alle 6 Zielsprachen (DE, EN, ES, ZH, JA, RU); `manage_translations.py` um `--check` CI-Gating erweitert.
+- **Hermetische A11y-Vertragstests (`tests/test_ui_accessibility.py`):** 9 neue hermetische Tests implementiert (9/9 passed); Pytest-Gesamtsuite auf 286 passed / 259 subtests passed (100% grün) ausgebaut.
+
 ### Windows Store Packaging Staging & Flutter Mobile L10n ES Parity [2026-11-02]
 - **Windows Store Packaging Staging (
 eleases/windowsstore/):** Vollständiges kanonisches Staging-Verzeichnis für den Microsoft Store aufgebaut (store_settings.json, BUILD.md, WACK_PROTOCOL.md, store_listing_de.md, store_listing_en.md, Kachelicons 44..310px inkl. StoreLogo.png 50×50, 4 hochauflösende 16:9 Full-HD Screenshots unter screenshots/ und 	est_reports/).

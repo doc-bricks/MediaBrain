@@ -1,234 +1,298 @@
 {
-  "Blacklist anzeigen": {
-    "de": "Blacklist anzeigen",
-    "en": "Show Blacklist",
-    "es": "Mostrar lista negra",
-    "zh": "显示黑名单",
-    "ja": "ブラックリストを表示",
-    "ru": "Показать черный список"
-  },
-  "Dauer ändern": {
-    "de": "Dauer ändern",
-    "en": "Change Duration",
-    "es": "Cambiar duración",
-    "zh": "更改时长",
-    "ja": "時間を変更",
-    "ru": "Изменить длительность"
-  },
-  "Einstellungen": {
-    "de": "Einstellungen",
-    "en": "Settings",
-    "es": "Configuración",
-    "zh": "设置",
-    "ja": "設定",
-    "ru": "Настройки"
-  },
-  "Keine Details verfügbar": {
-    "de": "Keine Details verfügbar",
-    "en": "No details available",
-    "es": "No hay detalles disponibles",
-    "zh": "无可用详情",
-    "ja": "詳細はありません",
-    "ru": "Нет доступных деталей"
-  },
-  "Lokale Daten:": {
-    "de": "Lokale Daten:",
-    "en": "Local data:",
-    "es": "Datos locales:",
-    "zh": "本地数据:",
-    "ja": "ローカルデータ:",
-    "ru": "Локальные данные:"
-  },
-  "Suche speichern": {
-    "de": "Suche speichern",
-    "en": "Save Search",
-    "es": "Guardar búsqueda",
-    "zh": "保存搜索",
-    "ja": "検索を保存",
-    "ru": "Сохранить поиск"
-  },
-  "Zurück": {
-    "de": "Zurück",
-    "en": "Back",
-    "es": "Volver",
-    "zh": "返回",
-    "ja": "戻る",
-    "ru": "Назад"
-  },
-  "Öffnen": {
-    "de": "Öffnen",
-    "en": "Open",
-    "es": "Abrir",
-    "zh": "打开",
-    "ja": "開く",
-    "ru": "Открыть"
-  },
-  "Übersicht": {
-    "de": "Übersicht",
-    "en": "Overview",
-    "es": "Resumen",
-    "zh": "概览",
-    "ja": "概要",
-    "ru": "Обзор"
-  },
-  "🌐 Metadaten aktualisieren": {
-    "de": "🌐 Metadaten aktualisieren",
-    "en": "🌐 Update Metadata",
-    "es": "🌐 Actualizar metadatos",
-    "zh": "🌐 更新元数据",
-    "ja": "🌐 メタデータを更新",
-    "ru": "🌐 Obновить метаданные"
-  },
   "+ Bedingung hinzufügen": {
     "de": "+ Bedingung hinzufügen",
     "en": "+ Add condition",
     "es": "+ Añadir condición",
-    "zh": "+ 添加条件",
     "ja": "+ 条件を追加",
-    "ru": "+ Добавить условие"
+    "ru": "+ Добавить условие",
+    "zh": "+ 添加条件"
   },
   "<b>Zuletzt hinzugefügt (Top 5):</b>": {
     "de": "<b>Zuletzt hinzugefügt (Top 5):</b>",
     "en": "<b>Recently added (Top 5):</b>",
     "es": "<b>Añadido recientemente (Top 5):</b>",
-    "zh": "<b>最近添加 (前 5 个):</b>",
     "ja": "<b>最近追加された項目 (トップ 5):</b>",
-    "ru": "<b>Недавно добавленные (лучшие 5):</b>"
+    "ru": "<b>Недавно добавленные (лучшие 5):</b>",
+    "zh": "<b>最近添加 (前 5 个):</b>"
+  },
+  "Barrierefreiheit & Zugänglichkeit (WCAG 2.1 AA / BITV 2.0)": {
+    "de": "Barrierefreiheit & Zugänglichkeit (WCAG 2.1 AA / BITV 2.0)",
+    "en": "Accessibility & Ergonomics (WCAG 2.1 AA / BITV 2.0)",
+    "es": "Accesibilidad y ergonomía (WCAG 2.1 AA / BITV 2.0)",
+    "ja": "アクセシビリティと人間工学 (WCAG 2.1 AA / BITV 2.0)",
+    "ru": "Доступность и эргономика (WCAG 2.1 AA / BITV 2.0)",
+    "zh": "无障碍与人体工程学 (WCAG 2.1 AA / BITV 2.0)"
   },
   "Bearbeiten": {
     "de": "Bearbeiten",
     "en": "Edit",
     "es": "Editar",
-    "zh": "编辑",
     "ja": "編集",
-    "ru": "Редактировать"
+    "ru": "Редактировать",
+    "zh": "编辑"
+  },
+  "Blacklist anzeigen": {
+    "de": "Blacklist anzeigen",
+    "en": "Show Blacklist",
+    "es": "Mostrar lista negra",
+    "ja": "ブラックリストを表示",
+    "ru": "Показать черный список",
+    "zh": "显示黑名单"
+  },
+  "Dauer ändern": {
+    "de": "Dauer ändern",
+    "en": "Change Duration",
+    "es": "Cambiar duración",
+    "ja": "時間を変更",
+    "ru": "Изменить длительность",
+    "zh": "更改时长"
+  },
+  "Einstellungen": {
+    "de": "Einstellungen",
+    "en": "Settings",
+    "es": "Configuración",
+    "ja": "設定",
+    "ru": "Настройки",
+    "zh": "设置"
   },
   "Export (JSON)": {
     "de": "Export (JSON)",
     "en": "Export (JSON)",
     "es": "Exportar (JSON)",
-    "zh": "导出 (JSON)",
     "ja": "エクスポート (JSON)",
-    "ru": "Экспорт (JSON)"
+    "ru": "Экспорт (JSON)",
+    "zh": "导出 (JSON)"
   },
   "Filter \\u25BC": {
     "de": "Filter \\u25BC",
     "en": "Filter \\u25BC",
     "es": "Filtrar \\u25BC",
-    "zh": "筛选 \\u25BC",
     "ja": "フィルター \\u25BC",
-    "ru": "Фильтр \\u25BC"
+    "ru": "Фильтр \\u25BC",
+    "zh": "筛选 \\u25BC"
+  },
+  "Filter:": {
+    "de": "Filter:",
+    "en": "Filter:",
+    "es": "Filtro:",
+    "ja": "フィルター:",
+    "ru": "Фильтр:",
+    "zh": "筛选:"
   },
   "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst": {
     "de": "Geschätzter Speicher (lokal): Keine lokalen Dateien erfasst",
     "en": "Estimated storage (local): No local files detected",
     "es": "Espacio estimado (local): No se detectaron archivos locales",
-    "zh": "估计存储空间 (本地): 未检测到本地文件",
     "ja": "推定容量 (ローカル): ローカルファイルが検出されませんでした",
-    "ru": "Оценочный объем (локальный): локальные файлы не обнаружены"
+    "ru": "Оценочный объем (локальный): локальные файлы не обнаружены",
+    "zh": "估计存储空间 (本地): 未检测到本地文件"
   },
   "Geschätzter Speicher (lokal): –": {
     "de": "Geschätzter Speicher (lokal): –",
     "en": "Estimated storage (local): –",
     "es": "Espacio estimado (local): –",
-    "zh": "估计存储空间 (本地): –",
     "ja": "推定容量 (ローカル): –",
-    "ru": "Оценочный объем (локальный): –"
+    "ru": "Оценочный объем (локальный): –",
+    "zh": "估计存储空间 (本地): –"
   },
   "Import (JSON)": {
     "de": "Import (JSON)",
     "en": "Import (JSON)",
     "es": "Importar (JSON)",
-    "zh": "导入 (JSON)",
     "ja": "インポート (JSON)",
-    "ru": "Импорт (JSON)"
+    "ru": "Импорт (JSON)",
+    "zh": "导入 (JSON)"
+  },
+  "Keine Details verfügbar": {
+    "de": "Keine Details verfügbar",
+    "en": "No details available",
+    "es": "No hay detalles disponibles",
+    "ja": "詳細はありません",
+    "ru": "Нет доступных деталей",
+    "zh": "无可用详情"
   },
   "Keine Playlist ausgewählt.": {
     "de": "Keine Playlist ausgewählt.",
     "en": "No playlist selected.",
     "es": "No se ha seleccionado ninguna lista de reproducción.",
-    "zh": "未选择播放列表。",
     "ja": "プレイリストが選択されていません。",
-    "ru": "Плейлист не выбран."
+    "ru": "Плейлист не выбран.",
+    "zh": "未选择播放列表。"
+  },
+  "Lokale Daten:": {
+    "de": "Lokale Daten:",
+    "en": "Local data:",
+    "es": "Datos locales:",
+    "ja": "ローカルデータ:",
+    "ru": "Локальные данные:",
+    "zh": "本地数据:"
+  },
+  "Lokale Medienverwaltung, Video- & Musik-Bibliothek und Streaming-Tracker": {
+    "de": "Lokale Medienverwaltung, Video- & Musik-Bibliothek und Streaming-Tracker",
+    "en": "Local Media Management, Video & Music Library and Streaming Tracker",
+    "es": "Gestión de medios locales, biblioteca de videos y música y seguimiento de transmisiones",
+    "ja": "ローカルメディア管理、動画・音楽ライブラリ、ストリーミングトラッカー",
+    "ru": "Управление локальными медиа, библиотека видео и музыки и трекер стриминга",
+    "zh": "本地媒体管理、视频与音乐库及流媒体追踪"
   },
   "Löschen": {
     "de": "Löschen",
     "en": "Delete",
     "es": "Eliminar",
-    "zh": "删除",
     "ja": "削除",
-    "ru": "Удалить"
+    "ru": "Удалить",
+    "zh": "删除"
   },
   "Metadaten neu laden": {
     "de": "Metadaten neu laden",
     "en": "Reload metadata",
     "es": "Recargar metadatos",
-    "zh": "重新加载元数据",
     "ja": "メタデータを再読み込み",
-    "ru": "Перезагрузить метаданные"
+    "ru": "Перезагрузить метаданные",
+    "zh": "重新加载元数据"
   },
   "Noch keine Aktivitäten.": {
     "de": "Noch keine Aktivitäten.",
     "en": "No activity yet.",
     "es": "Aún no hay actividad.",
-    "zh": "尚无活动。",
     "ja": "アクティビティはまだありません。",
-    "ru": "Активностей пока нет."
+    "ru": "Активностей пока нет.",
+    "zh": "尚无活动。"
   },
   "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.": {
     "de": "Online-Metadaten gefunden, aber keine Felder zum Anzeigen.",
     "en": "Online metadata found, but there are no fields to display.",
     "es": "Se encontraron metadatos en línea, pero no hay campos para mostrar.",
-    "zh": "找到在线元数据，但没有可显示的字段。",
     "ja": "オンラインメタデータが見つかりましたが、表示する項目がありません。",
-    "ru": "Найдены онлайн-метаданные, но нет полей для отображения."
+    "ru": "Найдены онлайн-метаданные, но нет полей для отображения.",
+    "zh": "找到在线元数据，但没有可显示的字段。"
+  },
+  "Schließen": {
+    "de": "Schließen",
+    "en": "Close",
+    "es": "Cerrar",
+    "ja": "閉じる",
+    "ru": "Закрыть",
+    "zh": "关闭"
+  },
+  "Suche speichern": {
+    "de": "Suche speichern",
+    "en": "Save Search",
+    "es": "Guardar búsqueda",
+    "ja": "検索を保存",
+    "ru": "Сохранить поиск",
+    "zh": "保存搜索"
   },
   "Tag-Filter:": {
     "de": "Tag-Filter:",
     "en": "Tag filter:",
     "es": "Filtro de etiquetas:",
-    "zh": "标签筛选:",
     "ja": "タグフィルター:",
-    "ru": "Фильтр тегов:"
+    "ru": "Фильтр тегов:",
+    "zh": "标签筛选:"
+  },
+  "Tastaturkürzel & Barrierefreiheit": {
+    "de": "Tastaturkürzel & Barrierefreiheit",
+    "en": "Keyboard Shortcuts & Accessibility",
+    "es": "Atajos de teclado y accesibilidad",
+    "ja": "キーボードショートカットとアクセシビリティ",
+    "ru": "Горячие клавиши и доступность",
+    "zh": "键盘快捷键与无障碍"
+  },
+  "Tastaturkürzel (F1)": {
+    "de": "Tastaturkürzel (F1)",
+    "en": "Keyboard Shortcuts (F1)",
+    "es": "Atajos de teclado (F1)",
+    "ja": "キーボードショートカット (F1)",
+    "ru": "Горячие клавиши (F1)",
+    "zh": "键盘快捷键 (F1)"
+  },
+  "Vollständige Tastatur- und Screenreader-Steuerung für MediaBrain (WCAG 2.1 AA / BITV 2.0).": {
+    "de": "Vollständige Tastatur- und Screenreader-Steuerung für MediaBrain (WCAG 2.1 AA / BITV 2.0).",
+    "en": "Full keyboard and screen reader control for MediaBrain (WCAG 2.1 AA / BITV 2.0).",
+    "es": "Control total mediante teclado y lector de pantalla para MediaBrain (WCAG 2.1 AA / BITV 2.0).",
+    "ja": "MediaBrain の完全なキーボードおよびスクリーンリーダー操作 (WCAG 2.1 AA / BITV 2.0)。",
+    "ru": "Полное управление с клавиатуры и экранного диктора для MediaBrain (WCAG 2.1 AA / BITV 2.0).",
+    "zh": "MediaBrain 的完整键盘和屏幕阅读器控制 (WCAG 2.1 AA / BITV 2.0)。"
   },
   "Zuletzt geöffnet": {
     "de": "Zuletzt geöffnet",
     "en": "Recently opened",
     "es": "Abierto recientemente",
-    "zh": "最近打开",
     "ja": "最近開いた項目",
-    "ru": "Недавно открытые"
+    "ru": "Недавно открытые",
+    "zh": "最近打开"
+  },
+  "Zurück": {
+    "de": "Zurück",
+    "en": "Back",
+    "es": "Volver",
+    "ja": "戻る",
+    "ru": "Назад",
+    "zh": "返回"
   },
   "Zurücksetzen": {
     "de": "Zurücksetzen",
     "en": "Reset",
     "es": "Restablecer",
-    "zh": "重置",
     "ja": "リセット",
-    "ru": "Сбросить"
+    "ru": "Сбросить",
+    "zh": "重置"
   },
   "\\u25B6 öffnen": {
     "de": "\\u25B6 öffnen",
     "en": "\\u25B6 Open",
     "es": "\\u25B6 abrir",
-    "zh": "\\u25B6 打开",
     "ja": "\\u25B6 開く",
-    "ru": "\\u25B6 открыть"
+    "ru": "\\u25B6 открыть",
+    "zh": "\\u25B6 打开"
+  },
+  "Öffnen": {
+    "de": "Öffnen",
+    "en": "Open",
+    "es": "Abrir",
+    "ja": "開く",
+    "ru": "Открыть",
+    "zh": "打开"
+  },
+  "Über MediaBrain": {
+    "de": "Über MediaBrain",
+    "en": "About MediaBrain",
+    "es": "Acerca de MediaBrain",
+    "ja": "MediaBrain について",
+    "ru": "О программе MediaBrain",
+    "zh": "关于 MediaBrain"
+  },
+  "Übersicht": {
+    "de": "Übersicht",
+    "en": "Overview",
+    "es": "Resumen",
+    "ja": "概要",
+    "ru": "Обзор",
+    "zh": "概览"
   },
   "öffnen": {
     "de": "öffnen",
     "en": "open",
     "es": "abrir",
-    "zh": "打开",
     "ja": "開く",
-    "ru": "открыть"
+    "ru": "открыть",
+    "zh": "打开"
+  },
+  "🌐 Metadaten aktualisieren": {
+    "de": "🌐 Metadaten aktualisieren",
+    "en": "🌐 Update Metadata",
+    "es": "🌐 Actualizar metadatos",
+    "ja": "🌐 メタデータを更新",
+    "ru": "🌐 Obновить метаданные",
+    "zh": "🌐 更新元数据"
   },
   "🔄 Aktualisieren": {
     "de": "🔄 Aktualisieren",
     "en": "🔄 Refresh",
     "es": "🔄 Actualizar",
-    "zh": "🔄 更新",
     "ja": "🔄 更新",
-    "ru": "🔄 Обновить"
+    "ru": "🔄 Обновить",
+    "zh": "🔄 更新"
   }
 }

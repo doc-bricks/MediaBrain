@@ -56,7 +56,7 @@ FIELD_DEFS = [
     ("title",          "Titel",            _OPS_TEXT,      "text",   None),
     ("type",           "Typ",              _OPS_TEXT,      "combo",  _TYPE_PRESETS),
     ("source",         "Quelle (Provider)", _OPS_TEXT,     "combo",  _SOURCE_PRESETS),
-    ("artist",         "Kuenstler",        _OPS_TEXT,      "text",   None),
+    ("artist",         "Künstler",         _OPS_TEXT,      "text",   None),
     ("album",          "Album",            _OPS_TEXT,      "text",   None),
     ("channel",        "Kanal",            _OPS_TEXT,      "text",   None),
     ("description",    "Beschreibung",     _OPS_TEXT,      "text",   None),
