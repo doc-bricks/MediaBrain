@@ -34,6 +34,9 @@ PASS_MARKERS = {
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
+EXPECTED_TIER2_LANGS = ("de-DE", "en-US", "es-ES", "zh-CN", "ja-JP", "ru-RU")
+BANNED_TRADEMARKS = {"windows", "microsoft", "google", "apple", "netflix", "spotify", "youtube", "adobe"}
+
 REQUIRED_TILE_ICONS = (
     "icon_44x44.png",
     "icon_50x50.png",
@@ -128,6 +131,43 @@ def _check_repository(project_root: Path) -> list[str]:
                 f"[repository] version mismatch: project={project_ver}, store={store_ver}"
             )
 
+        # Check Tier-2 6 languages declaration
+        languages = config.get("languages", [])
+        if isinstance(languages, list):
+            for lang in EXPECTED_TIER2_LANGS:
+                if lang not in languages:
+                    findings.append(f"[repository] store_package.json missing language: {lang}")
+        else:
+            findings.append("[repository] store_package.json languages missing or invalid")
+
+        # Check 6 descriptions and 6 keyword lists
+        for code in ("de", "en", "es", "zh", "ja", "ru"):
+            desc_key = f"description_{code}"
+            desc_val = config.get(desc_key)
+            if not isinstance(desc_val, str) or not desc_val.strip():
+                findings.append(f"[repository] store_package.json missing {desc_key}")
+            elif len(desc_val) > 100:
+                findings.append(
+                    f"[repository] store_package.json {desc_key} exceeds 100 characters ({len(desc_val)})"
+                )
+
+            kw_key = f"keywords_{code}"
+            kw_val = config.get(kw_key)
+            if not isinstance(kw_val, list) or len(kw_val) != 7:
+                findings.append(
+                    f"[repository] store_package.json {kw_key} must contain exactly 7 keywords"
+                )
+            else:
+                for kw in kw_val:
+                    if not isinstance(kw, str) or len(kw) > 30:
+                        findings.append(
+                            f"[repository] store_package.json {kw_key} keyword {kw!r} exceeds 30 chars"
+                        )
+                    elif kw.lower() in BANNED_TRADEMARKS:
+                        findings.append(
+                            f"[repository] store_package.json {kw_key} contains banned trademark: {kw}"
+                        )
+
     manifests = sorted((project_root / "store_package").glob("**/AppxManifest.xml"))
     if not manifests:
         findings.append("[repository] AppxManifest.xml is missing below store_package")
@@ -146,14 +186,21 @@ def _check_repository(project_root: Path) -> list[str]:
             ):
                 if token not in manifest:
                     findings.append(f"[repository] AppxManifest.xml lacks {label}")
+            for res_code in ("de-de", "en-us", "es-es", "zh-cn", "ja-jp", "ru-ru"):
+                if f'Language="{res_code}"' not in manifest:
+                    findings.append(f"[repository] AppxManifest.xml lacks Resource Language=\"{res_code}\"")
 
     for name in REQUIRED_DOCUMENTS:
         doc_path = project_root / name
         content = _read_nonempty(doc_path)
         if content is None:
             findings.append(f"[repository] {name} is missing or empty")
-        elif name in ("STORE_LISTING.md", "SUPPORT.md"):
+        elif name == "SUPPORT.md":
             for heading in ("Deutsch", "English"):
+                if heading not in content:
+                    findings.append(f"[repository] {name} lacks heading {heading}")
+        elif name == "STORE_LISTING.md":
+            for heading in ("Deutsch", "English", "Español", "简体中文", "日本語", "Русский"):
                 if heading not in content:
                     findings.append(f"[repository] {name} lacks heading {heading}")
 
@@ -214,6 +261,21 @@ def _check_repository(project_root: Path) -> list[str]:
         findings.append(
             f"[repository] at least 3 valid PNG Store screenshots required; found {len(screenshots)}"
         )
+
+    # Check staging directory releases/windowsstore/
+    staging_dir = project_root / "releases" / "windowsstore"
+    if not staging_dir.is_dir():
+        findings.append("[repository] releases/windowsstore directory is missing")
+    else:
+        for fname in ("store_settings.json", "BUILD.md", "WACK_PROTOCOL.md", "StoreLogo.png"):
+            if not (staging_dir / fname).is_file():
+                findings.append(f"[repository] releases/windowsstore lacks {fname}")
+        for code in ("de", "en", "es", "zh", "ja", "ru"):
+            listing_file = staging_dir / f"store_listing_{code}.md"
+            if not listing_file.is_file() or listing_file.stat().st_size < 100:
+                findings.append(
+                    f"[repository] releases/windowsstore lacks valid store_listing_{code}.md"
+                )
 
     return findings
 

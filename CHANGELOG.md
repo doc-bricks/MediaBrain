@@ -5,6 +5,24 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.1.0/).
 
 ## [Unreleased]
 
+### Windows Store Packaging Tier-2 6-Sprachen-Harmonisierung (Policy P-006) & macOS-/Linux-Source-Smoke (TW-MB-01 & TW-MB-10) [2026-11-07]
+- **Windows Store Packaging 6-Sprachen-Ausbau (`store_package.json`, `releases/windowsstore/store_settings.json`):**
+  - Vollständige Metadaten-Harmonisierung für alle 6 Tier-2 Zielsprachen: Deutsch (`de-DE`), Englisch (`en-US`), Spanisch (`es-ES`), Chinesisch vereinfacht (`zh-CN`), Japanisch (`ja-JP`) und Russisch (`ru-RU`).
+  - Kurzbeschreibungen für alle 6 Sprachen hinterlegt und normiert auf strikt <= 100 Zeichen (Partner Center Constraint).
+  - Exakt 7 markenrechtsfreie Suchbegriffe je Sprache definiert (Policy 10.1.3, <= 30 Zeichen je Begriff, keine Drittmarken wie Windows, Microsoft, Netflix, Spotify, YouTube).
+- **Desktop Bridge Manifest 6-Sprachen-Ressourcen (`store_package/MediaBrain/AppxManifest.xml`):**
+  - Deklaration aller 6 Sprachressourcen (`de-de`, `en-us`, `es-es`, `zh-cn`, `ja-jp`, `ru-ru`) im `<Resources>`-Block.
+- **Multilingual Store Listings (`STORE_LISTING.md`):**
+  - Um Abschnitte für Spanisch (`## Español (es-ES)`), Chinesisch (`## 简体中文 (zh-CN)`), Japanisch (`## 日本語 (ja-JP)`) und Russisch (`## Русский (ru-RU)`) mit Kurzbeschreibungen, Feature-Listen und Keywords erweitert.
+- **Packaging Staging (`releases/windowsstore/` & `.gitignore`):**
+  - Standalone-Staging-Dateien `store_listing_es.md`, `store_listing_zh.md`, `store_listing_ja.md` und `store_listing_ru.md` bereitgestellt; `.gitignore` Whitelist für alle 6 Listing-Dateien aktualisiert.
+- **Store-Readiness Checker Härtung (`scripts/check_store_readiness.py`):**
+  - Linter auf alle 6 Tier-2 Zielsprachen, Kurzbeschreibungs- und Keyword-Längen, Banned Trademarks und Staging-Dateien gehärtet (0 Findings, METADATA & REPOSITORY STAGED).
+- **Hermetische Store-Vertragstests (`tests/test_store_materials.py`):**
+  - Auf 10 hermetische Vertragstests ausgebaut (10/10 passed, 100% grün). Deckt 6-Sprachen-Deklaration, Manifest-Ressourcen, Keyword-Policy 10.1.3, Staging-Vollständigkeit und Zeichensatzintegrität (Umlaute, Akzente, Hanzi, Kana, Kyrillisch) ab.
+- **macOS-/Linux-Source-Smoke (`tests/source_platform_smoke.py`, TW-MB-10):**
+  - Portable Desktop-Verträge für Windows, Linux und macOS abgesichert (Default-Watch-Paths, Unicode-Pfade, JSON-Austausch mit Umlauten, Local File Opener via startfile / open / xdg-open, Offscreen-Window und Tray-Lifecycle); 6/6 Tests grün.
+
 ### WCAG 2.1 AA & BITV 2.0 Barrierefreiheit, Tastatur-Ergonomie, Menüleiste & Dialoge [2026-11-03]
 - **Menüleiste & Alt-Mnemonics (`gui.py`):** Standardkonforme, voll barrierefreie Hauptmenüleiste (`menuBar()`) mit deklariertem barrierefreiem Namen (`Hauptmenü`) und 4 semantischen Menüs (`&Datei` Alt+D, `&Ansicht` Alt+A, `&Aktionen` Alt+K, `&Hilfe` Alt+H).
 - **Globale Tastaturkürzel (`gui.py`):** Vollständige Tastaturbedienung über Shortcuts implementiert: `Ctrl+E` (Export), `Ctrl+O` (Import), `Ctrl+,` (Einstellungen), `Ctrl+Q` (Beenden), `Ctrl+1`..`Ctrl+9` (Direktsprünge zu Übersicht, Filme, Serien, Musik, Clips, Favoriten, Blacklist, Statistiken, Playlists), `Ctrl+F` (Globale Suche fokussieren), `Ctrl+Tab` / `Ctrl+Shift+Tab` (zyklische Ansichtsnavigation), `F5` (Ansicht aktualisieren), `F1` (Tastaturkürzel-Hilfe) und `Shift+F1` (Über MediaBrain).

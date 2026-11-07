@@ -48,7 +48,7 @@ offene Arbeit wird hier genau über ihre TASKPLAN-ID referenziert:
 
 | TASKPLAN | Stable-ID | Gegenstand | Status |
 |---:|---|---|---|
-| 935 | TW-MB-01 | Windows-Store-Release-Gate | repository-seitig gestaged 2026-08-14 (`store_package.json`, `AppxManifest.xml`, Kachelicons, 4 Screenshots, Readiness-Gate); externe Signatur/WACK offen |
+| 935 | TW-MB-01 | Windows-Store-Release-Gate | Tier-2 6-Sprachen-Harmonisierung nach Policy P-006 gestaged 2026-11-07 (`store_package.json`, `AppxManifest.xml` mit 6 Sprachen, Kachelicons, 4 Screenshots, 6x `store_listing_<lang>.md`, `check_store_readiness` 0 Findings); externe Signatur/WACK offen |
 | 936 | TW-MB-02 | Desktop-Englisch bis zur Parität | erledigt 2026-07-22; alle 29 gescannten Desktop-Keys haben einen EN-Wert, Regression abgesichert |
 | 937 | TW-MB-03 | Web-Companion DE/EN-I18N | entfällt — Web-Companion am 2026-07-23 entfernt |
 | 938 | TW-MB-04 | echter Android-PWA-Smoke | entfällt — Web-Companion am 2026-07-23 entfernt |

@@ -32,7 +32,7 @@
   "support_url": "https://github.com/doc-bricks/MediaBrain/issues",
   "category": "Entertainment",
   "age_rating": "3+",
-  "description_de": "Lokale, datenschutzfreundliche Medienbibliothek für Videos, Musik, Dokumente und Streaming-Verlauf.",
+  "description_de": "Lokale Medienbibliothek für Videos, Musik, Dokumente und Streaming-Verlauf.",
   "description_en": "Local-first, private media library for video, music, documents, and streaming history.",
   "keywords_de": [
     "Medienbibliothek",
@@ -51,5 +51,45 @@
     "smart playlists",
     "offline library",
     "metadata inspector"
+  ],
+  "description_es": "Biblioteca multimedia local y privada para vídeos, música, documentos e historial.",
+  "description_zh": "本地隐私媒体库，用于管理视频、音乐、文档和流媒体播放历史。",
+  "description_ja": "動画、音楽、書類、ストリーミング履歴を整理するローカル完結型メディアライブラリ。",
+  "description_ru": "Локальная медиатека для видео, музыки, документов и истории воспроизведения.",
+  "keywords_es": [
+    "biblioteca multimedia",
+    "historial streaming",
+    "listas de reproduccion",
+    "gestor multimedia",
+    "listas inteligentes",
+    "reproductor offline",
+    "metadatos"
+  ],
+  "keywords_zh": [
+    "媒体库",
+    "播放历史",
+    "播放列表",
+    "媒体管理",
+    "智能列表",
+    "本地播放器",
+    "元数据管理"
+  ],
+  "keywords_ja": [
+    "メディアライブラリ",
+    "再生履歴",
+    "プレイリスト",
+    "メディア管理",
+    "スマートリスト",
+    "オフライン再生",
+    "メタデータ管理"
+  ],
+  "keywords_ru": [
+    "медиатека",
+    "история просмотров",
+    "плейлисты",
+    "медиа менеджер",
+    "умные плейлисты",
+    "офлайн плеер",
+    "метаданные"
   ]
 }
