@@ -45,7 +45,7 @@ except ImportError:
 # Konfiguration - API Keys werden aus Umgebung oder Config geladen
 # ============================================================
 
-CONFIG_PATH = Path(__file__).parent / "settings.json"
+from config import DATA_DIR, SETTINGS_PATH as CONFIG_PATH  # dieselbe Datei wie die App-Einstellungen
 YOUTUBE_OEMBED_URL = "https://www.youtube.com/oembed"
 SPOTIFY_OEMBED_URL = "https://open.spotify.com/oembed"
 
@@ -783,7 +783,7 @@ class MetadataCache:
 
     def __init__(self, db_path=None):
         if db_path is None:
-            db_path = Path(__file__).parent / "metadata_cache.db"
+            db_path = DATA_DIR / "metadata_cache.db"
         self.db_path = str(db_path)
         self._setup()
 
