@@ -79,3 +79,25 @@ def test_frozen_build_does_not_write_the_translation_catalog(monkeypatch, tmp_pa
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     ts.t("Noch ein unbekannter Text für die Prüfung")
     assert not ts.translations_file.exists()
+
+
+def test_cli_finds_the_database_of_a_store_installation(monkeypatch, tmp_path):
+    """Store-/gebautes Programm legt die DB unter %LOCALAPPDATA%/MediaBrain an (config.DATA_DIR);
+    die CLI suchte nur neben dem Code und unter %APPDATA%/MediaBrain."""
+    import cli
+
+    store_db = tmp_path / "Local" / "MediaBrain" / "media_brain.db"
+    store_db.parent.mkdir(parents=True)
+    store_db.write_bytes(b"")
+    monkeypatch.delenv("MEDIABRAIN_DB", raising=False)
+    monkeypatch.delenv("MEDIABRAIN_DATA_DIR", raising=False)
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path / "Local"))
+    monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
+    monkeypatch.setattr(cli, "_APP_DIR", tmp_path / "program")
+    assert cli._find_db() == store_db
+
+    custom = tmp_path / "custom"
+    custom.mkdir()
+    (custom / "media_brain.db").write_bytes(b"")
+    monkeypatch.setenv("MEDIABRAIN_DATA_DIR", str(custom))
+    assert cli._find_db() == custom / "media_brain.db"
