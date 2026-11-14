@@ -15,6 +15,7 @@ translator.set_language('en')
 
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List, Set
 
@@ -119,7 +120,14 @@ class TranslationSystem:
                     if lang != "de":
                         entry.setdefault(lang, "")
                 self.translations[key] = entry
-                self._save_translations()
+                # Auto-Registrierung ist ein Entwickler-Feature: im gebauten Programm liegt
+                # translations.json im (unter MSIX schreibgeschützten) Programmordner, und ein
+                # Schreibfehler darf nie aus einem UI-Aufruf heraus werfen (BZ-MB-01).
+                if not getattr(sys, "frozen", False):
+                    try:
+                        self._save_translations()
+                    except OSError:
+                        pass
             text = key
 
         if kwargs and text:

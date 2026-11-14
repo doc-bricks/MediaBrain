@@ -58,3 +58,24 @@ def test_metadata_reads_api_keys_from_the_same_settings_file():
 def test_logger_system_writes_logs_to_the_data_dir():
     import logger_system
     assert logger_system.LOG_DIR == config.DATA_DIR / "logs"
+
+
+def test_unknown_german_key_never_raises_when_catalog_is_unwritable(monkeypatch, tmp_path):
+    from translator import TranslationSystem
+
+    ts = TranslationSystem("de", app_dir=tmp_path)
+
+    def denied():
+        raise PermissionError("WindowsApps ist schreibgeschützt")
+
+    monkeypatch.setattr(ts, "_save_translations", denied)
+    assert ts.t("Neuer unbekannter Text für die Prüfung") == "Neuer unbekannter Text für die Prüfung"
+
+
+def test_frozen_build_does_not_write_the_translation_catalog(monkeypatch, tmp_path):
+    from translator import TranslationSystem
+
+    ts = TranslationSystem("de", app_dir=tmp_path)
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    ts.t("Noch ein unbekannter Text für die Prüfung")
+    assert not ts.translations_file.exists()
