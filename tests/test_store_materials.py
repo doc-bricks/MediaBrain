@@ -234,12 +234,13 @@ def test_windows_store_staging_completeness() -> None:
         assert (shots_dir / s).is_file(), f"Screenshot {s} missing in staging"
 
 
-def test_run_windows_wack_preflight_passes() -> None:
+def test_run_windows_wack_preflight_passes(tmp_path) -> None:
     wack_script = ROOT / "scripts" / "run_windows_wack.py"
     assert wack_script.is_file(), "run_windows_wack.py must exist"
 
+    # --report-dir: der Testlauf soll keine wack_preflight_<datum>.* in den Arbeitsbaum schreiben
     result = subprocess.run(
-        [sys.executable, str(wack_script), "--json"],
+        [sys.executable, str(wack_script), "--json", "--report-dir", str(tmp_path)],
         cwd=ROOT,
         check=False,
         capture_output=True,
