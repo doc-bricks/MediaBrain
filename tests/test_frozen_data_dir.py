@@ -53,3 +53,8 @@ def test_source_run_keeps_data_next_to_code(monkeypatch, tmp_path):
 def test_metadata_reads_api_keys_from_the_same_settings_file():
     import metadata_v2
     assert metadata_v2.CONFIG_PATH == config.SETTINGS_PATH
+
+
+def test_logger_system_writes_logs_to_the_data_dir():
+    import logger_system
+    assert logger_system.LOG_DIR == config.DATA_DIR / "logs"
