@@ -43,14 +43,16 @@ def _find_db(override: str | None = None) -> Path:
     if env:
         return Path(env).expanduser().resolve()
     default = _APP_DIR / "media_brain.db"
-    if default.exists():
-        return default
-    appdata = os.environ.get("APPDATA")
-    if appdata:
-        candidate = Path(appdata) / "MediaBrain" / "media_brain.db"
-        if candidate.exists():
-            return candidate
-    return default
+    # Gleiche Orte wie config.DATA_DIR: Override, neben dem Code, gebautes/Store-Programm
+    # (%LOCALAPPDATA%), danach der Altort %APPDATA%.
+    data_dir = os.environ.get("MEDIABRAIN_DATA_DIR")
+    candidates = [Path(data_dir) / "media_brain.db"] if data_dir else []
+    candidates.append(default)
+    for var in ("LOCALAPPDATA", "APPDATA"):
+        base = os.environ.get(var)
+        if base:
+            candidates.append(Path(base) / "MediaBrain" / "media_brain.db")
+    return next((c for c in candidates if c.exists()), default)
 
 
 def _open(db_path: Path) -> sqlite3.Connection:

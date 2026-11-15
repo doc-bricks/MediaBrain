@@ -1,10 +1,11 @@
 
 import logging
-from pathlib import Path
 
-# Log-Pfad sicherstellen
-LOG_DIR = Path(__file__).parent / "logs"
-LOG_DIR.mkdir(exist_ok=True)
+from config import DATA_DIR
+
+# Logs liegen im beschreibbaren Datenordner (im gebauten Programm %LOCALAPPDATA%\MediaBrain),
+# nie im Programmordner: unter MSIX (WindowsApps) ist der schreibgeschützt (BZ-MB-01).
+LOG_DIR = DATA_DIR / "logs"
 LOG_FILE = LOG_DIR / "mediabrain.log"
 
 def setup_logger(name="MediaBrain"):
@@ -18,11 +19,16 @@ def setup_logger(name="MediaBrain"):
     # Formatter
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    # File Handler
-    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    # File Handler; ein nicht beschreibbarer Log-Ordner darf den Programmstart nicht verhindern
+    try:
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+    except OSError:
+        file_handler = None
+    if file_handler is not None:
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
     # Console Handler
     console_handler = logging.StreamHandler()

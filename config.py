@@ -12,6 +12,7 @@ import json
 import logging
 import shutil
 import os
+import sys
 import time
 from copy import deepcopy
 
@@ -24,9 +25,44 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 
-DB_PATH = BASE_DIR / "media_brain.db"
-LOG_PATH = BASE_DIR / "logs" / "app.log"
-SETTINGS_PATH = BASE_DIR / "settings.json"
+
+def _data_dir() -> Path:
+    """Beschreibbarer Datenordner.
+
+    Im gebauten Programm liegt BASE_DIR im Installationsordner; unter MSIX (WindowsApps) ist
+    der schreibgeschützt, Datenbank/Einstellungen/Logs konnten dort nicht angelegt werden
+    (Store-Blocker BZ-MB-01). Muster wie AmpelClip: %LOCALAPPDATA%\\MediaBrain.
+    """
+    override = os.environ.get("MEDIABRAIN_DATA_DIR")
+    if override:
+        return Path(override)
+    if getattr(sys, "frozen", False):
+        local = os.environ.get("LOCALAPPDATA")
+        return Path(local) / "MediaBrain" if local else Path.home() / ".mediabrain"
+    return BASE_DIR
+
+
+def _migrate_legacy_data(old_dir: Path, new_dir: Path) -> None:
+    """Übernimmt Daten einer bisherigen Installation einmalig; überschreibt und löscht nichts."""
+    if old_dir == new_dir:
+        return
+    for name in ("media_brain.db", "settings.json", "settings.json.bak"):
+        source, target = old_dir / name, new_dir / name
+        if source.is_file() and not target.exists():
+            try:
+                new_dir.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+            except OSError as exc:  # Altdaten bleiben unverändert am alten Ort
+                logger.warning("[Config] Übernahme von %s fehlgeschlagen: %s", source, exc)
+
+
+DATA_DIR = _data_dir()
+if getattr(sys, "frozen", False):
+    _migrate_legacy_data(BASE_DIR, DATA_DIR)
+
+DB_PATH = DATA_DIR / "media_brain.db"
+LOG_PATH = DATA_DIR / "logs" / "app.log"
+SETTINGS_PATH = DATA_DIR / "settings.json"
 
 
 # ============================================================
