@@ -34,6 +34,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
   late final TextEditingController _tags;
   late MediaCategory _category;
   late bool _favorite;
+  String? _titleError;
 
   @override
   void initState() {
@@ -60,17 +61,21 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
     super.dispose();
   }
 
-  void _save() {
-    if (_title.text.trim().isEmpty) return;
+  void _save(AppLocalizations loc) {
+    final trimmedTitle = _title.text.trim();
+    if (trimmedTitle.isEmpty) {
+      setState(() => _titleError = loc.fieldRequired);
+      return;
+    }
     final tags = _tags.text
         .split(',')
-        .map((t) => t.trim())
+        .map(sanitizeTagName)
         .where((t) => t.isNotEmpty)
         .toList();
     final base = widget.initial;
     final newItem = MediaItem(
       id: base?.id ?? const Uuid().v4(),
-      title: _title.text.trim(),
+      title: trimmedTitle,
       category: _category,
       source: base?.source ?? 'manual',
       providerId: base?.providerId ?? '',
@@ -95,6 +100,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return AlertDialog(
       title: Text(
         widget.initial == null ? loc.dialogTitleNew : loc.dialogTitleEdit,
@@ -107,20 +113,43 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             TextField(
               controller: _title,
               autofocus: true,
+              textInputAction: TextInputAction.next,
+              onChanged: (_) {
+                if (_titleError != null) {
+                  setState(() => _titleError = null);
+                }
+              },
               decoration: InputDecoration(
                 labelText: loc.fieldTitle,
+                errorText: _titleError,
                 border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
-            Text(loc.categoryLabel, style: const TextStyle(color: Colors.black54)),
-            const SizedBox(height: 4),
+            Text(
+              loc.categoryLabel,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelMedium
+                  ?.copyWith(color: cs.onSurfaceVariant),
+            ),
+            const SizedBox(height: 6),
             Wrap(
               spacing: 6,
               runSpacing: 4,
               children: MediaCategory.values
                   .map((c) => ChoiceChip(
-                        label: Text('${c.icon} ${c.label}'),
+                        label: Semantics(
+                          label: c.localizedLabel(loc),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ExcludeSemantics(child: Text(c.icon)),
+                              const SizedBox(width: 4),
+                              Text(c.localizedLabel(loc)),
+                            ],
+                          ),
+                        ),
                         selected: _category == c,
                         onSelected: (_) => setState(() => _category = c),
                       ))
@@ -129,6 +158,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             const SizedBox(height: 12),
             TextField(
               controller: _artist,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: loc.fieldArtistOptional,
                 border: const OutlineInputBorder(),
@@ -137,6 +167,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             const SizedBox(height: 8),
             TextField(
               controller: _album,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: loc.fieldAlbumOptional,
                 border: const OutlineInputBorder(),
@@ -145,6 +176,7 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
             const SizedBox(height: 8),
             TextField(
               controller: _channel,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 labelText: loc.fieldChannelOptional,
                 border: const OutlineInputBorder(),
@@ -183,8 +215,8 @@ class _MediaItemDialogState extends State<MediaItemDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(loc.cancel),
         ),
-        ElevatedButton(
-          onPressed: _save,
+        FilledButton(
+          onPressed: () => _save(loc),
           child: Text(loc.save),
         ),
       ],

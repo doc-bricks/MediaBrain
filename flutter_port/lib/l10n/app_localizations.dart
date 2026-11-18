@@ -131,6 +131,45 @@ abstract class AppLocalizations {
   String get addTag;
   String get removeTag;
   String get noPlaylistsFound;
+  String get categoryMovie;
+  String get categorySeries;
+  String get categoryMusic;
+  String get categoryClip;
+  String get categoryPodcast;
+  String get categoryAudiobook;
+  String get categoryDocument;
+  String get categoryApp;
+  String get sectionAppearance;
+  String get languageTitle;
+  String get languageSystem;
+  String get languageGerman;
+  String get languageEnglish;
+  String get languageSpanish;
+  String get fieldRequired;
+  String get itemNotFound;
+  String get retry;
+  String get resetFilters;
+  String get clearSearch;
+  String get removeFavorite;
+  String get favoriteLabel;
+  String get favoritesLabel;
+  String get moreActions;
+  String get editItem;
+  String get deleteItemTitle;
+  String get deleteItemContent;
+  String get itemDeleted;
+  String get tagExampleHint;
+  String get smartFilterTagHint;
+  String get invalidNumber;
+  String get syncShareOpened;
+  String get syncPushed;
+  String get syncServerEmpty;
+  String get syncErrorNoUrl;
+  String get syncErrorHttpsRequired;
+  String get syncErrorInvalidUrl;
+  String get syncErrorInvalidJson;
+  String get syncErrorInvalidServerJson;
+  String get back;
 
   String error(String msg);
   String foregroundMinutesLabel(int minutes);
@@ -144,6 +183,9 @@ abstract class AppLocalizations {
   String usageMinutes(int n);
   String playlistItemCount(int count);
   String tagCount(String tag, int count);
+  String minMinutesChip(int minutes);
+  String syncSummaryItems(int count);
+  String syncPlaylistsImported(int count);
 }
 
 class _AppLocalizationsDelegate
@@ -306,6 +348,49 @@ class _AppLocalizationsDe extends AppLocalizations {
   @override String get addTag => 'Tag hinzufügen';
   @override String get removeTag => 'Tag entfernen';
   @override String get noPlaylistsFound => 'Keine Playlists vorhanden.';
+  @override String get categoryMovie => 'Film';
+  @override String get categorySeries => 'Serie';
+  @override String get categoryMusic => 'Musik';
+  @override String get categoryClip => 'Clip';
+  @override String get categoryPodcast => 'Podcast';
+  @override String get categoryAudiobook => 'Hörbuch';
+  @override String get categoryDocument => 'Dokument';
+  @override String get categoryApp => 'App';
+  @override String get sectionAppearance => 'Sprache';
+  @override String get languageTitle => 'App-Sprache';
+  @override String get languageSystem => 'Systemstandard';
+  @override String get languageGerman => 'Deutsch';
+  @override String get languageEnglish => 'English';
+  @override String get languageSpanish => 'Español';
+  @override String get fieldRequired => 'Dieses Feld darf nicht leer sein.';
+  @override String get itemNotFound => 'Eintrag nicht gefunden.';
+  @override String get retry => 'Erneut versuchen';
+  @override String get resetFilters => 'Filter zurücksetzen';
+  @override String get clearSearch => 'Suche löschen';
+  @override String get removeFavorite => 'Aus Favoriten entfernen';
+  @override String get favoriteLabel => 'Favorit';
+  @override String get favoritesLabel => 'Favoriten';
+  @override String get moreActions => 'Weitere Aktionen';
+  @override String get editItem => 'Bearbeiten';
+  @override String get deleteItemTitle => 'Eintrag löschen?';
+  @override String get deleteItemContent =>
+      'Möchtest du diesen Eintrag wirklich aus deiner Bibliothek löschen?';
+  @override String get itemDeleted => 'Eintrag gelöscht.';
+  @override String get tagExampleHint => 'z.B. anime, doku, top10';
+  @override String get smartFilterTagHint => 'z.B. anime, sci-fi';
+  @override String get invalidNumber => 'Bitte eine gültige Zahl ≥ 0 eingeben.';
+  @override String get syncShareOpened => 'Share-Sheet geöffnet';
+  @override String get syncPushed => 'gepusht';
+  @override String get syncServerEmpty => 'Server hat noch keinen Stand';
+  @override String get syncErrorNoUrl =>
+      'Keine Server-URL hinterlegt. Trage sie in den Einstellungen ein.';
+  @override String get syncErrorHttpsRequired =>
+      'Server-Sync erfordert HTTPS; HTTP würde Token und Bibliothek offen übertragen.';
+  @override String get syncErrorInvalidUrl => 'Ungültige HTTPS-Server-URL.';
+  @override String get syncErrorInvalidJson => 'Datei ist kein gültiges JSON-Objekt.';
+  @override String get syncErrorInvalidServerJson =>
+      'Server-Antwort ist kein gültiges JSON-Objekt.';
+  @override String get back => 'Zurück';
 
   @override String error(String msg) => 'Fehler: $msg';
   @override String foregroundMinutesLabel(int minutes) => '$minutes Min insgesamt';
@@ -322,6 +407,11 @@ class _AppLocalizationsDe extends AppLocalizations {
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'Minute' : 'Minuten'}';
   @override String playlistItemCount(int count) => '$count ${count == 1 ? 'Eintrag' : 'Einträge'}';
   @override String tagCount(String tag, int count) => '#$tag ($count)';
+  @override String minMinutesChip(int minutes) => '≥ $minutes Min.';
+  @override String syncSummaryItems(int count) =>
+      '$count ${count == 1 ? 'Eintrag' : 'Einträge'}';
+  @override String syncPlaylistsImported(int count) =>
+      '$count ${count == 1 ? 'Playlist' : 'Playlists'}';
 }
 
 class _AppLocalizationsEn extends AppLocalizations {
@@ -453,6 +543,49 @@ class _AppLocalizationsEn extends AppLocalizations {
   @override String get addTag => 'Add tag';
   @override String get removeTag => 'Remove tag';
   @override String get noPlaylistsFound => 'No playlists available.';
+  @override String get categoryMovie => 'Movie';
+  @override String get categorySeries => 'Series';
+  @override String get categoryMusic => 'Music';
+  @override String get categoryClip => 'Clip';
+  @override String get categoryPodcast => 'Podcast';
+  @override String get categoryAudiobook => 'Audiobook';
+  @override String get categoryDocument => 'Document';
+  @override String get categoryApp => 'App';
+  @override String get sectionAppearance => 'Language';
+  @override String get languageTitle => 'App language';
+  @override String get languageSystem => 'System default';
+  @override String get languageGerman => 'Deutsch';
+  @override String get languageEnglish => 'English';
+  @override String get languageSpanish => 'Español';
+  @override String get fieldRequired => 'This field cannot be empty.';
+  @override String get itemNotFound => 'Entry not found.';
+  @override String get retry => 'Retry';
+  @override String get resetFilters => 'Reset filters';
+  @override String get clearSearch => 'Clear search';
+  @override String get removeFavorite => 'Remove from favorites';
+  @override String get favoriteLabel => 'Favorite';
+  @override String get favoritesLabel => 'Favorites';
+  @override String get moreActions => 'More actions';
+  @override String get editItem => 'Edit';
+  @override String get deleteItemTitle => 'Delete entry?';
+  @override String get deleteItemContent =>
+      'Do you really want to delete this entry from your library?';
+  @override String get itemDeleted => 'Entry deleted.';
+  @override String get tagExampleHint => 'e.g. anime, documentary, top10';
+  @override String get smartFilterTagHint => 'e.g. anime, sci-fi';
+  @override String get invalidNumber => 'Please enter a valid number ≥ 0.';
+  @override String get syncShareOpened => 'Share sheet opened';
+  @override String get syncPushed => 'pushed';
+  @override String get syncServerEmpty => 'Server has no data yet';
+  @override String get syncErrorNoUrl =>
+      'No server URL configured. Enter it in Settings.';
+  @override String get syncErrorHttpsRequired =>
+      'Server sync requires HTTPS; HTTP would transmit tokens and library data unencrypted.';
+  @override String get syncErrorInvalidUrl => 'Invalid HTTPS server URL.';
+  @override String get syncErrorInvalidJson => 'File is not a valid JSON object.';
+  @override String get syncErrorInvalidServerJson =>
+      'Server response is not a valid JSON object.';
+  @override String get back => 'Back';
 
   @override String error(String msg) => 'Error: $msg';
   @override String foregroundMinutesLabel(int minutes) => '$minutes min total';
@@ -469,6 +602,11 @@ class _AppLocalizationsEn extends AppLocalizations {
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'minute' : 'minutes'}';
   @override String playlistItemCount(int count) => '$count ${count == 1 ? 'item' : 'items'}';
   @override String tagCount(String tag, int count) => '#$tag ($count)';
+  @override String minMinutesChip(int minutes) => '≥ $minutes min';
+  @override String syncSummaryItems(int count) =>
+      '$count ${count == 1 ? 'entry' : 'entries'}';
+  @override String syncPlaylistsImported(int count) =>
+      '$count ${count == 1 ? 'playlist' : 'playlists'}';
 }
 
 class _AppLocalizationsEs extends AppLocalizations {
@@ -601,6 +739,50 @@ class _AppLocalizationsEs extends AppLocalizations {
   @override String get addTag => 'Añadir etiqueta';
   @override String get removeTag => 'Eliminar etiqueta';
   @override String get noPlaylistsFound => 'No hay listas disponibles.';
+  @override String get categoryMovie => 'Película';
+  @override String get categorySeries => 'Serie';
+  @override String get categoryMusic => 'Música';
+  @override String get categoryClip => 'Clip';
+  @override String get categoryPodcast => 'Podcast';
+  @override String get categoryAudiobook => 'Audiolibro';
+  @override String get categoryDocument => 'Documento';
+  @override String get categoryApp => 'App';
+  @override String get sectionAppearance => 'Idioma';
+  @override String get languageTitle => 'Idioma de la aplicación';
+  @override String get languageSystem => 'Predeterminado del sistema';
+  @override String get languageGerman => 'Deutsch';
+  @override String get languageEnglish => 'English';
+  @override String get languageSpanish => 'Español';
+  @override String get fieldRequired => 'Este campo no puede estar vacío.';
+  @override String get itemNotFound => 'Entrada no encontrada.';
+  @override String get retry => 'Reintentar';
+  @override String get resetFilters => 'Restablecer filtros';
+  @override String get clearSearch => 'Borrar búsqueda';
+  @override String get removeFavorite => 'Quitar de favoritos';
+  @override String get favoriteLabel => 'Favorito';
+  @override String get favoritesLabel => 'Favoritos';
+  @override String get moreActions => 'Más acciones';
+  @override String get editItem => 'Editar';
+  @override String get deleteItemTitle => '¿Eliminar entrada?';
+  @override String get deleteItemContent =>
+      '¿Realmente deseas eliminar esta entrada de tu biblioteca?';
+  @override String get itemDeleted => 'Entrada eliminada.';
+  @override String get tagExampleHint => 'p. ej. anime, documental, top10';
+  @override String get smartFilterTagHint => 'p. ej. anime, ciencia ficción';
+  @override String get invalidNumber => 'Introduce un número válido ≥ 0.';
+  @override String get syncShareOpened => 'Hoja para compartir abierta';
+  @override String get syncPushed => 'enviado';
+  @override String get syncServerEmpty => 'El servidor aún no tiene datos';
+  @override String get syncErrorNoUrl =>
+      'No hay ninguna URL de servidor configurada. Introdúcela en Ajustes.';
+  @override String get syncErrorHttpsRequired =>
+      'La sincronización con el servidor requiere HTTPS; HTTP transmitiría el token y la biblioteca sin cifrar.';
+  @override String get syncErrorInvalidUrl => 'URL del servidor HTTPS no válida.';
+  @override String get syncErrorInvalidJson =>
+      'El archivo no es un objeto JSON válido.';
+  @override String get syncErrorInvalidServerJson =>
+      'La respuesta del servidor no es un objeto JSON válido.';
+  @override String get back => 'Atrás';
 
   @override String error(String msg) => 'Error: $msg';
   @override String foregroundMinutesLabel(int minutes) => '$minutes min en total';
@@ -617,4 +799,9 @@ class _AppLocalizationsEs extends AppLocalizations {
   @override String usageMinutes(int n) => '$n ${n == 1 ? 'minuto' : 'minutos'}';
   @override String playlistItemCount(int count) => '$count ${count == 1 ? 'elemento' : 'elementos'}';
   @override String tagCount(String tag, int count) => '#$tag ($count)';
+  @override String minMinutesChip(int minutes) => '≥ $minutes min';
+  @override String syncSummaryItems(int count) =>
+      '$count ${count == 1 ? 'entrada' : 'entradas'}';
+  @override String syncPlaylistsImported(int count) =>
+      '$count ${count == 1 ? 'lista' : 'listas'}';
 }

@@ -161,7 +161,7 @@
       }
     }
   },
-  "usageMinutes": "{n} minutes",
+  "usageMinutes": "{n, plural, =1{1 minute} other{{n} minutes}}",
   "@usageMinutes": {
     "placeholders": {
       "n": {
@@ -215,5 +215,68 @@
         "type": "int"
       }
     }
-  }
+  },
+  "categoryMovie": "Movie",
+  "categorySeries": "Series",
+  "categoryMusic": "Music",
+  "categoryClip": "Clip",
+  "categoryPodcast": "Podcast",
+  "categoryAudiobook": "Audiobook",
+  "categoryDocument": "Document",
+  "categoryApp": "App",
+  "sectionAppearance": "Language",
+  "languageTitle": "App language",
+  "languageSystem": "System default",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "fieldRequired": "This field cannot be empty.",
+  "itemNotFound": "Entry not found.",
+  "retry": "Retry",
+  "resetFilters": "Reset filters",
+  "clearSearch": "Clear search",
+  "removeFavorite": "Remove from favorites",
+  "favoriteLabel": "Favorite",
+  "favoritesLabel": "Favorites",
+  "moreActions": "More actions",
+  "editItem": "Edit",
+  "deleteItemTitle": "Delete entry?",
+  "deleteItemContent": "Do you really want to delete this entry from your library?",
+  "itemDeleted": "Entry deleted.",
+  "tagExampleHint": "e.g. anime, documentary, top10",
+  "smartFilterTagHint": "e.g. anime, sci-fi",
+  "minMinutesChip": "≥ {minutes} min",
+  "@minMinutesChip": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidNumber": "Please enter a valid number ≥ 0.",
+  "syncShareOpened": "Share sheet opened",
+  "syncPushed": "pushed",
+  "syncServerEmpty": "Server has no data yet",
+  "syncSummaryItems": "{count, plural, =1{1 entry} other{{count} entries}}",
+  "@syncSummaryItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncPlaylistsImported": "{count, plural, =1{1 playlist} other{{count} playlists}}",
+  "@syncPlaylistsImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncErrorNoUrl": "No server URL configured. Enter it in Settings.",
+  "syncErrorHttpsRequired": "Server sync requires HTTPS; HTTP would transmit tokens and library data unencrypted.",
+  "syncErrorInvalidUrl": "Invalid HTTPS server URL.",
+  "syncErrorInvalidJson": "File is not a valid JSON object.",
+  "syncErrorInvalidServerJson": "Server response is not a valid JSON object.",
+  "back": "Back"
 }

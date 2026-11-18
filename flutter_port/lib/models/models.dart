@@ -7,7 +7,25 @@ library;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 const librarySchemaName = 'mediabrain-library-v1';
+
+int? _asInt(dynamic v) {
+  if (v == null) return null;
+  if (v is num) return v.toInt();
+  if (v is String) return int.tryParse(v.trim());
+  return null;
+}
+
+String? _asNullableString(dynamic v) {
+  if (v == null) return null;
+  if (v is String) return v;
+  return v.toString();
+}
+
+/// Bereinigt ein einzelnes Tag (entfernt Pipe-Delimiter und Trim).
+String sanitizeTagName(String raw) => raw.replaceAll('|', ' ').trim();
 
 class ImportException implements Exception {
   final String message;
@@ -42,6 +60,27 @@ MediaCategory categoryFromString(String? s) {
 String categoryToString(MediaCategory c) => c.name;
 
 extension CategoryUi on MediaCategory {
+  String localizedLabel(AppLocalizations loc) {
+    switch (this) {
+      case MediaCategory.movie:
+        return loc.categoryMovie;
+      case MediaCategory.series:
+        return loc.categorySeries;
+      case MediaCategory.music:
+        return loc.categoryMusic;
+      case MediaCategory.clip:
+        return loc.categoryClip;
+      case MediaCategory.podcast:
+        return loc.categoryPodcast;
+      case MediaCategory.audiobook:
+        return loc.categoryAudiobook;
+      case MediaCategory.document:
+        return loc.categoryDocument;
+      case MediaCategory.app:
+        return loc.categoryApp;
+    }
+  }
+
   String get label {
     switch (this) {
       case MediaCategory.movie:
@@ -148,26 +187,32 @@ class MediaItem {
   final List<String> tags;
 
   factory MediaItem.fromMap(Map<String, dynamic> m) => MediaItem(
-        id: m['id'] as String,
-        title: m['title'] as String,
-        category: categoryFromString(m['category'] as String?),
-        source: (m['source'] as String?) ?? '',
-        providerId: (m['provider_id'] as String?) ?? '',
-        artist: m['artist'] as String?,
-        album: m['album'] as String?,
-        channel: m['channel'] as String?,
-        season: (m['season'] as num?)?.toInt(),
-        episode: (m['episode'] as num?)?.toInt(),
-        lengthSeconds: (m['length_seconds'] as num?)?.toInt(),
-        lastOpenedAt: m['last_opened_at'] == null
-            ? null
-            : DateTime.tryParse(m['last_opened_at'] as String),
-        foregroundMinutes: (m['foreground_minutes'] as num?)?.toInt() ?? 0,
+        id: _asNullableString(m['id']) ?? '',
+        title: _asNullableString(m['title']) ?? '',
+        category: categoryFromString(_asNullableString(m['category'])),
+        source: _asNullableString(m['source']) ?? '',
+        providerId: _asNullableString(m['provider_id']) ?? '',
+        artist: _asNullableString(m['artist']),
+        album: _asNullableString(m['album']),
+        channel: _asNullableString(m['channel']),
+        season: _asInt(m['season']),
+        episode: _asInt(m['episode']),
+        lengthSeconds: _asInt(m['length_seconds']),
+        lastOpenedAt: m['last_opened_at'] is String
+            ? DateTime.tryParse(m['last_opened_at'] as String)
+            : null,
+        foregroundMinutes: m['foreground_minutes'] is String
+            ? (int.tryParse((m['foreground_minutes'] as String).trim()) ?? 0)
+            : (m['foreground_minutes'] as num?)?.toInt() ?? 0,
         isFavorite: m['is_favorite'] == 1 || m['is_favorite'] == true,
-        description: m['description'] as String?,
-        thumbnailUrl: m['thumbnail_url'] as String?,
-        localPath: m['local_path'] as String?,
-        tags: (m['tags'] as String?)?.split('|').where((s) => s.isNotEmpty).toList() ??
+        description: _asNullableString(m['description']),
+        thumbnailUrl: _asNullableString(m['thumbnail_url']),
+        localPath: _asNullableString(m['local_path']),
+        tags: (_asNullableString(m['tags']))
+                ?.split('|')
+                .map(sanitizeTagName)
+                .where((s) => s.isNotEmpty)
+                .toList() ??
             const [],
       );
 
@@ -189,7 +234,7 @@ class MediaItem {
         'description': description,
         'thumbnail_url': thumbnailUrl,
         'local_path': localPath,
-        'tags': tags.join('|'),
+        'tags': tags.map(sanitizeTagName).where((s) => s.isNotEmpty).join('|'),
       };
 
   MediaItem copyWith({
@@ -240,8 +285,8 @@ class MediaTag {
   final int count;
 
   factory MediaTag.fromMap(Map<String, dynamic> m) => MediaTag(
-        name: m['name'] as String,
-        count: (m['count'] as num?)?.toInt() ?? 0,
+        name: _asNullableString(m['name']) ?? '',
+        count: _asInt(m['count']) ?? 0,
       );
 
   Map<String, dynamic> toMap() => {
@@ -324,12 +369,14 @@ class SmartPlaylistQuery {
   }
 
   factory SmartPlaylistQuery.fromMap(Map<String, dynamic> m) => SmartPlaylistQuery(
-        category: m['category'] == null ? null : categoryFromString(m['category'] as String?),
-        tag: m['tag'] as String?,
+        category: m['category'] == null
+            ? null
+            : categoryFromString(_asNullableString(m['category'])),
+        tag: _asNullableString(m['tag']),
         favoritesOnly: m['favorites_only'] == 1 || m['favorites_only'] == true,
-        minForegroundMinutes: (m['min_foreground_minutes'] as num?)?.toInt(),
-        searchQuery: m['search_query'] as String?,
-        source: m['source'] as String?,
+        minForegroundMinutes: _asInt(m['min_foreground_minutes']),
+        searchQuery: _asNullableString(m['search_query']),
+        source: _asNullableString(m['source']),
       );
 
   Map<String, dynamic> toMap() => {
@@ -380,22 +427,32 @@ class Playlist {
 
   bool get isSmart => type == PlaylistType.smart;
 
-  factory Playlist.fromMap(Map<String, dynamic> m, {int itemCount = 0}) => Playlist(
-        id: m['id'] as String,
-        name: m['name'] as String,
-        description: (m['description'] as String?) ?? '',
-        type: playlistTypeFromString(m['playlist_type'] as String?),
-        smartQuery: m['smart_query'] != null && (m['smart_query'] as String).isNotEmpty
-            ? SmartPlaylistQuery.fromJsonString(m['smart_query'] as String)
-            : null,
-        createdAt: m['created_at'] == null
-            ? DateTime.now()
-            : DateTime.tryParse(m['created_at'] as String) ?? DateTime.now(),
-        updatedAt: m['updated_at'] == null
-            ? DateTime.now()
-            : DateTime.tryParse(m['updated_at'] as String) ?? DateTime.now(),
-        itemCount: (m['item_count'] as num?)?.toInt() ?? itemCount,
-      );
+  factory Playlist.fromMap(Map<String, dynamic> m, {int itemCount = 0}) {
+    final rawSq = m['smart_query'];
+    SmartPlaylistQuery? smartQuery;
+    if (rawSq is Map<String, dynamic>) {
+      smartQuery = SmartPlaylistQuery.fromMap(rawSq);
+    } else if (rawSq is Map) {
+      smartQuery = SmartPlaylistQuery.fromMap(Map<String, dynamic>.from(rawSq));
+    } else if (rawSq is String && rawSq.trim().isNotEmpty) {
+      smartQuery = SmartPlaylistQuery.fromJsonString(rawSq);
+    }
+
+    return Playlist(
+      id: _asNullableString(m['id']) ?? '',
+      name: _asNullableString(m['name']) ?? '',
+      description: _asNullableString(m['description']) ?? '',
+      type: playlistTypeFromString(_asNullableString(m['playlist_type'])),
+      smartQuery: smartQuery,
+      createdAt: m['created_at'] is String
+          ? DateTime.tryParse(m['created_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: m['updated_at'] is String
+          ? DateTime.tryParse(m['updated_at'] as String) ?? DateTime.now()
+          : DateTime.now(),
+      itemCount: _asInt(m['item_count']) ?? itemCount,
+    );
+  }
 
   Map<String, dynamic> toMap() => {
         'id': id,

@@ -292,7 +292,8 @@ CREATE TABLE IF NOT EXISTS playlist_items (
     );
     final out = <MediaCategory, int>{};
     for (final r in rows) {
-      out[categoryFromString(r['category'] as String?)] = (r['c'] as int);
+      out[categoryFromString(r['category'] as String?)] =
+          (r['c'] as num?)?.toInt() ?? 0;
     }
     return out;
   }
@@ -300,21 +301,26 @@ CREATE TABLE IF NOT EXISTS playlist_items (
   // ─── Tags ────────────────────────────────────────────────────────
 
   /// Liefert alle eindeutigen Tags mit ihrer Häufigkeit, sortiert nach Count DESC.
+  /// Gruppiert case-insensitiv, um Dubletten wie "Sci-Fi" vs "sci-fi" zu vermeiden.
   Future<List<MediaTag>> listTags() async {
     final db = await database;
     final rows = await db.rawQuery("SELECT tags FROM media_items WHERE tags != ''");
     final counts = <String, int>{};
+    final displayNames = <String, String>{};
     for (final r in rows) {
       final raw = (r['tags'] as String?) ?? '';
+      final seenInItem = <String>{};
       for (final t in raw.split('|')) {
-        final clean = t.trim();
-        if (clean.isNotEmpty) {
-          counts[clean] = (counts[clean] ?? 0) + 1;
-        }
+        final clean = sanitizeTagName(t);
+        if (clean.isEmpty) continue;
+        final lower = clean.toLowerCase();
+        if (!seenInItem.add(lower)) continue;
+        displayNames.putIfAbsent(lower, () => clean);
+        counts[lower] = (counts[lower] ?? 0) + 1;
       }
     }
     final sorted = counts.entries
-        .map((e) => MediaTag(name: e.key, count: e.value))
+        .map((e) => MediaTag(name: displayNames[e.key]!, count: e.value))
         .toList();
     sorted.sort((a, b) {
       final cmp = b.count.compareTo(a.count);
@@ -325,7 +331,7 @@ CREATE TABLE IF NOT EXISTS playlist_items (
 
   /// Fügt einem MediaItem einen Tag hinzu (idempotent).
   Future<void> addTagToItem(String itemId, String tag) async {
-    final clean = tag.trim();
+    final clean = sanitizeTagName(tag);
     if (clean.isEmpty) return;
     final item = await getItem(itemId);
     if (item == null) return;
@@ -517,6 +523,15 @@ ORDER BY pi.position ASC, pi.added_at ASC
 
   static bool _asBool(dynamic v) => v == true || v == 1;
 
+  static int? _asInt(dynamic v) {
+    if (v == null) return null;
+    if (v is num) return v.toInt();
+    if (v is String) return int.tryParse(v.trim());
+    return null;
+  }
+
+  static String? _asString(dynamic v) => v is String ? v : null;
+
   static bool _isUuid(String s) =>
       RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
               caseSensitive: false)
@@ -629,10 +644,12 @@ ORDER BY pi.position ASC, pi.added_at ASC
           "Schema '$schema' nicht unterstützt (erwartet: $librarySchemaName).");
     }
     final schemaVersion = json['schema_version'];
-    if (schemaVersion != null && schemaVersion != '' &&
-        (int.tryParse(schemaVersion.toString()) ?? 1) != 1) {
-      throw ImportException(
-          "schema_version $schemaVersion nicht unterstützt (erwartet: 1).");
+    if (schemaVersion != null && schemaVersion != '') {
+      final parsedVer = int.tryParse(schemaVersion.toString());
+      if (parsedVer == null || parsedVer != 1) {
+        throw ImportException(
+            "schema_version $schemaVersion nicht unterstützt (erwartet: 1).");
+      }
     }
     final rawItems = json['items'];
     if (rawItems == null || rawItems is! List) {
@@ -650,30 +667,30 @@ ORDER BY pi.position ASC, pi.added_at ASC
           skipped++;
           continue;
         }
-        final item = raw.cast<String, dynamic>();
+        final item = Map<String, dynamic>.from(raw);
 
-        final title = (item['title'] as String?)?.trim() ?? '';
+        final title = _asString(item['title'])?.trim() ?? '';
         if (title.isEmpty) {
           skipped++;
           continue;
         }
 
         // Desktop uses "type"; Flutter uses "category". Accept both.
-        final catStr = ((item['category'] as String?) ??
-                (item['type'] as String?) ??
+        final catStr = (_asString(item['category']) ??
+                _asString(item['type']) ??
                 'movie')
             .trim();
 
         final tagRaw = item['tags'];
         final tagList = tagRaw is List
             ? tagRaw
-                .map((t) => t.toString())
+                .map((t) => sanitizeTagName(t.toString()))
                 .where((s) => s.isNotEmpty)
                 .toList()
             : <String>[];
 
-        final src = (item['source'] as String?) ?? '';
-        final pid = (item['provider_id'] as String?) ?? '';
+        final src = _asString(item['source']) ?? '';
+        final pid = _asString(item['provider_id']) ?? '';
 
         // Merge pass 1: source + provider_id
         Map<String, Object?>? existingRow;
@@ -705,11 +722,11 @@ ORDER BY pi.position ASC, pi.added_at ASC
         final finalId = existingId ??
             (_isUuid(providedId) ? providedId : const Uuid().v4());
         final lastOpenedAt = item.containsKey('last_opened_at')
-            ? item['last_opened_at']
+            ? _asString(item['last_opened_at'])
             : existingRow?['last_opened_at'];
         final foregroundMinutes = item.containsKey('foreground_minutes')
-            ? (item['foreground_minutes'] as num?)?.toInt() ?? 0
-            : (existingRow?['foreground_minutes'] as num?)?.toInt() ?? 0;
+            ? _asInt(item['foreground_minutes']) ?? 0
+            : _asInt(existingRow?['foreground_minutes']) ?? 0;
 
         final row = <String, dynamic>{
           'id': finalId,
@@ -717,19 +734,19 @@ ORDER BY pi.position ASC, pi.added_at ASC
           'category': catStr,
           'source': src,
           'provider_id': pid,
-          'artist': item['artist'],
-          'album': item['album'],
-          'channel': item['channel'],
-          'season': (item['season'] as num?)?.toInt(),
-          'episode': (item['episode'] as num?)?.toInt(),
-          'length_seconds': (item['length_seconds'] as num?)?.toInt(),
+          'artist': _asString(item['artist']),
+          'album': _asString(item['album']),
+          'channel': _asString(item['channel']),
+          'season': _asInt(item['season']),
+          'episode': _asInt(item['episode']),
+          'length_seconds': _asInt(item['length_seconds']),
           'last_opened_at': lastOpenedAt,
           'foreground_minutes': foregroundMinutes,
           'is_favorite': _asBool(item['is_favorite']) ? 1 : 0,
-          'description': item['description'],
-          'thumbnail_url': item['thumbnail_url'],
+          'description': _asString(item['description']),
+          'thumbnail_url': _asString(item['thumbnail_url']),
           // local_path accepted from desktop even though Flutter doesn't export it
-          'local_path': item['local_path'],
+          'local_path': _asString(item['local_path']),
           'tags': tagList.join('|'),
         };
 
@@ -745,16 +762,16 @@ ORDER BY pi.position ASC, pi.added_at ASC
       if (rawPlaylists is List && rawPlaylists.isNotEmpty) {
         for (final rawPl in rawPlaylists) {
           if (rawPl is! Map) continue;
-          final plMap = rawPl.cast<String, dynamic>();
-          final name = (plMap['name'] as String?)?.trim() ?? '';
+          final plMap = Map<String, dynamic>.from(rawPl);
+          final name = _asString(plMap['name'])?.trim() ?? '';
           if (name.isEmpty) continue;
 
-          final plTypeStr = (plMap['playlist_type'] as String?) ??
-              (plMap['type'] as String?) ??
+          final plTypeStr = _asString(plMap['playlist_type']) ??
+              _asString(plMap['type']) ??
               'manual';
           final isSmart = plTypeStr.toLowerCase() == 'smart';
 
-          String? smartQueryJson;
+          String smartQueryJson = '';
           if (isSmart) {
             final sq = plMap['smart_query'];
             if (sq is Map) {
@@ -764,12 +781,12 @@ ORDER BY pi.position ASC, pi.added_at ASC
             }
           }
 
-          final rawId = (plMap['id'] ?? '').toString();
+          final rawId = (plMap['id'] ?? '').toString().trim();
           final plId = rawId.isNotEmpty ? rawId : const Uuid().v4();
           final nowStr = DateTime.now().toIso8601String();
-          final createdAt = (plMap['created_at'] as String?) ?? nowStr;
-          final updatedAt = (plMap['updated_at'] as String?) ?? nowStr;
-          final description = (plMap['description'] as String?) ?? '';
+          final createdAt = _asString(plMap['created_at']) ?? nowStr;
+          final updatedAt = _asString(plMap['updated_at']) ?? nowStr;
+          final description = _asString(plMap['description']) ?? '';
 
           await txn.insert(
             'playlists',
@@ -799,10 +816,10 @@ ORDER BY pi.position ASC, pi.added_at ASC
             if (rawRefs is List && rawRefs.isNotEmpty) {
               for (final ref in rawRefs) {
                 if (ref is! Map) continue;
-                final r = ref.cast<String, dynamic>();
-                final rSrc = (r['source'] as String?) ?? '';
-                final rPid = (r['provider_id'] as String?) ?? '';
-                final rTitle = (r['title'] as String?) ?? '';
+                final r = Map<String, dynamic>.from(ref);
+                final rSrc = _asString(r['source']) ?? '';
+                final rPid = _asString(r['provider_id']) ?? '';
+                final rTitle = _asString(r['title']) ?? '';
 
                 String? targetMediaId;
                 if (rSrc.isNotEmpty && rPid.isNotEmpty) {
@@ -845,7 +862,9 @@ ORDER BY pi.position ASC, pi.added_at ASC
               }
             } else if (rawIds is List && rawIds.isNotEmpty) {
               for (final rawMid in rawIds) {
-                final midStr = rawMid.toString();
+                if (rawMid == null) continue;
+                final midStr = rawMid.toString().trim();
+                if (midStr.isEmpty) continue;
                 final found = await txn.query(
                   'media_items',
                   columns: ['id'],

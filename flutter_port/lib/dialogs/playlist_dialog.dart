@@ -35,6 +35,8 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
   late PlaylistType _type;
   MediaCategory? _smartCategory;
   late bool _smartFavoritesOnly;
+  String? _nameError;
+  String? _minMinutesError;
 
   @override
   void initState() {
@@ -64,15 +66,30 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
     super.dispose();
   }
 
-  void _save() {
+  void _save(AppLocalizations loc) {
     final name = _name.text.trim();
-    if (name.isEmpty) return;
+    if (name.isEmpty) {
+      setState(() => _nameError = loc.fieldRequired);
+      return;
+    }
+
+    int? minMin;
+    if (_type == PlaylistType.smart) {
+      final rawMin = _smartMinMinutes.text.trim();
+      if (rawMin.isNotEmpty) {
+        final parsed = int.tryParse(rawMin);
+        if (parsed == null || parsed < 0) {
+          setState(() => _minMinutesError = loc.invalidNumber);
+          return;
+        }
+        minMin = parsed;
+      }
+    }
 
     final now = DateTime.now();
     SmartPlaylistQuery? smartQuery;
     if (_type == PlaylistType.smart) {
-      final minMin = int.tryParse(_smartMinMinutes.text.trim());
-      final tag = _smartTag.text.trim();
+      final tag = sanitizeTagName(_smartTag.text);
       final search = _smartSearch.text.trim();
       smartQuery = SmartPlaylistQuery(
         category: _smartCategory,
@@ -99,6 +116,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     final isNew = widget.initial == null;
 
     return AlertDialog(
@@ -111,28 +129,48 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Typ-Auswahl
-              SegmentedButton<PlaylistType>(
-                segments: [
-                  ButtonSegment(
-                    value: PlaylistType.manual,
-                    label: Text(loc.playlistTypeManual),
-                    icon: const Icon(Icons.queue_music),
+              Semantics(
+                label: loc.fieldPlaylistType,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<PlaylistType>(
+                    segments: [
+                      ButtonSegment(
+                        value: PlaylistType.manual,
+                        label: Text(
+                          loc.playlistTypeManual,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        icon: const Icon(Icons.queue_music),
+                      ),
+                      ButtonSegment(
+                        value: PlaylistType.smart,
+                        label: Text(
+                          loc.playlistTypeSmart,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        icon: const Icon(Icons.auto_awesome),
+                      ),
+                    ],
+                    selected: {_type},
+                    onSelectionChanged: (set) =>
+                        setState(() => _type = set.first),
                   ),
-                  ButtonSegment(
-                    value: PlaylistType.smart,
-                    label: Text(loc.playlistTypeSmart),
-                    icon: const Icon(Icons.auto_awesome),
-                  ),
-                ],
-                selected: {_type},
-                onSelectionChanged: (set) => setState(() => _type = set.first),
+                ),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _name,
                 autofocus: true,
+                textInputAction: TextInputAction.next,
+                onChanged: (_) {
+                  if (_nameError != null) {
+                    setState(() => _nameError = null);
+                  }
+                },
                 decoration: InputDecoration(
                   labelText: loc.fieldPlaylistName,
+                  errorText: _nameError,
                   border: const OutlineInputBorder(),
                 ),
               ),
@@ -157,8 +195,14 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                 ),
                 const SizedBox(height: 8),
                 // Kategorie-Chips
-                Text(loc.smartFilterCategory, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                const SizedBox(height: 4),
+                Text(
+                  loc.smartFilterCategory,
+                  style: Theme.of(context)
+                      .textTheme
+                      .labelMedium
+                      ?.copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: 6),
                 Wrap(
                   spacing: 6,
                   runSpacing: 4,
@@ -169,9 +213,20 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                       onSelected: (_) => setState(() => _smartCategory = null),
                     ),
                     ...MediaCategory.values.map((c) => ChoiceChip(
-                          label: Text(' '),
+                          label: Semantics(
+                            label: c.localizedLabel(loc),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ExcludeSemantics(child: Text(c.icon)),
+                                const SizedBox(width: 4),
+                                Text(c.localizedLabel(loc)),
+                              ],
+                            ),
+                          ),
                           selected: _smartCategory == c,
-                          onSelected: (sel) => setState(() => _smartCategory = sel ? c : null),
+                          onSelected: (sel) =>
+                              setState(() => _smartCategory = sel ? c : null),
                         )),
                   ],
                 ),
@@ -180,7 +235,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                   controller: _smartTag,
                   decoration: InputDecoration(
                     labelText: loc.smartFilterTag,
-                    hintText: 'z.B. anime, sci-fi',
+                    hintText: loc.smartFilterTagHint,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.tag),
                   ),
@@ -198,8 +253,14 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
                 TextField(
                   controller: _smartMinMinutes,
                   keyboardType: TextInputType.number,
+                  onChanged: (_) {
+                    if (_minMinutesError != null) {
+                      setState(() => _minMinutesError = null);
+                    }
+                  },
                   decoration: InputDecoration(
                     labelText: loc.smartFilterMinMinutes,
+                    errorText: _minMinutesError,
                     border: const OutlineInputBorder(),
                     prefixIcon: const Icon(Icons.timer),
                   ),
@@ -222,7 +283,7 @@ class _PlaylistDialogState extends State<PlaylistDialog> {
           child: Text(loc.cancel),
         ),
         FilledButton(
-          onPressed: _save,
+          onPressed: () => _save(loc),
           child: Text(loc.save),
         ),
       ],

@@ -13,15 +13,55 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/models.dart';
 import 'database_service.dart';
 
 const String _exportSchema = 'mediabrain-library-v1';
 
+enum SyncStatusCode { shareOpened, imported, pushed, serverEmpty }
+
+enum SyncErrorCode {
+  noUrl,
+  httpsRequired,
+  invalidUrl,
+  invalidFileJson,
+  invalidServerJson,
+}
+
 class SyncSummary {
-  const SyncSummary({required this.items, this.message});
+  const SyncSummary({
+    required this.items,
+    this.playlistsImported = 0,
+    this.statusCode,
+    this.message,
+  });
+
   final int items;
+  final int playlistsImported;
+  final SyncStatusCode? statusCode;
   final String? message;
+
+  String localizedText(AppLocalizations loc) {
+    switch (statusCode) {
+      case SyncStatusCode.shareOpened:
+        return loc.syncShareOpened;
+      case SyncStatusCode.serverEmpty:
+        return loc.syncServerEmpty;
+      case SyncStatusCode.pushed:
+        return '${loc.syncSummaryItems(items)} · ${loc.syncPushed}';
+      case SyncStatusCode.imported:
+        final base = loc.syncSummaryItems(items);
+        if (playlistsImported > 0) {
+          return '$base · ${loc.syncPlaylistsImported(playlistsImported)}';
+        }
+        return base;
+      case null:
+        final base = loc.syncSummaryItems(items);
+        return message == null ? base : '$base · $message';
+    }
+  }
+
   @override
   String toString() =>
       '$items Einträge${message == null ? '' : ' · $message'}';
@@ -60,7 +100,11 @@ class SyncService {
       subject: 'MediaBrain-Export',
     );
     await SharePlus.instance.share(params);
-    return SyncSummary(items: 0, message: 'Share-Sheet geöffnet');
+    return const SyncSummary(
+      items: 0,
+      statusCode: SyncStatusCode.shareOpened,
+      message: 'Share-Sheet geöffnet',
+    );
   }
 
   Future<SyncSummary?> importViaFilePicker() async {
@@ -78,9 +122,16 @@ class SyncService {
     final text = await File(path).readAsString();
     final Map<String, dynamic> json;
     try {
-      json = jsonDecode(text) as Map<String, dynamic>;
+      final decoded = jsonDecode(text);
+      if (decoded is! Map) {
+        throw const FormatException('Expected JSON object');
+      }
+      json = Map<String, dynamic>.from(decoded);
     } catch (_) {
-      throw const _SyncException('Datei ist kein gueltiges JSON-Objekt.');
+      throw const SyncException(
+        'Datei ist kein gueltiges JSON-Objekt.',
+        code: SyncErrorCode.invalidFileJson,
+      );
     }
     return _applyPayload(json);
   }
@@ -95,9 +146,14 @@ class SyncService {
       if (res.playlistsImported > 0) {
         msg = '${res.playlistsImported} Playlists';
       }
-      return SyncSummary(items: res.imported, message: msg);
+      return SyncSummary(
+        items: res.imported,
+        playlistsImported: res.playlistsImported,
+        statusCode: SyncStatusCode.imported,
+        message: msg,
+      );
     } on ImportException catch (e) {
-      throw _SyncException(e.toString());
+      throw SyncException(e.toString());
     }
   }
 
@@ -116,10 +172,11 @@ class SyncService {
 
   Future<SyncSummary> push() async {
     final cfg = await getServerConfig();
-    final url = _validatedUrl(cfg.url);
+    final url = validateServerUrl(cfg.url);
     if (url == null) {
-      throw const _SyncException(
-        'Kein Server-URL hinterlegt. Trage ihn in den Einstellungen ein.',
+      throw const SyncException(
+        'Keine Server-URL hinterlegt. Trage sie in den Einstellungen ein.',
+        code: SyncErrorCode.noUrl,
       );
     }
     final token = cfg.token ?? '';
@@ -133,21 +190,26 @@ class SyncService {
       body: jsonEncode(payload),
     ).timeout(const Duration(seconds: 20));
     if (response.statusCode >= 400) {
-      throw _SyncException(
+      throw SyncException(
         'Server: ${response.statusCode} ${response.body}',
       );
     }
     await _setSetting(settingLastPush, DateTime.now().toIso8601String());
     final items = (payload['items'] as List).length;
-    return SyncSummary(items: items, message: 'gepusht');
+    return SyncSummary(
+      items: items,
+      statusCode: SyncStatusCode.pushed,
+      message: 'gepusht',
+    );
   }
 
   Future<SyncSummary> pull() async {
     final cfg = await getServerConfig();
-    final url = _validatedUrl(cfg.url);
+    final url = validateServerUrl(cfg.url);
     if (url == null) {
-      throw const _SyncException(
-        'Kein Server-URL hinterlegt. Trage ihn in den Einstellungen ein.',
+      throw const SyncException(
+        'Keine Server-URL hinterlegt. Trage sie in den Einstellungen ein.',
+        code: SyncErrorCode.noUrl,
       );
     }
     final token = cfg.token ?? '';
@@ -158,18 +220,29 @@ class SyncService {
       },
     ).timeout(const Duration(seconds: 20));
     if (response.statusCode == 404) {
-      return const SyncSummary(items: 0, message: 'Server hat noch keinen Stand');
+      return const SyncSummary(
+        items: 0,
+        statusCode: SyncStatusCode.serverEmpty,
+        message: 'Server hat noch keinen Stand',
+      );
     }
     if (response.statusCode >= 400) {
-      throw _SyncException(
+      throw SyncException(
         'Server: ${response.statusCode} ${response.body}',
       );
     }
     final Map<String, dynamic> json;
     try {
-      json = jsonDecode(response.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map) {
+        throw const FormatException('Expected JSON object');
+      }
+      json = Map<String, dynamic>.from(decoded);
     } catch (_) {
-      throw const _SyncException('Server-Antwort ist kein gueltiges JSON-Objekt.');
+      throw const SyncException(
+        'Server-Antwort ist kein gueltiges JSON-Objekt.',
+        code: SyncErrorCode.invalidServerJson,
+      );
     }
     final summary = await _applyPayload(json);
     await _setSetting(settingLastPull, DateTime.now().toIso8601String());
@@ -178,21 +251,44 @@ class SyncService {
 
   // ─── Helpers ────────────────────────────────────────────────────
 
-  static String? _validatedUrl(String? raw) {
+  static String? validateServerUrl(String? raw) {
     if (raw == null || raw.trim().isEmpty) return null;
     var url = raw.trim();
-    if (url.endsWith('/')) url = url.substring(0, url.length - 1);
-    if (!url.startsWith('https://')) {
+    if (url.contains(RegExp(r'\s'))) {
+      throw const SyncException(
+        'Ungültige HTTPS-Server-URL.',
+        code: SyncErrorCode.invalidUrl,
+      );
+    }
+    while (url.endsWith('/')) {
+      url = url.substring(0, url.length - 1);
+    }
+    if (url.isEmpty) return null;
+    if (url.contains('://')) {
       if (url.startsWith('http://')) {
-        throw const _SyncException(
+        throw const SyncException(
           'Server-Sync erfordert HTTPS; HTTP würde Token und Bibliothek offen übertragen.',
+          code: SyncErrorCode.httpsRequired,
         );
       }
+      if (!url.startsWith('https://')) {
+        throw const SyncException(
+          'Ungültige HTTPS-Server-URL.',
+          code: SyncErrorCode.invalidUrl,
+        );
+      }
+    } else {
       url = 'https://$url';
     }
     final uri = Uri.tryParse(url);
-    if (uri == null || uri.host.isEmpty || uri.scheme != 'https') {
-      throw const _SyncException('Ungültige HTTPS-Server-URL.');
+    if (uri == null ||
+        uri.host.isEmpty ||
+        uri.scheme != 'https' ||
+        uri.host.contains(RegExp(r'[^a-zA-Z0-9.\-:\[\]]'))) {
+      throw const SyncException(
+        'Ungültige HTTPS-Server-URL.',
+        code: SyncErrorCode.invalidUrl,
+      );
     }
     return url;
   }
@@ -223,9 +319,28 @@ class SyncService {
   }
 }
 
-class _SyncException implements Exception {
-  const _SyncException(this.message);
+class SyncException implements Exception {
+  const SyncException(this.message, {this.code});
   final String message;
+  final SyncErrorCode? code;
+
+  String localizedMessage(AppLocalizations loc) {
+    switch (code) {
+      case SyncErrorCode.noUrl:
+        return loc.syncErrorNoUrl;
+      case SyncErrorCode.httpsRequired:
+        return loc.syncErrorHttpsRequired;
+      case SyncErrorCode.invalidUrl:
+        return loc.syncErrorInvalidUrl;
+      case SyncErrorCode.invalidFileJson:
+        return loc.syncErrorInvalidJson;
+      case SyncErrorCode.invalidServerJson:
+        return loc.syncErrorInvalidServerJson;
+      case null:
+        return message;
+    }
+  }
+
   @override
   String toString() => message;
 }
