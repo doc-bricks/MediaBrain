@@ -161,7 +161,7 @@
       }
     }
   },
-  "usageMinutes": "{n} Minuten",
+  "usageMinutes": "{n, plural, =1{1 Minute} other{{n} Minuten}}",
   "@usageMinutes": {
     "placeholders": {
       "n": {
@@ -215,5 +215,68 @@
         "type": "int"
       }
     }
-  }
+  },
+  "categoryMovie": "Film",
+  "categorySeries": "Serie",
+  "categoryMusic": "Musik",
+  "categoryClip": "Clip",
+  "categoryPodcast": "Podcast",
+  "categoryAudiobook": "Hörbuch",
+  "categoryDocument": "Dokument",
+  "categoryApp": "App",
+  "sectionAppearance": "Sprache",
+  "languageTitle": "App-Sprache",
+  "languageSystem": "Systemstandard",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "fieldRequired": "Dieses Feld darf nicht leer sein.",
+  "itemNotFound": "Eintrag nicht gefunden.",
+  "retry": "Erneut versuchen",
+  "resetFilters": "Filter zurücksetzen",
+  "clearSearch": "Suche löschen",
+  "removeFavorite": "Aus Favoriten entfernen",
+  "favoriteLabel": "Favorit",
+  "favoritesLabel": "Favoriten",
+  "moreActions": "Weitere Aktionen",
+  "editItem": "Bearbeiten",
+  "deleteItemTitle": "Eintrag löschen?",
+  "deleteItemContent": "Möchtest du diesen Eintrag wirklich aus deiner Bibliothek löschen?",
+  "itemDeleted": "Eintrag gelöscht.",
+  "tagExampleHint": "z.B. anime, doku, top10",
+  "smartFilterTagHint": "z.B. anime, sci-fi",
+  "minMinutesChip": "≥ {minutes} Min.",
+  "@minMinutesChip": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidNumber": "Bitte eine gültige Zahl ≥ 0 eingeben.",
+  "syncShareOpened": "Share-Sheet geöffnet",
+  "syncPushed": "gepusht",
+  "syncServerEmpty": "Server hat noch keinen Stand",
+  "syncSummaryItems": "{count, plural, =1{1 Eintrag} other{{count} Einträge}}",
+  "@syncSummaryItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncPlaylistsImported": "{count, plural, =1{1 Playlist} other{{count} Playlists}}",
+  "@syncPlaylistsImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncErrorNoUrl": "Keine Server-URL hinterlegt. Trage sie in den Einstellungen ein.",
+  "syncErrorHttpsRequired": "Server-Sync erfordert HTTPS; HTTP würde Token und Bibliothek offen übertragen.",
+  "syncErrorInvalidUrl": "Ungültige HTTPS-Server-URL.",
+  "syncErrorInvalidJson": "Datei ist kein gültiges JSON-Objekt.",
+  "syncErrorInvalidServerJson": "Server-Antwort ist kein gültiges JSON-Objekt.",
+  "back": "Zurück"
 }

@@ -189,7 +189,7 @@
       }
     }
   },
-  "usageMinutes": "{n} minutos",
+  "usageMinutes": "{n, plural, =1{1 minuto} other{{n} minutos}}",
   "@usageMinutes": {
     "placeholders": {
       "n": {
@@ -215,5 +215,68 @@
         "type": "int"
       }
     }
-  }
+  },
+  "categoryMovie": "Película",
+  "categorySeries": "Serie",
+  "categoryMusic": "Música",
+  "categoryClip": "Clip",
+  "categoryPodcast": "Podcast",
+  "categoryAudiobook": "Audiolibro",
+  "categoryDocument": "Documento",
+  "categoryApp": "App",
+  "sectionAppearance": "Idioma",
+  "languageTitle": "Idioma de la aplicación",
+  "languageSystem": "Predeterminado del sistema",
+  "languageGerman": "Deutsch",
+  "languageEnglish": "English",
+  "languageSpanish": "Español",
+  "fieldRequired": "Este campo no puede estar vacío.",
+  "itemNotFound": "Entrada no encontrada.",
+  "retry": "Reintentar",
+  "resetFilters": "Restablecer filtros",
+  "clearSearch": "Borrar búsqueda",
+  "removeFavorite": "Quitar de favoritos",
+  "favoriteLabel": "Favorito",
+  "favoritesLabel": "Favoritos",
+  "moreActions": "Más acciones",
+  "editItem": "Editar",
+  "deleteItemTitle": "¿Eliminar entrada?",
+  "deleteItemContent": "¿Realmente deseas eliminar esta entrada de tu biblioteca?",
+  "itemDeleted": "Entrada eliminada.",
+  "tagExampleHint": "p. ej. anime, documental, top10",
+  "smartFilterTagHint": "p. ej. anime, ciencia ficción",
+  "minMinutesChip": "≥ {minutes} min",
+  "@minMinutesChip": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "invalidNumber": "Introduce un número válido ≥ 0.",
+  "syncShareOpened": "Hoja para compartir abierta",
+  "syncPushed": "enviado",
+  "syncServerEmpty": "El servidor aún no tiene datos",
+  "syncSummaryItems": "{count, plural, =1{1 entrada} other{{count} entradas}}",
+  "@syncSummaryItems": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncPlaylistsImported": "{count, plural, =1{1 lista} other{{count} listas}}",
+  "@syncPlaylistsImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncErrorNoUrl": "No hay ninguna URL de servidor configurada. Introdúcela en Ajustes.",
+  "syncErrorHttpsRequired": "La sincronización con el servidor requiere HTTPS; HTTP transmitiría el token y la biblioteca sin cifrar.",
+  "syncErrorInvalidUrl": "URL del servidor HTTPS no válida.",
+  "syncErrorInvalidJson": "El archivo no es un objeto JSON válido.",
+  "syncErrorInvalidServerJson": "La respuesta del servidor no es un objeto JSON válido.",
+  "back": "Atrás"
 }

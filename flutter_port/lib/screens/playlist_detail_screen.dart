@@ -20,6 +20,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   late Playlist _playlist;
   List<MediaItem> _items = [];
   bool _loading = true;
+  Object? _error;
 
   @override
   void initState() {
@@ -29,25 +30,45 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   }
 
   Future<void> _reload() async {
-    setState(() => _loading = true);
-    final pl = await DatabaseService.instance.getPlaylist(_playlist.id);
-    final items = await DatabaseService.instance.getPlaylistItems(_playlist.id);
     if (!mounted) return;
     setState(() {
-      if (pl != null) _playlist = pl;
-      _items = items;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    try {
+      final pl = await DatabaseService.instance.getPlaylist(_playlist.id);
+      final items = await DatabaseService.instance.getPlaylistItems(_playlist.id);
+      if (!mounted) return;
+      setState(() {
+        if (pl != null) _playlist = pl;
+        _items = items;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _removeItem(MediaItem item) async {
-    await DatabaseService.instance.removeItemFromPlaylist(_playlist.id, item.id);
-    if (!mounted) return;
-    final loc = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(loc.removedFromPlaylist)),
-    );
-    _reload();
+    try {
+      await DatabaseService.instance.removeItemFromPlaylist(_playlist.id, item.id);
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.removedFromPlaylist)),
+      );
+      await _reload();
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
+    }
   }
 
   Future<void> _showAddItemDialog() async {
@@ -77,9 +98,14 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             itemBuilder: (ctx, idx) {
               final it = available[idx];
               return ListTile(
-                leading: Text(it.category.icon, style: const TextStyle(fontSize: 20)),
+                leading: ExcludeSemantics(
+                  child: Text(
+                    it.category.icon,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                ),
                 title: Text(it.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                subtitle: Text(it.artist ?? it.category.label),
+                subtitle: Text(it.artist ?? it.category.localizedLabel(loc)),
                 onTap: () => Navigator.of(ctx).pop(it),
               );
             },
@@ -100,13 +126,14 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(loc.addedToPlaylist)),
       );
-      _reload();
+      await _reload();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -120,143 +147,211 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: loc.refreshData,
             onPressed: _reload,
           ),
         ],
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Info Box
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+          : _error != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.error_outline, size: 48, color: cs.error),
+                        const SizedBox(height: 12),
+                        Text(loc.error('$_error'), textAlign: TextAlign.center),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: _reload,
+                          icon: const Icon(Icons.refresh),
+                          label: Text(loc.retry),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Info Box
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            _playlist.isSmart ? Icons.auto_awesome : Icons.queue_music,
-                            color: _playlist.isSmart ? Colors.deepPurple : Colors.blue,
-                            size: 20,
+                          Row(
+                            children: [
+                              Icon(
+                                _playlist.isSmart
+                                    ? Icons.auto_awesome
+                                    : Icons.queue_music,
+                                color: _playlist.isSmart
+                                    ? cs.tertiary
+                                    : cs.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _playlist.isSmart
+                                      ? loc.playlistTypeSmart
+                                      : loc.playlistTypeManual,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: _playlist.isSmart
+                                        ? cs.tertiary
+                                        : cs.primary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                loc.playlistItemCount(_items.length),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w600, fontSize: 12),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _playlist.isSmart ? loc.playlistTypeSmart : loc.playlistTypeManual,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: _playlist.isSmart ? Colors.deepPurple : Colors.blue,
-                              fontSize: 12,
+                          if (_playlist.description.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Text(
+                              _playlist.description,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: cs.onSurface,
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            loc.playlistItemCount(_items.length),
-                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                          ),
+                          ],
+                          if (_playlist.isSmart &&
+                              _playlist.smartQuery != null) ...[
+                            const SizedBox(height: 10),
+                            _buildSmartCriteriaChips(_playlist.smartQuery!, loc),
+                          ],
                         ],
                       ),
-                      if (_playlist.description.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text(
-                          _playlist.description,
-                          style: const TextStyle(fontSize: 13, color: Colors.black87),
-                        ),
-                      ],
-                      if (_playlist.isSmart && _playlist.smartQuery != null) ...[
-                        const SizedBox(height: 10),
-                        _buildSmartCriteriaChips(_playlist.smartQuery!, loc),
-                      ],
-                    ],
-                  ),
-                ),
-                // Items List
-                Expanded(
-                  child: _items.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Text(
-                              loc.emptyPlaylistItems,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.grey, fontSize: 14),
-                            ),
-                          ),
-                        )
-                      : ListView.separated(
-                          itemCount: _items.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1),
-                          itemBuilder: (context, index) {
-                            final item = _items[index];
-                            return ListTile(
-                              leading: CircleAvatar(
-                                backgroundColor: item.category.color.withValues(alpha: 0.15),
-                                child: Text(item.category.icon, style: const TextStyle(fontSize: 18)),
-                              ),
-                              title: Text(
-                                item.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              subtitle: Text(
-                                [
-                                  if (item.artist != null && item.artist!.isNotEmpty) item.artist!,
-                                  item.category.label,
-                                  if (item.tags.isNotEmpty) item.tags.take(2).map((t) => '#$t').join(' '),
-                                ].join(' · '),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              trailing: _playlist.isSmart
-                                  ? const Icon(Icons.chevron_right)
-                                  : IconButton(
-                                      icon: const Icon(Icons.remove_circle_outline, color: Colors.redAccent),
-                                      tooltip: loc.removeFromPlaylist,
-                                      onPressed: () => _removeItem(item),
-                                    ),
-                              onTap: () async {
-                                await Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => ItemDetailScreen(id: item.id),
+                    ),
+                    // Items List
+                    Expanded(
+                      child: _items.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(24),
+                                child: Text(
+                                  loc.emptyPlaylistItems,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: cs.onSurfaceVariant,
+                                    fontSize: 14,
                                   ),
-                                );
-                                _reload();
-                              },
-                            );
-                          },
-                        ),
+                                ),
+                              ),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _reload,
+                              child: ListView.separated(
+                                itemCount: _items.length,
+                                separatorBuilder: (_, _) =>
+                                    const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final item = _items[index];
+                                  return ListTile(
+                                    leading: ExcludeSemantics(
+                                      child: CircleAvatar(
+                                        backgroundColor: item.category.color
+                                            .withValues(alpha: 0.15),
+                                        child: Text(
+                                          item.category.icon,
+                                          style: const TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      item.title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    subtitle: Text(
+                                      [
+                                        if (item.artist != null &&
+                                            item.artist!.isNotEmpty)
+                                          item.artist!,
+                                        item.category.localizedLabel(loc),
+                                        if (item.tags.isNotEmpty)
+                                          item.tags
+                                              .take(2)
+                                              .map((t) => '#$t')
+                                              .join(' '),
+                                      ].join(' · '),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    trailing: _playlist.isSmart
+                                        ? const Icon(Icons.chevron_right)
+                                        : IconButton(
+                                            icon: Icon(
+                                              Icons.remove_circle_outline,
+                                              color: cs.error,
+                                            ),
+                                            tooltip: loc.removeFromPlaylist,
+                                            onPressed: () => _removeItem(item),
+                                          ),
+                                    onTap: () async {
+                                      await Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              ItemDetailScreen(id: item.id),
+                                        ),
+                                      );
+                                      if (!mounted) return;
+                                      await _reload();
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
     );
   }
 
-  Widget _buildSmartCriteriaChips(SmartPlaylistQuery q, AppLocalizations loc) {
+  Widget _buildSmartCriteriaChips(
+      SmartPlaylistQuery q, AppLocalizations loc) {
     return Wrap(
       spacing: 6,
       runSpacing: 4,
       children: [
         if (q.category != null)
           Chip(
-            avatar: Text(q.category!.icon),
-            label: Text(q.category!.label),
+            avatar: ExcludeSemantics(child: Text(q.category!.icon)),
+            label: Text(q.category!.localizedLabel(loc)),
             visualDensity: VisualDensity.compact,
           ),
         if (q.favoritesOnly)
-          const Chip(
-            avatar: Icon(Icons.star, size: 16, color: Colors.amber),
-            label: Text('Favoriten'),
+          Chip(
+            avatar: Icon(Icons.star, size: 16, color: Colors.amber.shade700),
+            label: Text(loc.favoritesLabel),
             visualDensity: VisualDensity.compact,
           ),
         if (q.tag != null && q.tag!.isNotEmpty)
           Chip(
             avatar: const Icon(Icons.tag, size: 16),
             label: Text(q.tag!),
+            visualDensity: VisualDensity.compact,
+          ),
+        if (q.source != null && q.source!.isNotEmpty)
+          Chip(
+            avatar: const Icon(Icons.source, size: 16),
+            label: Text(q.source!),
             visualDensity: VisualDensity.compact,
           ),
         if (q.searchQuery != null && q.searchQuery!.isNotEmpty)
@@ -268,7 +363,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         if (q.minForegroundMinutes != null)
           Chip(
             avatar: const Icon(Icons.timer, size: 16),
-            label: Text('>= ${q.minForegroundMinutes}m'),
+            label: Text(loc.minMinutesChip(q.minForegroundMinutes!)),
             visualDensity: VisualDensity.compact,
           ),
       ],
