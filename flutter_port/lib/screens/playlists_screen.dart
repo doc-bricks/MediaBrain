@@ -19,6 +19,7 @@ class PlaylistsScreen extends StatefulWidget {
 class _PlaylistsScreenState extends State<PlaylistsScreen> {
   List<Playlist> _playlists = [];
   bool _loading = true;
+  Object? _error;
   PlaylistType? _typeFilter;
 
   @override
@@ -28,33 +29,62 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
   }
 
   Future<void> _reload() async {
-    setState(() => _loading = true);
-    final list = await DatabaseService.instance.listPlaylists();
     if (!mounted) return;
     setState(() {
-      _playlists = list;
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
+    try {
+      final list = await DatabaseService.instance.listPlaylists();
+      if (!mounted) return;
+      setState(() {
+        _playlists = list;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _createPlaylist() async {
     final created = await PlaylistDialog.show(context);
-    if (created != null) {
+    if (created == null) return;
+    try {
       await DatabaseService.instance.upsertPlaylist(created);
-      _reload();
+      if (!mounted) return;
+      await _reload();
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
     }
   }
 
   Future<void> _editPlaylist(Playlist pl) async {
     final updated = await PlaylistDialog.show(context, initial: pl);
-    if (updated != null) {
+    if (updated == null) return;
+    try {
       await DatabaseService.instance.upsertPlaylist(updated);
-      _reload();
+      if (!mounted) return;
+      await _reload();
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
     }
   }
 
   Future<void> _deletePlaylist(Playlist pl) async {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -66,7 +96,10 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
             child: Text(loc.cancel),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: cs.error,
+              foregroundColor: cs.onError,
+            ),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(loc.delete),
           ),
@@ -75,14 +108,23 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
     );
 
     if (confirm == true) {
-      await DatabaseService.instance.deletePlaylist(pl.id);
-      _reload();
+      try {
+        await DatabaseService.instance.deletePlaylist(pl.id);
+        if (!mounted) return;
+        await _reload();
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.error('$e'))),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     final displayed = _typeFilter == null
         ? _playlists
         : _playlists.where((p) => p.type == _typeFilter).toList();
@@ -98,16 +140,19 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: loc.refreshData,
             onPressed: _reload,
           ),
         ],
       ),
       body: Column(
         children: [
-          // Filter Chips
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
+          // Filter Chips (horizontal scrollbar, >=48dp touch target)
+          SizedBox(
+            height: 52,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               children: [
                 ChoiceChip(
                   label: Text(loc.filterAll),
@@ -119,16 +164,16 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
                   avatar: const Icon(Icons.queue_music, size: 16),
                   label: Text(loc.playlistTypeManual),
                   selected: _typeFilter == PlaylistType.manual,
-                  onSelected: (sel) =>
-                      setState(() => _typeFilter = sel ? PlaylistType.manual : null),
+                  onSelected: (sel) => setState(
+                      () => _typeFilter = sel ? PlaylistType.manual : null),
                 ),
                 const SizedBox(width: 8),
                 ChoiceChip(
                   avatar: const Icon(Icons.auto_awesome, size: 16),
                   label: Text(loc.playlistTypeSmart),
                   selected: _typeFilter == PlaylistType.smart,
-                  onSelected: (sel) =>
-                      setState(() => _typeFilter = sel ? PlaylistType.smart : null),
+                  onSelected: (sel) => setState(
+                      () => _typeFilter = sel ? PlaylistType.smart : null),
                 ),
               ],
             ),
@@ -138,115 +183,175 @@ class _PlaylistsScreenState extends State<PlaylistsScreen> {
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator())
-                : displayed.isEmpty
+                : _error != null
                     ? Center(
                         child: Padding(
-                          padding: const EdgeInsets.all(32),
+                          padding: const EdgeInsets.all(24),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.playlist_play, size: 64, color: Colors.grey),
-                              const SizedBox(height: 16),
+                              Icon(Icons.error_outline,
+                                  size: 48, color: cs.error),
+                              const SizedBox(height: 12),
                               Text(
-                                loc.emptyPlaylists,
+                                loc.error('$_error'),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.grey, fontSize: 14),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 16),
                               FilledButton.icon(
-                                onPressed: _createPlaylist,
-                                icon: const Icon(Icons.add),
-                                label: Text(loc.dialogNewPlaylist),
+                                onPressed: _reload,
+                                icon: const Icon(Icons.refresh),
+                                label: Text(loc.retry),
                               ),
                             ],
                           ),
                         ),
                       )
-                    : ListView.separated(
-                        itemCount: displayed.length,
-                        separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final pl = displayed[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: pl.isSmart
-                                  ? Colors.deepPurple.withValues(alpha: 0.15)
-                                  : Colors.blue.withValues(alpha: 0.15),
-                              child: Icon(
-                                pl.isSmart ? Icons.auto_awesome : Icons.queue_music,
-                                color: pl.isSmart ? Colors.deepPurple : Colors.blue,
+                    : displayed.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(32),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.playlist_play,
+                                    size: 64,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    loc.emptyPlaylists,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: cs.onSurfaceVariant,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  FilledButton.icon(
+                                    onPressed: _createPlaylist,
+                                    icon: const Icon(Icons.add),
+                                    label: Text(loc.dialogNewPlaylist),
+                                    style: FilledButton.styleFrom(
+                                      minimumSize: const Size(160, 48),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            title: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    pl.name,
-                                    style: const TextStyle(fontWeight: FontWeight.w600),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: _reload,
+                            child: ListView.separated(
+                              itemCount: displayed.length,
+                              separatorBuilder: (_, _) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final pl = displayed[index];
+                                return ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundColor: pl.isSmart
+                                        ? cs.tertiaryContainer
+                                        : cs.primaryContainer,
+                                    child: Icon(
+                                      pl.isSmart
+                                          ? Icons.auto_awesome
+                                          : Icons.queue_music,
+                                      color: pl.isSmart
+                                          ? cs.onTertiaryContainer
+                                          : cs.onPrimaryContainer,
+                                    ),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          pl.name,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.w600),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: cs.surfaceContainerHighest,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          loc.playlistItemCount(pl.itemCount),
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  subtitle: Text(
+                                    pl.description.isNotEmpty
+                                        ? pl.description
+                                        : (pl.isSmart
+                                            ? loc.playlistTypeSmart
+                                            : loc.playlistTypeManual),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
+                                    style:
+                                        TextStyle(color: cs.onSurfaceVariant),
                                   ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(12),
+                                  trailing: PopupMenuButton<String>(
+                                    tooltip: loc.moreActions,
+                                    onSelected: (val) {
+                                      if (val == 'edit') _editPlaylist(pl);
+                                      if (val == 'delete') _deletePlaylist(pl);
+                                    },
+                                    itemBuilder: (ctx) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.edit, size: 18),
+                                            const SizedBox(width: 8),
+                                            Text(loc.dialogEditPlaylist),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete,
+                                                size: 18, color: cs.error),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              loc.delete,
+                                              style: TextStyle(color: cs.error),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  child: Text(
-                                    loc.playlistItemCount(pl.itemCount),
-                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            subtitle: Text(
-                              pl.description.isNotEmpty
-                                  ? pl.description
-                                  : (pl.isSmart ? loc.playlistTypeSmart : loc.playlistTypeManual),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.black54),
-                            ),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (val) {
-                                if (val == 'edit') _editPlaylist(pl);
-                                if (val == 'delete') _deletePlaylist(pl);
+                                  onTap: () async {
+                                    await Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            PlaylistDetailScreen(playlist: pl),
+                                      ),
+                                    );
+                                    if (!mounted) return;
+                                    await _reload();
+                                  },
+                                );
                               },
-                              itemBuilder: (ctx) => [
-                                PopupMenuItem(
-                                  value: 'edit',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.edit, size: 18),
-                                      const SizedBox(width: 8),
-                                      Text(loc.dialogEditPlaylist),
-                                    ],
-                                  ),
-                                ),
-                                PopupMenuItem(
-                                  value: 'delete',
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.delete, size: 18, color: Colors.red),
-                                      const SizedBox(width: 8),
-                                      Text(loc.delete, style: const TextStyle(color: Colors.red)),
-                                    ],
-                                  ),
-                                ),
-                              ],
                             ),
-                            onTap: () async {
-                              await Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => PlaylistDetailScreen(playlist: pl),
-                                ),
-                              );
-                              _reload();
-                            },
-                          );
-                        },
-                      ),
+                          ),
           ),
         ],
       ),

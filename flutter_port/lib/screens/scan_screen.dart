@@ -29,15 +29,19 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> _reloadBgState() async {
-    final enabled = await BackgroundScan.instance.isEnabled();
-    final lr = await BackgroundScan.instance.lastRun();
-    final res = await BackgroundScan.instance.lastResult();
-    if (!mounted) return;
-    setState(() {
-      _bgEnabled = enabled;
-      _bgLastRun = lr;
-      _bgLastResult = res;
-    });
+    try {
+      final enabled = await BackgroundScan.instance.isEnabled();
+      final lr = await BackgroundScan.instance.lastRun();
+      final res = await BackgroundScan.instance.lastResult();
+      if (!mounted) return;
+      setState(() {
+        _bgEnabled = enabled;
+        _bgLastRun = lr;
+        _bgLastResult = res;
+      });
+    } catch (_) {
+      // Ignorieren, falls DB/Plugin im aktuellen Kontext nicht aktiv ist.
+    }
   }
 
   Future<void> _scanApps() async {
@@ -78,23 +82,38 @@ class _ScanScreenState extends State<ScanScreen> {
         await BackgroundScan.instance.disable();
       }
       await _reloadBgState();
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
   Future<void> _runBgNow() async {
-    await BackgroundScan.instance.runOnce();
-    if (!mounted) return;
-    final loc = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(loc.bgScanQueued)),
-    );
+    try {
+      await BackgroundScan.instance.runOnce();
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.bgScanQueued)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -102,13 +121,13 @@ class _ScanScreenState extends State<ScanScreen> {
         const SizedBox(height: 8),
         Text(
           loc.scanDescription,
-          style: const TextStyle(color: Colors.black54),
+          style: TextStyle(color: cs.onSurfaceVariant),
         ),
         const SizedBox(height: 24),
-        ElevatedButton.icon(
+        FilledButton.icon(
           icon: const Icon(Icons.search),
           label: Text(loc.btnAppScan),
-          style: ElevatedButton.styleFrom(
+          style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(56),
           ),
           onPressed: _busy ? null : _scanApps,
@@ -121,8 +140,8 @@ class _ScanScreenState extends State<ScanScreen> {
                 title: Text(loc.bgScanTitle),
                 subtitle: Text(
                   '${loc.bgScanSubtitle(BackgroundScan.interval.inHours)}\n'
-                  '${loc.lastRun(_short(_bgLastRun, loc.neverText))}\n'
-                  '${_bgLastResult ?? ""}',
+                  '${loc.lastRun(_short(_bgLastRun, loc.neverText))}'
+                  '${_bgLastResult == null || _bgLastResult!.isEmpty ? '' : '\n$_bgLastResult'}',
                 ),
                 isThreeLine: true,
                 value: _bgEnabled,
@@ -142,47 +161,85 @@ class _ScanScreenState extends State<ScanScreen> {
         if (_busy)
           const Center(child: CircularProgressIndicator())
         else if (_error != null)
-          Card(
-            color: Colors.amber.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(_error!,
-                  style: TextStyle(color: Colors.amber.shade900)),
+          Semantics(
+            liveRegion: true,
+            child: Card(
+              color: cs.errorContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_rounded,
+                        color: cs.onErrorContainer),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _error!,
+                        style: TextStyle(color: cs.onErrorContainer),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
         else if (_result != null)
-          Card(
-            color: Colors.green.shade50,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Text(_result!,
-                  style: TextStyle(color: Colors.green.shade900)),
+          Semantics(
+            liveRegion: true,
+            child: Card(
+              color: cs.secondaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.check_circle_outline,
+                        color: cs.onSecondaryContainer),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        _result!,
+                        style: TextStyle(color: cs.onSecondaryContainer),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         const SizedBox(height: 24),
         Card(
-          color: Colors.blue.shade50,
+          color: cs.primaryContainer.withValues(alpha: 0.45),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(loc.detectedTitle,
-                    style: const TextStyle(fontWeight: FontWeight.w700)),
+                Text(
+                  loc.detectedTitle,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   loc.detectedApps,
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 13, color: cs.onSurface),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   loc.appScanTitle,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   loc.appScanDescription,
-                  style: const TextStyle(fontSize: 13),
+                  style: TextStyle(fontSize: 13, color: cs.onSurface),
                 ),
               ],
             ),

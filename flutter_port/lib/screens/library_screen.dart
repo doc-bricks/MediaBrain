@@ -27,7 +27,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void initState() {
     super.initState();
-    _reload();
+    _future = _load();
   }
 
   @override
@@ -36,10 +36,25 @@ class _LibraryScreenState extends State<LibraryScreen> {
     super.dispose();
   }
 
-  void _reload() {
+  Future<void> _reload() {
+    final next = _load();
+    if (mounted) {
+      setState(() {
+        _future = next;
+      });
+    }
+    return next.then((_) {}, onError: (_) {});
+  }
+
+  void _resetFilters() {
+    _searchCtrl.clear();
     setState(() {
-      _future = _load();
+      _category = null;
+      _favorites = false;
+      _tag = null;
+      _query = '';
     });
+    _reload();
   }
 
   Future<_LibData> _load() async {
@@ -59,14 +74,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Future<void> _addManual() async {
     final item = await MediaItemDialog.show(context);
     if (item == null) return;
-    await DatabaseService.instance.upsert(item);
-    if (!mounted) return;
-    _reload();
+    try {
+      await DatabaseService.instance.upsert(item);
+      if (!mounted) return;
+      await _reload();
+    } catch (e) {
+      if (!mounted) return;
+      final loc = AppLocalizations.of(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.error('$e'))),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final hasActiveFilters = _category != null ||
+        _favorites ||
+        _tag != null ||
+        _query.trim().isNotEmpty;
+
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addManual,
@@ -80,13 +109,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(loc.screenLibrary, style: Theme.of(context).textTheme.headlineMedium),
+                Text(
+                  loc.screenLibrary,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _searchCtrl,
+                  textInputAction: TextInputAction.search,
                   decoration: InputDecoration(
                     hintText: loc.searchHint,
                     prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _query.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            tooltip: loc.clearSearch,
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _query = '');
+                              _reload();
+                            },
+                          )
+                        : null,
                     border: const OutlineInputBorder(),
                     isDense: true,
                   ),
@@ -98,28 +142,22 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          // Category Chips
+          const SizedBox(height: 4),
+          // Category Chips (>=48dp Touch-Target)
           SizedBox(
-            height: 38,
+            height: 48,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
                 _chip(
                   label: loc.filterAll,
-                  selected: _category == null && !_favorites && _tag == null,
-                  onSelected: () {
-                    setState(() {
-                      _category = null;
-                      _favorites = false;
-                      _tag = null;
-                    });
-                    _reload();
-                  },
+                  selected: !hasActiveFilters,
+                  onSelected: _resetFilters,
                 ),
                 _chip(
                   label: loc.filterFavorites,
+                  semanticLabel: loc.favoritesLabel,
                   selected: _favorites,
                   onSelected: () {
                     setState(() => _favorites = !_favorites);
@@ -127,7 +165,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   },
                 ),
                 ...MediaCategory.values.map((c) => _chip(
-                      label: '${c.icon} ${c.label}',
+                      icon: c.icon,
+                      label: c.localizedLabel(loc),
+                      semanticLabel: c.localizedLabel(loc),
                       selected: _category == c,
                       onSelected: () {
                         setState(() => _category = _category == c ? null : c);
@@ -137,15 +177,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ],
             ),
           ),
-          // Tag Chips (if available)
+          // Tag Chips (if available, >=48dp Touch-Target)
           FutureBuilder<_LibData>(
             future: _future,
             builder: (context, snap) {
               final tags = snap.data?.tags ?? [];
-              if (tags.isEmpty) return const SizedBox(height: 4);
-              return Container(
-                height: 34,
-                margin: const EdgeInsets.only(top: 4),
+              if (tags.isEmpty) return const SizedBox(height: 2);
+              return SizedBox(
+                height: 48,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -153,13 +192,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ...tags.take(12).map((t) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: ChoiceChip(
-                            avatar: const Icon(Icons.tag, size: 14),
+                            avatar: const Icon(Icons.tag, size: 16),
                             label: Text(
-                              '${t.name} (${t.count})',
-                              style: const TextStyle(fontSize: 11),
+                              loc.tagCount(t.name, t.count),
+                              style: const TextStyle(fontSize: 12),
                             ),
                             selected: _tag == t.name,
-                            visualDensity: VisualDensity.compact,
                             onSelected: (sel) {
                               setState(() => _tag = sel ? t.name : null);
                               _reload();
@@ -177,17 +215,41 @@ class _LibraryScreenState extends State<LibraryScreen> {
               future: _future,
               builder: (context, snap) {
                 if (snap.hasError) {
-                  return Center(child: Text(loc.error('${snap.error}')));
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.error_outline, size: 48, color: cs.error),
+                          const SizedBox(height: 12),
+                          Text(
+                            loc.error('${snap.error}'),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            onPressed: _reload,
+                            icon: const Icon(Icons.refresh),
+                            label: Text(loc.retry),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
                 if (!snap.hasData) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 final data = snap.data!;
                 if (data.items.isEmpty) {
-                  return _EmptyState(hasAnyData: data.totalCount > 0);
+                  return _EmptyState(
+                    hasAnyData: data.totalCount > 0,
+                    onResetFilters: hasActiveFilters ? _resetFilters : null,
+                  );
                 }
                 return RefreshIndicator(
-                  onRefresh: () async => _reload(),
+                  onRefresh: _reload,
                   child: ListView.builder(
                     itemCount: data.items.length,
                     itemBuilder: (_, i) => _MediaRow(
@@ -195,10 +257,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       onTap: () async {
                         await Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => ItemDetailScreen(id: data.items[i].id),
+                            builder: (_) =>
+                                ItemDetailScreen(id: data.items[i].id),
                           ),
                         );
-                        if (mounted) _reload();
+                        if (mounted) await _reload();
                       },
                     ),
                   ),
@@ -212,14 +275,28 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Widget _chip({
+    String? icon,
     required String label,
+    String? semanticLabel,
     required bool selected,
     required VoidCallback onSelected,
   }) {
+    final child = icon == null
+        ? Text(label)
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(child: Text(icon)),
+              const SizedBox(width: 4),
+              Text(label),
+            ],
+          );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: FilterChip(
-        label: Text(label),
+        label: semanticLabel == null
+            ? child
+            : Semantics(label: semanticLabel, child: child),
         selected: selected,
         onSelected: (_) => onSelected(),
       ),
@@ -236,25 +313,43 @@ class _LibData {
 }
 
 class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.hasAnyData});
+  const _EmptyState({
+    required this.hasAnyData,
+    this.onResetFilters,
+  });
   final bool hasAnyData;
+  final VoidCallback? onResetFilters;
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('📚', style: TextStyle(fontSize: 64)),
+            const ExcludeSemantics(
+              child: Text('📚', style: TextStyle(fontSize: 64)),
+            ),
             const SizedBox(height: 16),
             Text(
               hasAnyData ? loc.emptyNoMatch : loc.emptyNoItems,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
+              style: TextStyle(fontSize: 16, color: cs.onSurfaceVariant),
             ),
+            if (hasAnyData && onResetFilters != null) ...[
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: onResetFilters,
+                icon: const Icon(Icons.filter_alt_off),
+                label: Text(loc.resetFilters),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(160, 48),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -270,26 +365,30 @@ class _MediaRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final catLabel = item.category.localizedLabel(loc);
     return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: item.category.color.withValues(alpha: 0.18),
-        foregroundColor: item.category.color,
-        child: Text(item.category.icon),
+      leading: ExcludeSemantics(
+        child: CircleAvatar(
+          backgroundColor: item.category.color.withValues(alpha: 0.18),
+          foregroundColor: item.category.color,
+          child: Text(item.category.icon),
+        ),
       ),
       title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${item.category.label}${item.source.isEmpty ? '' : ' · ${item.source}'}',
-            style: const TextStyle(fontSize: 12),
+            '$catLabel${item.source.isEmpty ? '' : ' · ${item.source}'}',
+            style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
           ),
           if (item.tags.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 item.tags.take(3).map((t) => '#$t').join(' '),
-                style: TextStyle(fontSize: 11, color: Colors.blueGrey.shade600),
+                style: TextStyle(fontSize: 11, color: cs.secondary),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -297,11 +396,17 @@ class _MediaRow extends StatelessWidget {
           if (item.foregroundMinutes > 0)
             Text(
               loc.foregroundMinutesLabel(item.foregroundMinutes),
-              style: TextStyle(fontSize: 11, color: Colors.green.shade700),
+              style: TextStyle(fontSize: 11, color: cs.primary),
             ),
         ],
       ),
-      trailing: item.isFavorite ? const Text('⭐') : null,
+      trailing: item.isFavorite
+          ? Icon(
+              Icons.star,
+              color: Colors.amber.shade700,
+              semanticLabel: loc.favoriteLabel,
+            )
+          : null,
       onTap: onTap,
     );
   }

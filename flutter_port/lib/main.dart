@@ -9,38 +9,56 @@ import 'package:flutter/material.dart';
 import 'l10n/app_localizations.dart';
 import 'screens/home_screen.dart';
 import 'services/background_scan.dart';
+import 'services/locale_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // workmanager-Callback registrieren (idempotent, ohne Job zu starten).
   await BackgroundScan.instance.initialize();
+  await LocaleController.instance.loadSavedLocale();
   runApp(const MediaBrainApp());
 }
 
 class MediaBrainApp extends StatelessWidget {
   const MediaBrainApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8B5CF6),
-          brightness: Brightness.light,
-        ),
-        cardTheme: CardThemeData(
-          margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
+  static ThemeData _buildTheme(Brightness brightness) {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: const Color(0xFF8B5CF6),
+      brightness: brightness,
+    );
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      cardTheme: CardThemeData(
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
         ),
       ),
-      home: const HomeScreen(),
+      snackBarTheme: const SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Locale?>(
+      valueListenable: LocaleController.instance,
+      builder: (context, selectedLocale, _) {
+        return MaterialApp(
+          onGenerateTitle: (ctx) => AppLocalizations.of(ctx).appTitle,
+          debugShowCheckedModeBanner: false,
+          locale: selectedLocale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          themeMode: ThemeMode.system,
+          home: const HomeScreen(),
+        );
+      },
     );
   }
 }
